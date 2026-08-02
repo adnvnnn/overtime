@@ -1,0 +1,144 @@
+@page "/products/new"
+@page "/products/{Id}/edit"
+@rendermode InteractiveServer
+@inject AdminProductService ProductService
+@inject NavigationManager NavigationManager
+
+<PageTitle>@(IsNew ? "افزودن محصول" : "ویرایش محصول") | مدیریت اورتایم</PageTitle>
+
+<div class="panel">
+    <div class="panel-head">
+        <div>
+            <h2>@(IsNew ? "افزودن محصول جدید" : $"ویرایش «{_model.Name}»")</h2>
+            <p>@(IsNew ? "اطلاعات محصول جدید را وارد کنید" : "اطلاعات محصول را ویرایش کنید")</p>
+        </div>
+        <a class="btn btn-ghost btn-sm" href="/products">بازگشت به فهرست</a>
+    </div>
+
+    @if (!_loaded)
+    {
+        <div class="empty-state">در حال بارگذاری...</div>
+    }
+    else
+    {
+        @if (!string.IsNullOrEmpty(_error))
+        {
+            <div class="auth-alert">@_error</div>
+        }
+
+        <EditForm Model="_model" OnValidSubmit="SaveAsync">
+            <DataAnnotationsValidator />
+            <div class="form-grid">
+                <label class="auth-field">
+                    <span>نام محصول</span>
+                    <InputText @bind-Value="_model.Name" />
+                    <ValidationMessage For="() => _model.Name" />
+                </label>
+                <label class="auth-field">
+                    <span>دسته‌بندی</span>
+                    <InputText @bind-Value="_model.Category" placeholder="مثال: مردانه · رانینگ" />
+                    <ValidationMessage For="() => _model.Category" />
+                </label>
+                <label class="auth-field">
+                    <span>قیمت (تومان)</span>
+                    <InputNumber @bind-Value="_model.Price" />
+                    <ValidationMessage For="() => _model.Price" />
+                </label>
+                <label class="auth-field">
+                    <span>برچسب (اختیاری)</span>
+                    <InputText @bind-Value="_model.Badge" placeholder="مثال: جدید، پرفروش، تخفیف" />
+                </label>
+                <label class="auth-field span-2">
+                    <span>توضیحات</span>
+                    <InputTextArea @bind-Value="_model.Description" rows="4" />
+                </label>
+                <label class="auth-field">
+                    <span>ترتیب نمایش</span>
+                    <InputNumber @bind-Value="_model.DisplayOrder" />
+                </label>
+            </div>
+
+            @if (!IsNew && _model.Sizes.Count > 0)
+            {
+                <div class="panel-head" style="margin-top:26px;">
+                    <div>
+                        <h2>موجودی بر اساس سایز</h2>
+                        <p>تعداد موجودی هر سایز را وارد کنید</p>
+                    </div>
+                </div>
+                <div class="stock-grid">
+                    @foreach (var size in _model.Sizes)
+                    {
+                        <div class="stock-chip">
+                            <span>سایز @size.Size.ToFa()</span>
+                            <input type="number" min="0" value="@size.StockQty"
+                                   @onchange="e => OnStockChanged(size, e)" />
+                        </div>
+                    }
+                </div>
+            }
+
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary">
+                    <Icon Name="check-circle" Class="ic" />
+                    ذخیره تغییرات
+                </button>
+                <a class="btn btn-ghost" href="/products">انصراف</a>
+            </div>
+        </EditForm>
+    }
+</div>
+
+@code {
+    [Parameter]
+    public string? Id { get; set; }
+
+    private bool IsNew => Id is null;
+    private bool _loaded;
+    private string? _error;
+    private Product _model = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (!IsNew)
+        {
+            var existing = await ProductService.GetByIdAsync(Id!);
+            if (existing is null)
+            {
+                _error = "محصول یافت نشد.";
+                _loaded = true;
+                return;
+            }
+            _model = existing;
+        }
+        _loaded = true;
+    }
+
+    private void OnStockChanged(ProductSize size, ChangeEventArgs e)
+    {
+        if (int.TryParse(e.Value?.ToString(), out var qty))
+            size.StockQty = Math.Max(0, qty);
+    }
+
+    private async Task SaveAsync()
+    {
+        if (string.IsNullOrWhiteSpace(_model.Name) || string.IsNullOrWhiteSpace(_model.Category) || _model.Price <= 0)
+        {
+            _error = "نام، دسته‌بندی و قیمت محصول را به‌درستی وارد کنید.";
+            return;
+        }
+
+        if (IsNew)
+        {
+            await ProductService.CreateAsync(_model);
+            NavigationManager.NavigateTo("/products");
+        }
+        else
+        {
+            await ProductService.UpdateAsync(_model);
+            foreach (var size in _model.Sizes)
+                await ProductService.UpdateStockAsync(_model.Id, size.Size, size.StockQty);
+            NavigationManager.NavigateTo("/products");
+        }
+    }
+}

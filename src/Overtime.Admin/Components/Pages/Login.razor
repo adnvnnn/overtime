@@ -1,0 +1,93 @@
+@page "/login"
+@attribute [AllowAnonymous]
+@attribute [ExcludeFromInteractiveRouting]
+@layout LoginLayout
+@using System.ComponentModel.DataAnnotations
+@using System.Security.Claims
+@using Microsoft.AspNetCore.Authentication
+@using Microsoft.AspNetCore.Authentication.Cookies
+@inject IConfiguration Configuration
+@inject NavigationManager NavigationManager
+
+<PageTitle>ورود به پنل مدیریت</PageTitle>
+
+<div class="login-card">
+    <div class="login-brand">
+        <Icon Name="footprints" Class="mark" />
+        <span>اورتایم</span>
+    </div>
+    <p class="login-eyebrow">پنل مدیریت</p>
+    <h1>ورود مدیر فروشگاه</h1>
+    <p class="login-lede">برای دسترسی به پنل مدیریت، رمز عبور را وارد کنید.</p>
+
+    @if (!string.IsNullOrEmpty(_error))
+    {
+        <div class="auth-alert">@_error</div>
+    }
+
+    <EditForm Model="Model" FormName="login" OnValidSubmit="SubmitAsync" class="login-form">
+        <DataAnnotationsValidator />
+        <label class="auth-field">
+            <span>رمز عبور</span>
+            <InputText @bind-Value="Model.Password" type="password" autofocus />
+            <ValidationMessage For="() => Model.Password" />
+        </label>
+        <AntiforgeryToken />
+        <button type="submit" class="btn btn-primary auth-submit">
+            <Icon Name="lock" Class="ic" />
+            ورود
+        </button>
+    </EditForm>
+</div>
+
+@code {
+    [SupplyParameterFromQuery(Name = "returnUrl")]
+    public string? ReturnUrl { get; set; }
+
+    [SupplyParameterFromForm(FormName = "login")]
+    public PasswordModel Model { get; set; } = new();
+
+    [CascadingParameter]
+    public HttpContext HttpContext { get; set; } = default!;
+
+    private string? _error;
+
+    protected override void OnInitialized()
+    {
+        if (HttpContext.User.Identity?.IsAuthenticated == true)
+            NavigationManager.NavigateTo(SafeReturnUrl(), replace: true);
+    }
+
+    private async Task SubmitAsync()
+    {
+        var expected = Configuration["Admin:Password"] ?? "";
+        var ok = expected.Length > 0 &&
+            System.Security.Cryptography.CryptographicOperations.FixedTimeEquals(
+                System.Text.Encoding.UTF8.GetBytes(Model.Password),
+                System.Text.Encoding.UTF8.GetBytes(expected));
+
+        if (!ok)
+        {
+            _error = "رمز عبور اشتباه است.";
+            return;
+        }
+
+        var ownerName = Configuration["Admin:OwnerName"] ?? "مدیر فروشگاه";
+        var claims = new List<Claim> { new(ClaimTypes.Name, ownerName) };
+        var identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
+        await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(identity));
+
+        NavigationManager.NavigateTo(SafeReturnUrl(), replace: true);
+    }
+
+    private string SafeReturnUrl() =>
+        !string.IsNullOrEmpty(ReturnUrl) && ReturnUrl.StartsWith('/') && !ReturnUrl.StartsWith("//")
+            ? ReturnUrl
+            : "/";
+
+    public class PasswordModel
+    {
+        [Required(ErrorMessage = "رمز عبور را وارد کنید")]
+        public string Password { get; set; } = "";
+    }
+}

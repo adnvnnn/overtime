@@ -1,0 +1,26 @@
+<span class="badge @CssClass">@Label</span>
+
+@code {
+    [Parameter, EditorRequired]
+    public OrderStatus Status { get; set; }
+
+    private string CssClass => Status switch
+    {
+        OrderStatus.Pending => "badge-pending",
+        OrderStatus.Processing => "badge-processing",
+        OrderStatus.Shipped => "badge-shipped",
+        OrderStatus.Delivered => "badge-delivered",
+        OrderStatus.Cancelled => "badge-cancelled",
+        _ => "",
+    };
+
+    private string Label => Status switch
+    {
+        OrderStatus.Pending => "در انتظار",
+        OrderStatus.Processing => "در حال پردازش",
+        OrderStatus.Shipped => "ارسال شده",
+        OrderStatus.Delivered => "تحویل شده",
+        OrderStatus.Cancelled => "لغو شده",
+        _ => Status.ToString(),
+    };
+}

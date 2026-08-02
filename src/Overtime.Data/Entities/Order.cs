@@ -7,6 +7,7 @@ public class Order
     public Guid CartId { get; set; }
     public DateTime CreatedAt { get; set; }
     public long Total { get; set; }
+    public OrderStatus Status { get; set; }
 
     public List<OrderItem> Items { get; set; } = [];
 }
