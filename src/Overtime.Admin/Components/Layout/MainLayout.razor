@@ -1,0 +1,110 @@
+@inherits LayoutComponentBase
+@implements IDisposable
+@inject NavigationManager NavigationManager
+
+<div class="admin-shell">
+    <aside class="sidebar @(_navOpen ? "open" : "")">
+        <div class="sidebar-brand">
+            <Icon Name="footprints" Class="mark" />
+            <div class="brand-text">
+                <span class="en">OVERTIME</span>
+                <span class="fa">پنل مدیریت</span>
+            </div>
+        </div>
+        <nav class="sidebar-nav">
+            <NavLink href="/" Match="NavLinkMatch.All" @onclick="CloseNav">
+                <Icon Name="layout-dashboard" Class="ic" />
+                <span>داشبورد</span>
+            </NavLink>
+            <NavLink href="/products" @onclick="CloseNav">
+                <Icon Name="package" Class="ic" />
+                <span>محصولات</span>
+            </NavLink>
+            <NavLink href="/orders" @onclick="CloseNav">
+                <Icon Name="receipt" Class="ic" />
+                <span>سفارش‌ها</span>
+            </NavLink>
+            <NavLink href="/customers" @onclick="CloseNav">
+                <Icon Name="users" Class="ic" />
+                <span>مشتریان</span>
+            </NavLink>
+        </nav>
+        <a class="sidebar-store-link" href="http://localhost:5036/" target="_blank" rel="noopener">
+            <Icon Name="arrow-right" Class="ic" />
+            <span>مشاهده فروشگاه</span>
+        </a>
+    </aside>
+
+    <div class="admin-main">
+        <header class="admin-topbar">
+            <button class="topbar-menu-btn" type="button" aria-label="باز کردن منو" @onclick="ToggleNav">
+                <Icon Name="menu" Class="ic" />
+            </button>
+            <h1 class="topbar-title">@_pageTitle</h1>
+            <AuthorizeView>
+                <Authorized>
+                    <div class="topbar-user">
+                        <div class="user-avatar">@InitialOf(context.User.Identity?.Name)</div>
+                        <span class="user-name">@(context.User.Identity?.Name ?? "مدیر")</span>
+                        <form method="post" action="/logout">
+                            <AntiforgeryToken />
+                            <button class="icon-btn" type="submit" title="خروج" aria-label="خروج">
+                                <Icon Name="log-out" Class="ic" />
+                            </button>
+                        </form>
+                    </div>
+                </Authorized>
+            </AuthorizeView>
+        </header>
+
+        <main class="admin-content">
+            @Body
+        </main>
+    </div>
+</div>
+
+<div id="blazor-error-ui" data-nosnippet>
+    خطایی رخ داده است.
+    <a href="." class="reload">تلاش مجدد</a>
+    <span class="dismiss">🗙</span>
+</div>
+
+@code {
+    private bool _navOpen;
+    private string _pageTitle = "";
+
+    protected override void OnInitialized()
+    {
+        UpdateTitle();
+        NavigationManager.LocationChanged += OnLocationChanged;
+    }
+
+    private void OnLocationChanged(object? sender, Microsoft.AspNetCore.Components.Routing.LocationChangedEventArgs e)
+    {
+        UpdateTitle();
+        InvokeAsync(StateHasChanged);
+    }
+
+    private void UpdateTitle()
+    {
+        var path = new Uri(NavigationManager.Uri).AbsolutePath.Trim('/');
+        _pageTitle = path switch
+        {
+            "" => "داشبورد",
+            "products" => "محصولات",
+            "orders" => "سفارش‌ها",
+            "customers" => "مشتریان",
+            _ when path.StartsWith("products/") => "ویرایش محصول",
+            _ when path.StartsWith("orders/") => "جزئیات سفارش",
+            _ => "پنل مدیریت",
+        };
+    }
+
+    private static string InitialOf(string? name) =>
+        string.IsNullOrEmpty(name) ? "م" : name[..1];
+
+    private void ToggleNav() => _navOpen = !_navOpen;
+    private void CloseNav() => _navOpen = false;
+
+    public void Dispose() => NavigationManager.LocationChanged -= OnLocationChanged;
+}

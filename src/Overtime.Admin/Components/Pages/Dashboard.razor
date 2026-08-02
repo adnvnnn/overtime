@@ -1,0 +1,152 @@
+@page "/"
+@inject DashboardService DashboardService
+
+<PageTitle>داشبورد | مدیریت اورتایم</PageTitle>
+
+<div class="stat-grid">
+    <div class="stat-card">
+        <div class="stat-card-head">
+            <div class="stat-icon"><Icon Name="wallet" /></div>
+        </div>
+        <span class="stat-label">درآمد کل</span>
+        <span class="stat-value">@_summary.TotalRevenue.FormatToman()</span>
+    </div>
+    <div class="stat-card">
+        <div class="stat-card-head">
+            <div class="stat-icon"><Icon Name="receipt" /></div>
+        </div>
+        <span class="stat-label">تعداد سفارش‌ها</span>
+        <span class="stat-value">@_summary.OrderCount.ToFa()</span>
+    </div>
+    <div class="stat-card">
+        <div class="stat-card-head">
+            <div class="stat-icon"><Icon Name="package" /></div>
+        </div>
+        <span class="stat-label">تعداد محصولات</span>
+        <span class="stat-value">@_summary.ProductCount.ToFa()</span>
+    </div>
+    <div class="stat-card">
+        <div class="stat-card-head">
+            <div class="stat-icon"><Icon Name="users" /></div>
+        </div>
+        <span class="stat-label">مشتریان ثبت‌نامی</span>
+        <span class="stat-value">@_summary.CustomerCount.ToFa()</span>
+    </div>
+</div>
+
+<div class="dash-grid">
+    <div class="panel">
+        <div class="panel-head">
+            <div>
+                <h2>روند فروش ۱۴ روز اخیر</h2>
+                <p>مجموع مبلغ سفارش‌های ثبت‌شده به تفکیک روز</p>
+            </div>
+        </div>
+        @if (_trend.Count == 0)
+        {
+            <div class="empty-state"><Icon Name="trending-up" />هنوز سفارشی ثبت نشده است.</div>
+        }
+        else
+        {
+            <div class="chart">
+                @foreach (var point in _trend)
+                {
+                    var pct = _maxTrend == 0 ? 3 : Math.Max(3, (int)(point.Total * 100 / _maxTrend));
+                    <div class="chart-col" title="@point.Total.FormatToman()">
+                        <div class="chart-bar" style="height:@(pct)%"></div>
+                        <span class="chart-col-label">@point.Date.Day.ToFa()</span>
+                    </div>
+                }
+            </div>
+        }
+    </div>
+
+    <div class="panel">
+        <div class="panel-head">
+            <div>
+                <h2>پرفروش‌ترین محصولات</h2>
+                <p>بر اساس تعداد فروش</p>
+            </div>
+        </div>
+        @if (_topProducts.Count == 0)
+        {
+            <div class="empty-state"><Icon Name="package" />داده‌ای موجود نیست.</div>
+        }
+        else
+        {
+            <div class="rank-list">
+                @for (var i = 0; i < _topProducts.Count; i++)
+                {
+                    var p = _topProducts[i];
+                    <div class="rank-row">
+                        <div class="rank-num">@((i + 1).ToFa())</div>
+                        <div class="rank-info">
+                            <div class="rank-name">@p.ProductName</div>
+                            <div class="rank-meta">@p.QtySold.ToFa() فروش</div>
+                        </div>
+                        <div class="rank-value">@p.Revenue.FormatToman()</div>
+                    </div>
+                }
+            </div>
+        }
+    </div>
+</div>
+
+<div class="panel">
+    <div class="panel-head">
+        <div>
+            <h2>آخرین سفارش‌ها</h2>
+            <p>@_recentOrders.Count.ToFa() سفارش اخیر</p>
+        </div>
+        <a class="btn btn-ghost btn-sm" href="/orders">مشاهده همه</a>
+    </div>
+    @if (_recentOrders.Count == 0)
+    {
+        <div class="empty-state"><Icon Name="receipt" />هنوز سفارشی ثبت نشده است.</div>
+    }
+    else
+    {
+        <div class="table-wrap">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>شماره سفارش</th>
+                        <th>تاریخ</th>
+                        <th>اقلام</th>
+                        <th>مبلغ</th>
+                        <th>وضعیت</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var order in _recentOrders)
+                    {
+                        <tr>
+                            <td class="cell-title">@order.OrderNumber</td>
+                            <td class="num">@order.CreatedAt.ToString("yyyy/MM/dd HH:mm")</td>
+                            <td class="num">@order.Items.Sum(i => i.Qty).ToFa()</td>
+                            <td class="num">@order.Total.FormatToman()</td>
+                            <td><OrderStatusBadge Status="order.Status" /></td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+</div>
+
+@code {
+    private DashboardSummary _summary = new(0, 0, 0, 0);
+    private List<RevenuePoint> _trend = [];
+    private List<TopProduct> _topProducts = [];
+    private List<Order> _recentOrders = [];
+    private long _maxTrend;
+
+    protected override async Task OnInitializedAsync()
+    {
+        _summary = await DashboardService.GetSummaryAsync();
+        _trend = await DashboardService.GetRevenueTrendAsync(14);
+        _maxTrend = _trend.Count == 0 ? 0 : _trend.Max(p => p.Total);
+        _topProducts = await DashboardService.GetTopProductsAsync(5);
+        _recentOrders = await DashboardService.GetRecentOrdersAsync(8);
+    }
+}
