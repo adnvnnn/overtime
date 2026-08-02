@@ -1,0 +1,192 @@
+@page "/"
+@inject ProductService ProductService
+
+<PageTitle>Overtime | فروشگاه اینترنتی کفش کتانی</PageTitle>
+
+<div id="top"></div>
+<section class="hero" id="home">
+    <div class="wrap">
+        <div>
+            <p class="eyebrow">فروشگاه اینترنتی اورتایم — اردبیل</p>
+            <h1>وقت اضافه‌ای که<br>برای هر <span>قدم</span> می‌گذاریم.</h1>
+            <p class="lede" style="margin-top:20px">
+                کلکسیون کفش‌های کتانی اورتایم؛ از دویدن‌های روزمره تا زمین بازی و خیابان.
+                کیفیت اصل، ارسال به سراسر کشور و پشتیبانی واقعی از شعبه اردبیل.
+            </p>
+            <div class="actions">
+                <a class="btn btn-primary" href="/products">مشاهده محصولات</a>
+                <a class="btn btn-ghost" href="#location">آدرس شعبه ۲ (کتونی)</a>
+            </div>
+            <div class="hero-stats">
+                <div><b>+۲۵۰</b><span>مدل در انبار</span></div>
+                <div><b>۱۰۰٪</b><span>ضمانت اصالت</span></div>
+                <div><b>۷ روز</b><span>مهلت مرجوعی</span></div>
+            </div>
+        </div>
+        <div class="hero-art">
+            <div class="badge">اورتایم <b>№06</b></div>
+            <div class="ground"></div>
+            <img class="shoe" src="assets/images/products/product-9.jpg" alt="Overtime №06">
+        </div>
+    </div>
+</section>
+
+<div class="ticker" aria-hidden="true">
+    <div class="track">
+        <span>ارسال به سراسر ایران</span>
+        <span>ضمانت اصالت کالا</span>
+        <span>جدیدترین مدل‌های ۲۰۲۶</span>
+        <span>امکان تعویض و مرجوعی</span>
+        <span>پرداخت در محل (اردبیل)</span>
+        <span>ارسال به سراسر ایران</span>
+        <span>ضمانت اصالت کالا</span>
+        <span>جدیدترین مدل‌های ۲۰۲۶</span>
+        <span>امکان تعویض و مرجوعی</span>
+        <span>پرداخت در محل (اردبیل)</span>
+    </div>
+</div>
+
+<section id="categories">
+    <div class="wrap">
+        <div class="sec-head">
+            <div>
+                <p class="eyebrow">دسته‌بندی‌ها</p>
+                <h2>هر سبک، مدل خودش را دارد</h2>
+            </div>
+            <p class="lede">از پیاده‌روی سبک تا زمین بازی؛ کالکشن اورتایم برای هر قدم یک مدل دارد.</p>
+        </div>
+        <div class="cats">
+            <a class="cat" href="/products?cat=مردانه">
+                <Icon Name="mars" Class="ic" />
+                <b>مردانه</b><span>Men</span>
+            </a>
+            <a class="cat" href="/products?cat=زنانه">
+                <Icon Name="venus" Class="ic" />
+                <b>زنانه</b><span>Women</span>
+            </a>
+            <a class="cat" href="/products?cat=بچگانه">
+                <Icon Name="baby" Class="ic" />
+                <b>بچگانه</b><span>Kids</span>
+            </a>
+            <a class="cat" href="/products?cat=لیمیتد">
+                <Icon Name="gem" Class="ic" />
+                <b>لیمیتد ادیشن</b><span>Limited</span>
+            </a>
+        </div>
+    </div>
+</section>
+
+<section id="products">
+    <div class="wrap">
+        <div class="sec-head">
+            <div>
+                <p class="eyebrow">محصولات</p>
+                <h2>پرفروش‌های اورتایم</h2>
+            </div>
+            <div style="display:flex; gap:10px; flex-wrap:wrap;">
+                <a class="btn btn-primary btn-sm" href="/products">مشاهده همه محصولات</a>
+                <a class="btn btn-ghost btn-sm" href="https://www.instagram.com/overtime_sneaker/" target="_blank" rel="noopener">مشاهده کالکشن کامل در اینستاگرام</a>
+            </div>
+        </div>
+        <div class="products">
+            @foreach (var product in _topProducts)
+            {
+                <ProductCard Product="product" />
+            }
+        </div>
+    </div>
+</section>
+
+<section id="why">
+    <div class="wrap">
+        <div class="sec-head">
+            <div>
+                <p class="eyebrow">چرا اورتایم</p>
+                <h2>خرید بی‌دغدغه، از اردبیل تا در خانه‌ی شما</h2>
+            </div>
+        </div>
+        <div class="features">
+            <div class="feature">
+                <Icon Name="truck" Class="ic" />
+                <b>ارسال سریع</b>
+                <p>ارسال به سراسر کشور از طریق پست و باربری معتبر.</p>
+            </div>
+            <div class="feature">
+                <Icon Name="shield-check" Class="ic" />
+                <b>ضمانت اصالت</b>
+                <p>تمامی محصولات دارای ضمانت اصل بودن کالا هستند.</p>
+            </div>
+            <div class="feature">
+                <Icon Name="refresh-cw" Class="ic" />
+                <b>۷ روز مرجوعی</b>
+                <p>در صورت نارضایتی، امکان تعویض یا مرجوعی کالا.</p>
+            </div>
+            <div class="feature">
+                <Icon Name="credit-card" Class="ic" />
+                <b>پرداخت امن</b>
+                <p>پرداخت آنلاین امن یا پرداخت در محل (اردبیل).</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section id="instagram">
+    <div class="wrap">
+        <div class="insta">
+            <div>
+                <p class="eyebrow">شبکه‌های اجتماعی</p>
+                <h2 style="font-size:28px;font-weight:800;">جدیدترین مدل‌ها را در اینستاگرام ببینید</h2>
+                <a class="insta-handle" href="https://www.instagram.com/overtime_sneaker/" target="_blank" rel="noopener">
+                    <Icon Name="camera" Class="ic" />
+                    overtime_sneaker@@
+                </a>
+                <p class="lede">پست‌های جدید، آنباکسینگ و موجودی لحظه‌ای فروشگاه را در صفحه‌ی اینستاگرام دنبال کنید.</p>
+                <a class="btn btn-primary" style="margin-top:20px" href="https://www.instagram.com/overtime_sneaker/" target="_blank" rel="noopener">دنبال کردن در اینستاگرام</a>
+            </div>
+            <div class="grid6" aria-hidden="true">
+                <div class="sq"><b>Nike</b></div>
+                <div class="sq"><b>Adidas</b></div>
+                <div class="sq"><b>Jordan</b></div>
+                <div class="sq"><b>Puma</b></div>
+                <div class="sq"><b>New Balance</b></div>
+                <div class="sq"><b>Balenciaga</b></div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section id="location">
+    <div class="wrap">
+        <div class="sec-head">
+            <div>
+                <p class="eyebrow">موقعیت فروشگاه</p>
+                <h2>از نزدیک از ما بازدید کنید</h2>
+            </div>
+        </div>
+        <div class="location">
+            <div class="loc-card">
+                <h3>شعبه ۲ (کتونی)</h3>
+                <p class="addr">
+                    <b>آدرس:</b>
+                    اردبیل، ایستگاه سرعین، به سمت شریعتی، اطلس مال، پلاک G۹
+                </p>
+                <a class="btn btn-primary" href="https://nshn.ir/f4rbCkHYN5lISF" target="_blank" rel="noopener">
+                    مسیریابی در نشان
+                </a>
+            </div>
+            <a class="map-art" href="https://nshn.ir/f4rbCkHYN5lISF" target="_blank" rel="noopener" aria-label="مشاهده موقعیت روی نقشه نشان">
+                <div class="ring"></div>
+                <Icon Name="map-pin" Class="pin" />
+            </a>
+        </div>
+    </div>
+</section>
+
+@code {
+    private List<Product> _topProducts = [];
+
+    protected override async Task OnInitializedAsync()
+    {
+        _topProducts = await ProductService.GetTopAsync(6);
+    }
+}

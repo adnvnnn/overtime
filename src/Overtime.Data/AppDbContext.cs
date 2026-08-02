@@ -1,0 +1,55 @@
+using Microsoft.EntityFrameworkCore;
+using Overtime.Data.Entities;
+
+namespace Overtime.Data;
+
+public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(options)
+{
+    public DbSet<Product> Products => Set<Product>();
+    public DbSet<ProductImage> ProductImages => Set<ProductImage>();
+    public DbSet<ProductSpec> ProductSpecs => Set<ProductSpec>();
+    public DbSet<ProductSize> ProductSizes => Set<ProductSize>();
+    public DbSet<Cart> Carts => Set<Cart>();
+    public DbSet<CartItem> CartItems => Set<CartItem>();
+    public DbSet<Order> Orders => Set<Order>();
+    public DbSet<OrderItem> OrderItems => Set<OrderItem>();
+    public DbSet<User> Users => Set<User>();
+    public DbSet<OtpCode> OtpCodes => Set<OtpCode>();
+
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+        modelBuilder.Entity<Product>(e =>
+        {
+            e.HasMany(p => p.Images).WithOne().HasForeignKey(i => i.ProductId).OnDelete(DeleteBehavior.Cascade);
+            e.HasMany(p => p.Specs).WithOne().HasForeignKey(s => s.ProductId).OnDelete(DeleteBehavior.Cascade);
+            e.HasMany(p => p.Sizes).WithOne().HasForeignKey(s => s.ProductId).OnDelete(DeleteBehavior.Cascade);
+            e.HasData(SeedData.GetProducts());
+        });
+
+        modelBuilder.Entity<ProductImage>().HasData(SeedData.GetImages());
+        modelBuilder.Entity<ProductSpec>().HasData(SeedData.GetSpecs());
+        modelBuilder.Entity<ProductSize>(e =>
+        {
+            e.HasIndex(s => new { s.ProductId, s.Size }).IsUnique();
+            e.HasData(SeedData.GetSizes());
+        });
+
+        modelBuilder.Entity<Cart>()
+            .HasMany(c => c.Items).WithOne().HasForeignKey(i => i.CartId).OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<CartItem>(e =>
+        {
+            e.HasIndex(i => new { i.CartId, i.ProductId, i.Size }).IsUnique();
+            e.HasOne(i => i.Product).WithMany().HasForeignKey(i => i.ProductId).OnDelete(DeleteBehavior.Cascade);
+        });
+
+        modelBuilder.Entity<Order>()
+            .HasMany(o => o.Items).WithOne().HasForeignKey(i => i.OrderId).OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<User>()
+            .HasIndex(u => u.PhoneNumber).IsUnique();
+
+        modelBuilder.Entity<OtpCode>()
+            .HasIndex(o => new { o.PhoneNumber, o.CreatedAt });
+    }
+}

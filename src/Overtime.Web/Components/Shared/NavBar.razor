@@ -1,0 +1,92 @@
+@implements IDisposable
+@inject CartService CartService
+@inject IJSRuntime JS
+
+<header>
+    <div class="nav">
+        <a class="brand" href="/">
+            <Icon Name="footprints" Class="mark" />
+            <span class="name">
+                <span class="en wordmark">OVER<span class="t2">TIME</span></span>
+                <span class="fa">فروشگاه کفش کتانی</span>
+            </span>
+        </a>
+        <nav class="links @(_menuOpen ? "open" : "")" id="navLinks">
+            <a href="/" @onclick="CloseMenu">خانه</a>
+            <a href="/products" @onclick="CloseMenu">محصولات</a>
+            <a href="/#categories" @onclick="CloseMenu">دسته‌بندی‌ها</a>
+            <a href="/#why" @onclick="CloseMenu">چرا اورتایم</a>
+            <a href="/#location" @onclick="CloseMenu">موقعیت فروشگاه</a>
+            <div class="nav-mobile-actions">
+                <a class="btn btn-primary btn-sm" href="/products" @onclick="CloseMenu">مشاهده محصولات</a>
+            </div>
+        </nav>
+        <div class="nav-cta">
+            <a class="btn btn-primary btn-sm" href="/products">مشاهده محصولات</a>
+            <button class="cart-btn theme-btn" type="button" data-current="@_theme" aria-label="تغییر حالت روشن/تیره" @onclick="ToggleTheme">
+                <Icon Name="sun" Class="ic ic-sun" />
+                <Icon Name="moon" Class="ic ic-moon" />
+            </button>
+            <button class="cart-btn" type="button" aria-haspopup="dialog" aria-controls="cartDrawer" aria-label="سبد خرید" @onclick="ToggleCart">
+                <Icon Name="shopping-cart" Class="ic" />
+                <span class="cart-count" data-empty="@(_count == 0 ? "true" : "false")">@_count.ToFa()</span>
+            </button>
+            <AuthorizeView>
+                <Authorized>
+                    <div class="user-menu">
+                        <form method="post" action="/account/logout">
+                            <AntiforgeryToken />
+                            <button class="cart-btn" type="submit" aria-label="خروج از حساب کاربری" title="خروج">
+                                <Icon Name="log-out" Class="ic" />
+                            </button>
+                        </form>
+                    </div>
+                </Authorized>
+                <NotAuthorized>
+                    <a class="cart-btn" href="/account/login" aria-label="ورود / ثبت‌نام" title="ورود / ثبت‌نام">
+                        <Icon Name="user" Class="ic" />
+                    </a>
+                </NotAuthorized>
+            </AuthorizeView>
+            <button class="menu-btn" type="button" aria-expanded="@(_menuOpen ? "true" : "false")" aria-controls="navLinks" aria-label="باز کردن منو" @onclick="ToggleMenu">
+                <Icon Name="menu" Class="ic ic-menu" />
+                <Icon Name="x" Class="ic ic-close" />
+            </button>
+        </div>
+    </div>
+</header>
+
+@code {
+    private bool _menuOpen;
+    private int _count;
+    private string _theme = "light";
+
+    protected override async Task OnInitializedAsync()
+    {
+        CartService.Changed += OnCartChanged;
+        _count = await CartService.GetCountAsync();
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            _theme = await JS.InvokeAsync<string>("overtimeTheme.current");
+            StateHasChanged();
+        }
+    }
+
+    private void OnCartChanged() => InvokeAsync(async () =>
+    {
+        _count = await CartService.GetCountAsync();
+        StateHasChanged();
+    });
+
+    private void ToggleMenu() => _menuOpen = !_menuOpen;
+    private void CloseMenu() => _menuOpen = false;
+    private void ToggleCart() => CartService.ToggleDrawer();
+
+    private async Task ToggleTheme() => _theme = await JS.InvokeAsync<string>("overtimeTheme.toggle");
+
+    public void Dispose() => CartService.Changed -= OnCartChanged;
+}

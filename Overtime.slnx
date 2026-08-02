@@ -1,0 +1,6 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/Overtime.Data/Overtime.Data.csproj" />
+    <Project Path="src/Overtime.Web/Overtime.Web.csproj" />
+  </Folder>
+</Solution>

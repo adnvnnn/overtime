@@ -1,0 +1,247 @@
+@page "/product/{Id}"
+@implements IAsyncDisposable
+@inject ProductService ProductService
+@inject CartService CartService
+@inject ToastService ToastService
+@inject IJSRuntime JS
+
+<PageTitle>Overtime | @(Product?.Name ?? "جزئیات محصول")</PageTitle>
+
+@if (Product is not null)
+{
+    <div class="wrap">
+        <nav class="breadcrumb" aria-label="مسیر صفحه">
+            <a href="/">خانه</a>
+            <span>/</span>
+            <a href="/products">محصولات</a>
+            <span>/</span>
+            <span class="cur">@Product.Name</span>
+        </nav>
+    </div>
+
+    <section class="pdp">
+        <div class="wrap">
+            <div class="pdp-grid">
+                <div class="pdp-media">
+                    <div class="pdp-gallery" style="background: color-mix(in srgb, var(@SwatchVar) 14%, var(--surface-2));">
+                        @if (!string.IsNullOrEmpty(Product.Badge))
+                        {
+                            <span class="tag">@Product.Badge</span>
+                        }
+                        <div class="pdp-slider" @ref="_sliderRef" style="transform: translateX(-@(_activeIndex * 100)%);">
+                            @foreach (var image in _images)
+                            {
+                                <div class="pdp-slide">
+                                    <img src="@image.Url" alt="@Product.Name" draggable="false">
+                                </div>
+                            }
+                        </div>
+                        @if (_images.Count > 1)
+                        {
+                            <button type="button" class="pdp-arrow prev" aria-label="تصویر قبلی" @onclick="() => GoTo(_activeIndex - 1)">
+                                <Icon Name="chevron-left" />
+                            </button>
+                            <button type="button" class="pdp-arrow next" aria-label="تصویر بعدی" @onclick="() => GoTo(_activeIndex + 1)">
+                                <Icon Name="chevron-right" />
+                            </button>
+                            <div class="pdp-dots">
+                                @for (var i = 0; i < _images.Count; i++)
+                                {
+                                    var idx = i;
+                                    <button type="button" class="pdp-dot @(idx == _activeIndex ? "active" : "")" aria-label="تصویر @((idx + 1).ToFa())" @onclick="() => GoTo(idx)"></button>
+                                }
+                            </div>
+                        }
+                    </div>
+                    @if (_images.Count > 1)
+                    {
+                        <div class="pdp-thumbs" role="group" aria-label="تصاویر محصول">
+                            @for (var i = 0; i < _images.Count; i++)
+                            {
+                                var idx = i;
+                                <button type="button" class="pdp-thumb @(idx == _activeIndex ? "active" : "")" aria-label="تصویر @((idx + 1).ToFa())" @onclick="() => GoTo(idx)">
+                                    <img src="@_images[idx].Url" alt="@Product.Name">
+                                </button>
+                            }
+                        </div>
+                    }
+                </div>
+
+                <div class="pdp-info">
+                    <span class="pdp-cat">@Product.Category</span>
+                    <h1>@Product.Name</h1>
+                    <div class="pdp-rating">
+                        <span class="stars">
+                            <Icon Name="star" /><Icon Name="star" /><Icon Name="star" /><Icon Name="star" /><Icon Name="star" />
+                        </span>
+                        <span>@Product.Rating.ToFa(1)</span>
+                        <span>(@Product.ReviewCount.ToFa() نظر)</span>
+                    </div>
+                    <div class="pdp-price">@Product.Price.ToFa()<small>تومان</small></div>
+
+                    <div class="pdp-divider"></div>
+
+                    <div class="pdp-block">
+                        <label>سایز (اروپایی)</label>
+                        <div class="size-grid @(_shake ? "shake" : "")">
+                            @foreach (var size in Product.Sizes)
+                            {
+                                <button type="button" class="size-chip @(_selectedSize == size.Size ? "selected" : "")"
+                                        disabled="@(size.StockQty <= 0)" @onclick="() => SelectSize(size)">
+                                    @size.Size.ToFa()
+                                </button>
+                            }
+                        </div>
+                    </div>
+
+                    <div class="pdp-block">
+                        <label>تعداد</label>
+                        <div class="pdp-qty-row">
+                            <div class="qty-stepper">
+                                <button type="button" aria-label="کاهش تعداد" @onclick="QtyDec">−</button>
+                                <span>@_qty.ToFa()</span>
+                                <button type="button" aria-label="افزایش تعداد" @onclick="QtyInc">+</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="pdp-actions">
+                        <button class="btn btn-primary" type="button" @onclick="AddToCart">افزودن به سبد خرید</button>
+                    </div>
+
+                    <div class="pdp-badges">
+                        <span class="pdp-badge"><Icon Name="truck" />ارسال سریع به سراسر کشور</span>
+                        <span class="pdp-badge"><Icon Name="shield-check" />ضمانت اصالت کالا</span>
+                        <span class="pdp-badge"><Icon Name="refresh-cw" />۷ روز مهلت مرجوعی</span>
+                    </div>
+
+                    <p class="pdp-desc">@Product.Description</p>
+                    <div class="pdp-specs">
+                        @foreach (var spec in Product.Specs)
+                        {
+                            <div><span>@spec.Key</span><b>@spec.Value</b></div>
+                        }
+                    </div>
+                </div>
+            </div>
+
+            <div class="related-head">
+                <p class="eyebrow">محصولات مشابه</p>
+                <h2>شاید این مدل‌ها را هم بپسندید</h2>
+            </div>
+            <div class="products">
+                @foreach (var related in _related)
+                {
+                    <ProductCard Product="related" />
+                }
+            </div>
+        </div>
+    </section>
+}
+
+@code {
+    [Parameter]
+    public string Id { get; set; } = "";
+
+    private const string FallbackId = "air-pulse";
+
+    private string? _loadedId;
+    private Product? Product;
+    private List<ProductImage> _images = [];
+    private List<Product> _related = [];
+    private int _activeIndex;
+    private int? _selectedSize;
+    private int _qty = 1;
+    private bool _shake;
+
+    private ElementReference _sliderRef;
+    private DotNetObjectReference<ProductDetail>? _dotNetRef;
+    private IJSObjectReference? _galleryHandle;
+
+    private string SwatchVar => Product?.Swatch switch
+    {
+        "accent-2" => "--accent-2",
+        "ink" => "--ink",
+        _ => "--accent",
+    };
+
+    protected override async Task OnParametersSetAsync()
+    {
+        if (_loadedId == Id)
+            return;
+        _loadedId = Id;
+
+        var product = await ProductService.GetByIdAsync(Id) ?? await ProductService.GetByIdAsync(FallbackId);
+        Product = product;
+        _images = product?.Images.ToList() ?? [];
+        _activeIndex = 0;
+        _selectedSize = null;
+        _qty = 1;
+        _shake = false;
+        _related = product is not null ? await ProductService.GetRelatedAsync(product.Id, 3) : [];
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            _dotNetRef = DotNetObjectReference.Create(this);
+            _galleryHandle = await JS.InvokeAsync<IJSObjectReference>("overtimeGallery.attach", _sliderRef, _dotNetRef);
+        }
+    }
+
+    private void GoTo(int index)
+    {
+        if (_images.Count == 0)
+            return;
+        _activeIndex = ((index % _images.Count) + _images.Count) % _images.Count;
+    }
+
+    [JSInvokable]
+    public void OnSwipe(int direction)
+    {
+        GoTo(_activeIndex + direction);
+        StateHasChanged();
+    }
+
+    private void SelectSize(ProductSize size)
+    {
+        if (size.StockQty <= 0)
+            return;
+        _selectedSize = size.Size;
+    }
+
+    private void QtyInc() => _qty = Math.Min(10, _qty + 1);
+    private void QtyDec() => _qty = Math.Max(1, _qty - 1);
+
+    private async Task AddToCart()
+    {
+        if (Product is null)
+            return;
+
+        if (_selectedSize is null)
+        {
+            _shake = true;
+            StateHasChanged();
+            ToastService.ShowMessage("لطفاً ابتدا سایز را انتخاب کنید");
+            await Task.Delay(400);
+            _shake = false;
+            StateHasChanged();
+            return;
+        }
+
+        await CartService.AddItemAsync(Product.Id, _selectedSize.Value, _qty);
+        ToastService.ShowMessage($"{Product.Name} به سبد اضافه شد");
+        CartService.OpenDrawer();
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        if (_galleryHandle is not null)
+        {
+            await _galleryHandle.InvokeVoidAsync("dispose");
+            await _galleryHandle.DisposeAsync();
+        }
+        _dotNetRef?.Dispose();
+    }
+}

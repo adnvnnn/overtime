@@ -1,0 +1,112 @@
+@implements IDisposable
+@inject CartService CartService
+@inject OrderService OrderService
+
+<div class="cart-backdrop @(CartService.IsDrawerOpen ? "open" : "")" @onclick="Close"></div>
+<aside class="cart-drawer @(CartService.IsDrawerOpen ? "open" : "")" id="cartDrawer" role="dialog" aria-modal="true"
+       aria-label="سبد خرید" aria-hidden="@((!CartService.IsDrawerOpen).ToString().ToLowerInvariant())">
+    <div class="cart-head">
+        <h3>سبد خرید</h3>
+        <button class="cart-close" type="button" aria-label="بستن سبد خرید" @onclick="Close">✕</button>
+    </div>
+    <div class="cart-body">
+        @if (_orderNumber is not null)
+        {
+            <div class="cart-success">
+                <div class="ok">✓</div>
+                <h4>سفارش شما ثبت شد</h4>
+                <p>این یک فروشگاه نمایشی است؛ همکاران اورتایم به‌زودی برای هماهنگی ارسال با شما تماس می‌گیرند.</p>
+                <span class="ordno">شماره سفارش دمو: @_orderNumber</span>
+                <button class="btn btn-ghost btn-sm" type="button" @onclick="Close">بستن</button>
+            </div>
+        }
+        else if (_lines.Count == 0)
+        {
+            <div class="cart-empty">
+                <Icon Name="shopping-cart" />
+                <span>سبد خرید شما خالی است</span>
+            </div>
+        }
+        else
+        {
+            @foreach (var line in _lines)
+            {
+                <div class="cart-item">
+                    @if (!string.IsNullOrEmpty(line.Image))
+                    {
+                        <div class="cart-item-swatch"><img src="@line.Image" alt="@line.Name"></div>
+                    }
+                    else
+                    {
+                        <div class="cart-item-swatch" style="@SwatchStyle(line.Swatch)"><Icon Name="footprints" Class="mini-shoe" /></div>
+                    }
+                    <div class="cart-item-info">
+                        <b>@line.Name</b>
+                        <span>@line.Category · سایز @line.Size.ToFa()</span>
+                        <div class="qty-stepper">
+                            <button type="button" aria-label="کاهش تعداد" @onclick="() => ChangeQty(line.CartItemId, -1)">−</button>
+                            <span>@line.Qty.ToFa()</span>
+                            <button type="button" aria-label="افزایش تعداد" @onclick="() => ChangeQty(line.CartItemId, 1)">+</button>
+                        </div>
+                    </div>
+                    <div class="cart-item-end">
+                        <button class="cart-remove" type="button" aria-label="حذف از سبد" @onclick="() => Remove(line.CartItemId)">حذف</button>
+                        <b class="cart-item-price">@line.LineTotal.FormatToman()</b>
+                    </div>
+                </div>
+            }
+        }
+    </div>
+    @if (_orderNumber is null)
+    {
+        <div class="cart-foot">
+            <div class="cart-subtotal"><span>جمع کل</span><b>@Subtotal.FormatToman()</b></div>
+            <button class="btn btn-primary cart-checkout" type="button" disabled="@(_lines.Count == 0)" @onclick="Checkout">تکمیل خرید</button>
+            <p class="cart-note">این یک فروشگاه نمایشی است؛ پرداخت واقعی انجام نمی‌شود.</p>
+        </div>
+    }
+</aside>
+
+@code {
+    private List<CartLine> _lines = [];
+    private string? _orderNumber;
+    private long Subtotal => _lines.Sum(l => l.LineTotal);
+
+    protected override async Task OnInitializedAsync()
+    {
+        CartService.Changed += OnChanged;
+        await Refresh();
+    }
+
+    private void OnChanged() => InvokeAsync(async () =>
+    {
+        await Refresh();
+        StateHasChanged();
+    });
+
+    private async Task Refresh() => _lines = await CartService.GetLinesAsync();
+
+    private async Task ChangeQty(int id, int delta) => await CartService.ChangeQtyAsync(id, delta);
+    private async Task Remove(int id) => await CartService.RemoveItemAsync(id);
+
+    private void Close()
+    {
+        _orderNumber = null;
+        CartService.CloseDrawer();
+    }
+
+    private async Task Checkout()
+    {
+        var number = await OrderService.CheckoutAsync();
+        if (number is not null)
+            _orderNumber = number.ToFa();
+    }
+
+    private static string SwatchStyle(string swatch)
+    {
+        var v = swatch switch { "accent-2" => "--accent-2", "ink" => "--ink", _ => "--accent" };
+        return $"background:color-mix(in srgb, var({v}) 16%, var(--surface-2)); color:var({v})";
+    }
+
+    public void Dispose() => CartService.Changed -= OnChanged;
+}

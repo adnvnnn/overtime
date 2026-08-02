@@ -1,0 +1,121 @@
+@page "/products"
+@inject ProductService ProductService
+
+<PageTitle>Overtime | محصولات</PageTitle>
+
+<div class="wrap">
+    <nav class="breadcrumb" aria-label="مسیر صفحه">
+        <a href="/">خانه</a>
+        <span>/</span>
+        <span class="cur">محصولات</span>
+    </nav>
+</div>
+
+<section class="catalog">
+    <div class="wrap">
+        <div class="sec-head">
+            <div>
+                <p class="eyebrow">فروشگاه</p>
+                <h1>همه محصولات</h1>
+            </div>
+            <p class="lede">@_countText</p>
+        </div>
+
+        <div class="catalog-toolbar">
+            <label class="search-box">
+                <Icon Name="search" Class="ic" />
+                <input type="search" placeholder="جستجوی محصول…" aria-label="جستجوی محصول" value="@_query" @oninput="OnSearchInput" />
+            </label>
+            <div class="filter-tabs" role="group" aria-label="فیلتر دسته‌بندی">
+                @foreach (var tab in Tabs)
+                {
+                    <button type="button" class="filter-tab @(_category == tab.Value ? "active" : "")" @onclick="() => SetCategory(tab.Value)">@tab.Label</button>
+                }
+            </div>
+            <select class="sort-select" aria-label="مرتب‌سازی محصولات" value="@_sort" @onchange="OnSortChange">
+                <option value="default">مرتب‌سازی: پیش‌فرض</option>
+                <option value="price-asc">ارزان‌ترین</option>
+                <option value="price-desc">گران‌ترین</option>
+                <option value="name">نام (الفبا)</option>
+            </select>
+        </div>
+
+        <div class="products">
+            @foreach (var product in _products)
+            {
+                <ProductCard Product="product" />
+            }
+        </div>
+
+        @if (_products.Count == 0)
+        {
+            <div class="catalog-empty">
+                <Icon Name="search" Class="ic" />
+                <p>محصولی با این مشخصات پیدا نشد.</p>
+                <button type="button" class="btn btn-ghost btn-sm" @onclick="ResetFilters">پاک کردن فیلترها</button>
+            </div>
+        }
+    </div>
+</section>
+
+@code {
+    [SupplyParameterFromQuery(Name = "cat")]
+    public string? CatQuery { get; set; }
+
+    private static readonly (string Value, string Label)[] Tabs =
+    [
+        ("all", "همه"),
+        ("مردانه", "مردانه"),
+        ("زنانه", "زنانه"),
+        ("بچگانه", "بچگانه"),
+        ("یونیسکس", "یونیسکس"),
+        ("لیمیتد", "لیمیتد ادیشن"),
+    ];
+
+    private string _category = "all";
+    private string _query = "";
+    private string _sort = "default";
+    private List<Product> _products = [];
+    private int _totalCount;
+    private string _countText = "";
+
+    protected override async Task OnInitializedAsync()
+    {
+        _totalCount = await ProductService.CountAllAsync();
+        if (!string.IsNullOrEmpty(CatQuery) && Tabs.Any(t => t.Value == CatQuery))
+            _category = CatQuery;
+        await Refresh();
+    }
+
+    private async Task Refresh()
+    {
+        _products = await ProductService.GetCatalogAsync(_category, _query, _sort);
+        _countText = $"{_products.Count.ToFa()} از {_totalCount.ToFa()} محصول";
+    }
+
+    private async Task OnSearchInput(ChangeEventArgs e)
+    {
+        _query = e.Value?.ToString() ?? "";
+        await Refresh();
+    }
+
+    private async Task OnSortChange(ChangeEventArgs e)
+    {
+        _sort = e.Value?.ToString() ?? "default";
+        await Refresh();
+    }
+
+    private async Task SetCategory(string cat)
+    {
+        _category = cat;
+        await Refresh();
+    }
+
+    private async Task ResetFilters()
+    {
+        _category = "all";
+        _query = "";
+        _sort = "default";
+        await Refresh();
+    }
+}

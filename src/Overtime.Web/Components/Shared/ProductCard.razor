@@ -1,0 +1,55 @@
+@inject CartService CartService
+@inject ToastService ToastService
+
+<article class="card">
+    <a class="card-link" href="@($"/product/{Product.Id}")" aria-label="مشاهده جزئیات @Product.Name">
+        <div class="plate" style="background: color-mix(in srgb, var(@SwatchVar) 14%, var(--surface-2));">
+            @if (!string.IsNullOrEmpty(Product.Badge))
+            {
+                <span class="tag">@Product.Badge</span>
+            }
+            <img src="@MainImage" alt="@Product.Name" loading="lazy">
+        </div>
+    </a>
+    <div class="body">
+        <span class="cat-line">@Product.Category</span>
+        <h3><a href="@($"/product/{Product.Id}")">@Product.Name</a></h3>
+        <div class="row">
+            <span class="price">@Product.Price.ToFa()<small>تومان</small></span>
+            <button class="add" type="button" disabled="@_added" @onclick="Add">@(_added ? "افزوده شد ✓" : "افزودن به سبد")</button>
+        </div>
+    </div>
+</article>
+
+@code {
+    [Parameter, EditorRequired]
+    public Product Product { get; set; } = null!;
+
+    private bool _added;
+
+    private string MainImage => Product.Images.Count > 0 ? Product.Images[0].Url : "";
+
+    private string SwatchVar => Product.Swatch switch
+    {
+        "accent-2" => "--accent-2",
+        "ink" => "--ink",
+        _ => "--accent",
+    };
+
+    private async Task Add()
+    {
+        var added = await CartService.QuickAddAsync(Product.Id);
+        if (!added)
+        {
+            ToastService.ShowMessage("این محصول در حال حاضر ناموجود است");
+            return;
+        }
+
+        ToastService.ShowMessage($"{Product.Name} به سبد اضافه شد");
+        _added = true;
+        StateHasChanged();
+        await Task.Delay(1100);
+        _added = false;
+        StateHasChanged();
+    }
+}
