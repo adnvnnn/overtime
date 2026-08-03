@@ -3,13 +3,20 @@
 @inject NavigationManager NavigationManager
 
 <div class="admin-shell">
+    @if (_navOpen)
+    {
+        <div class="sidebar-backdrop" @onclick="CloseNav"></div>
+    }
     <aside class="sidebar @(_navOpen ? "open" : "")">
         <div class="sidebar-brand">
-            <Icon Name="footprints" Class="mark" />
-            <div class="brand-text">
+@*             <Icon Name="footprints" Class="mark" />
+ *@            <div class="brand-text">
                 <span class="en">OVERTIME</span>
                 <span class="fa">پنل مدیریت</span>
             </div>
+            <button class="sidebar-close-btn" type="button" aria-label="بستن منو" @onclick="CloseNav">
+                <Icon Name="x" Class="ic" />
+            </button>
         </div>
         <nav class="sidebar-nav">
             <NavLink href="/" Match="NavLinkMatch.All" @onclick="CloseNav">
@@ -27,6 +34,10 @@
             <NavLink href="/customers" @onclick="CloseNav">
                 <Icon Name="users" Class="ic" />
                 <span>مشتریان</span>
+            </NavLink>
+            <NavLink href="/admins" @onclick="CloseNav">
+                <Icon Name="lock" Class="ic" />
+                <span>ادمین‌ها</span>
             </NavLink>
         </nav>
         <a class="sidebar-store-link" href="http://localhost:5036/" target="_blank" rel="noopener">
@@ -94,6 +105,7 @@
             "products" => "محصولات",
             "orders" => "سفارش‌ها",
             "customers" => "مشتریان",
+            "admins" => "مدیریت ادمین‌ها",
             _ when path.StartsWith("products/") => "ویرایش محصول",
             _ when path.StartsWith("orders/") => "جزئیات سفارش",
             _ => "پنل مدیریت",

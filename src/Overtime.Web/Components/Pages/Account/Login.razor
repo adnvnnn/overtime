@@ -54,7 +54,6 @@
                         <InputText @bind-Value="PhoneModel.Phone" type="tel" inputmode="numeric" dir="ltr" placeholder="۰۹xxxxxxxxx" autofocus />
                         <ValidationMessage For="() => PhoneModel.Phone" />
                     </label>
-                    <AntiforgeryToken />
                     <button type="submit" class="btn btn-primary auth-submit">دریافت کد تایید</button>
                 </EditForm>
             }
@@ -67,12 +66,10 @@
                         <InputText @bind-Value="OtpModel.Code" inputmode="numeric" dir="ltr" maxlength="6" placeholder="------" autofocus />
                         <ValidationMessage For="() => OtpModel.Code" />
                     </label>
-                    <AntiforgeryToken />
                     <button type="submit" class="btn btn-primary auth-submit">تایید و ورود</button>
                 </EditForm>
 
                 <EditForm Model="ResendModel" FormName="resend-otp" OnValidSubmit="ResendCode" class="auth-resend-form">
-                    <AntiforgeryToken />
                     <button type="submit" class="btn btn-ghost btn-sm">ارسال مجدد کد</button>
                 </EditForm>
                 <a class="auth-change-phone" href="/account/login">تغییر شماره موبایل</a>

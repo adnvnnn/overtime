@@ -68,7 +68,7 @@
                 </div>
 
                 <div class="pdp-info">
-                    <span class="pdp-cat">@Product.Category</span>
+                    <span class="pdp-cat">@CategoryLine</span>
                     <h1>@Product.Name</h1>
                     <div class="pdp-rating">
                         <span class="stars">
@@ -157,6 +157,9 @@
     private ElementReference _sliderRef;
     private DotNetObjectReference<ProductDetail>? _dotNetRef;
     private IJSObjectReference? _galleryHandle;
+
+    private string CategoryLine => Product is null ? "" : string.Join(" · ",
+        new[] { Product.Brand, Product.Category, Product.Usage }.Where(s => !string.IsNullOrEmpty(s)));
 
     private string SwatchVar => Product?.Swatch switch
     {

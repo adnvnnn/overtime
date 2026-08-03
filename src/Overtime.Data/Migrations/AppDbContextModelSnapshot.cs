@@ -17,6 +17,35 @@ namespace Overtime.Data.Migrations
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "10.0.10");
 
+            modelBuilder.Entity("Overtime.Data.Entities.AdminUser", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("FullName")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("PasswordHash")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Username")
+                        .IsRequired()
+                        .HasColumnType("TEXT")
+                        .UseCollation("NOCASE");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Username")
+                        .IsUnique();
+
+                    b.ToTable("AdminUsers");
+                });
+
             modelBuilder.Entity("Overtime.Data.Entities.Cart", b =>
                 {
                     b.Property<Guid>("Id")
@@ -161,6 +190,10 @@ namespace Overtime.Data.Migrations
                     b.Property<string>("Badge")
                         .HasColumnType("TEXT");
 
+                    b.Property<string>("Brand")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
                     b.Property<string>("Category")
                         .IsRequired()
                         .HasColumnType("TEXT");
@@ -189,6 +222,10 @@ namespace Overtime.Data.Migrations
                         .IsRequired()
                         .HasColumnType("TEXT");
 
+                    b.Property<string>("Usage")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
                     b.HasKey("Id");
 
                     b.ToTable("Products");
@@ -198,69 +235,80 @@ namespace Overtime.Data.Migrations
                         {
                             Id = "air-pulse",
                             Badge = "پرفروش",
-                            Category = "مردانه · رانینگ",
+                            Brand = "اورتایم",
+                            Category = "مردانه",
                             Description = "کتانی رانینگ Air Pulse برای دویدن‌های روزمره و تمرین‌های سبک طراحی شده است. رویه‌ی مش تنفس‌پذیر همراه با میان‌کفش سبک، احساس راحتی را در هر قدم حفظ می‌کند.",
                             DisplayOrder = 0,
                             Name = "Air Pulse",
                             Price = 2950000L,
                             Rating = 4.7999999999999998,
                             ReviewCount = 124,
-                            Swatch = "accent"
+                            Swatch = "accent",
+                            Usage = "رانینگ"
                         },
                         new
                         {
                             Id = "highjump-x",
                             Badge = "جدید",
-                            Category = "مردانه · بسکتبال",
+                            Brand = "اورتایم",
+                            Category = "مردانه",
                             Description = "Highjump X با میان‌کفش ضربه‌گیر و ساق بلندتر، برای حرکات ناگهانی در زمین بسکتبال طراحی شده و پایداری مچ پا را در فرودها افزایش می‌دهد.",
                             DisplayOrder = 1,
                             Name = "Highjump X",
                             Price = 3800000L,
                             Rating = 4.7000000000000002,
                             ReviewCount = 98,
-                            Swatch = "accent-2"
+                            Swatch = "accent-2",
+                            Usage = "بسکتبال"
                         },
                         new
                         {
                             Id = "street-low",
-                            Category = "یونیسکس · روزمره",
+                            Brand = "اورتایم",
+                            Category = "یونیسکس",
                             Description = "یک کتانی روزمره‌ی ساده و همه‌کاره؛ Street Low با طراحی مینیمال و رنگ خنثی، با هر پوششی هم‌نشین می‌شود.",
                             DisplayOrder = 2,
                             Name = "Street Low",
                             Price = 2200000L,
                             Rating = 4.5999999999999996,
                             ReviewCount = 156,
-                            Swatch = "ink"
+                            Swatch = "ink",
+                            Usage = "روزمره"
                         },
                         new
                         {
                             Id = "aria-knit",
                             Badge = "تخفیف",
-                            Category = "زنانه · نیت",
+                            Brand = "اورتایم",
+                            Category = "زنانه",
                             Description = "Aria Knit با رویه‌ی نیت کشباف، فرمی نزدیک به فرم پا دارد و برای پوشیدن طولانی‌مدت در طول روز بسیار راحت است.",
                             DisplayOrder = 3,
                             Name = "Aria Knit",
                             Price = 2650000L,
                             Rating = 4.7999999999999998,
                             ReviewCount = 142,
-                            Swatch = "accent-2"
+                            Swatch = "accent-2",
+                            Usage = "نیت"
                         },
                         new
                         {
                             Id = "mini-dash",
-                            Category = "بچگانه · روزمره",
+                            Brand = "اورتایم",
+                            Category = "بچگانه",
                             Description = "Mini Dash مدلی سبک و بادوام برای کودکان است؛ زیره‌ی ضدلغزش و بست چسبی، پوشیدن و درآوردن را برای کودکان آسان می‌کند.",
                             DisplayOrder = 4,
                             Name = "Mini Dash",
                             Price = 1850000L,
                             Rating = 4.9000000000000004,
                             ReviewCount = 86,
-                            Swatch = "accent"
+                            Swatch = "accent",
+                            Usage = "روزمره"
                         },
                         new
                         {
                             Id = "overtime-06",
                             Badge = "لیمیتد",
+                            Brand = "اورتایم",
                             Category = "لیمیتد ادیشن",
                             Description = "Overtime №06 نسخه‌ی محدود امضای برند اورتایم است؛ تیراژ کم، جزئیات ویژه و جعبه‌ی اختصاصی این مدل را به یک قطعه‌ی کالکشنی تبدیل می‌کند.",
                             DisplayOrder = 5,
@@ -268,7 +316,8 @@ namespace Overtime.Data.Migrations
                             Price = 4500000L,
                             Rating = 5.0,
                             ReviewCount = 41,
-                            Swatch = "ink"
+                            Swatch = "ink",
+                            Usage = "کالکشنی"
                         });
                 });
 
@@ -494,211 +543,211 @@ namespace Overtime.Data.Migrations
                         {
                             Id = 7,
                             ProductId = "highjump-x",
-                            Size = 40,
-                            StockQty = 12
+                            Size = 41,
+                            StockQty = 14
                         },
                         new
                         {
                             Id = 8,
                             ProductId = "highjump-x",
-                            Size = 41,
-                            StockQty = 14
+                            Size = 42,
+                            StockQty = 4
                         },
                         new
                         {
                             Id = 9,
                             ProductId = "highjump-x",
-                            Size = 42,
-                            StockQty = 4
+                            Size = 43,
+                            StockQty = 6
                         },
                         new
                         {
                             Id = 10,
                             ProductId = "highjump-x",
-                            Size = 43,
-                            StockQty = 6
+                            Size = 44,
+                            StockQty = 8
                         },
                         new
                         {
                             Id = 11,
                             ProductId = "highjump-x",
-                            Size = 44,
-                            StockQty = 8
+                            Size = 45,
+                            StockQty = 10
                         },
                         new
                         {
                             Id = 12,
                             ProductId = "highjump-x",
-                            Size = 45,
-                            StockQty = 10
+                            Size = 46,
+                            StockQty = 12
                         },
                         new
                         {
                             Id = 13,
                             ProductId = "street-low",
-                            Size = 40,
-                            StockQty = 12
+                            Size = 38,
+                            StockQty = 8
                         },
                         new
                         {
                             Id = 14,
                             ProductId = "street-low",
+                            Size = 39,
+                            StockQty = 10
+                        },
+                        new
+                        {
+                            Id = 15,
+                            ProductId = "street-low",
+                            Size = 40,
+                            StockQty = 12
+                        },
+                        new
+                        {
+                            Id = 16,
+                            ProductId = "street-low",
                             Size = 41,
                             StockQty = 14
                         },
                         new
                         {
-                            Id = 15,
+                            Id = 17,
                             ProductId = "street-low",
                             Size = 42,
                             StockQty = 4
                         },
                         new
                         {
-                            Id = 16,
+                            Id = 18,
                             ProductId = "street-low",
                             Size = 43,
                             StockQty = 6
                         },
                         new
                         {
-                            Id = 17,
+                            Id = 19,
                             ProductId = "street-low",
                             Size = 44,
                             StockQty = 8
                         },
                         new
                         {
-                            Id = 18,
-                            ProductId = "street-low",
-                            Size = 45,
+                            Id = 20,
+                            ProductId = "aria-knit",
+                            Size = 36,
+                            StockQty = 4
+                        },
+                        new
+                        {
+                            Id = 21,
+                            ProductId = "aria-knit",
+                            Size = 37,
+                            StockQty = 6
+                        },
+                        new
+                        {
+                            Id = 22,
+                            ProductId = "aria-knit",
+                            Size = 38,
+                            StockQty = 8
+                        },
+                        new
+                        {
+                            Id = 23,
+                            ProductId = "aria-knit",
+                            Size = 39,
                             StockQty = 10
                         },
                         new
                         {
-                            Id = 19,
+                            Id = 24,
                             ProductId = "aria-knit",
                             Size = 40,
                             StockQty = 12
                         },
                         new
                         {
-                            Id = 20,
-                            ProductId = "aria-knit",
-                            Size = 41,
-                            StockQty = 14
-                        },
-                        new
-                        {
-                            Id = 21,
-                            ProductId = "aria-knit",
-                            Size = 42,
-                            StockQty = 4
-                        },
-                        new
-                        {
-                            Id = 22,
-                            ProductId = "aria-knit",
-                            Size = 43,
-                            StockQty = 6
-                        },
-                        new
-                        {
-                            Id = 23,
-                            ProductId = "aria-knit",
-                            Size = 44,
-                            StockQty = 8
-                        },
-                        new
-                        {
-                            Id = 24,
-                            ProductId = "aria-knit",
-                            Size = 45,
-                            StockQty = 10
-                        },
-                        new
-                        {
                             Id = 25,
                             ProductId = "mini-dash",
-                            Size = 40,
+                            Size = 28,
                             StockQty = 12
                         },
                         new
                         {
                             Id = 26,
                             ProductId = "mini-dash",
-                            Size = 41,
+                            Size = 29,
                             StockQty = 14
                         },
                         new
                         {
                             Id = 27,
                             ProductId = "mini-dash",
-                            Size = 42,
+                            Size = 30,
                             StockQty = 4
                         },
                         new
                         {
                             Id = 28,
                             ProductId = "mini-dash",
-                            Size = 43,
+                            Size = 31,
                             StockQty = 6
                         },
                         new
                         {
                             Id = 29,
                             ProductId = "mini-dash",
-                            Size = 44,
+                            Size = 32,
                             StockQty = 8
                         },
                         new
                         {
                             Id = 30,
                             ProductId = "mini-dash",
-                            Size = 45,
+                            Size = 33,
                             StockQty = 10
                         },
                         new
                         {
                             Id = 31,
-                            ProductId = "overtime-06",
-                            Size = 40,
+                            ProductId = "mini-dash",
+                            Size = 34,
                             StockQty = 12
                         },
                         new
                         {
                             Id = 32,
                             ProductId = "overtime-06",
+                            Size = 40,
+                            StockQty = 12
+                        },
+                        new
+                        {
+                            Id = 33,
+                            ProductId = "overtime-06",
                             Size = 41,
                             StockQty = 14
                         },
                         new
                         {
-                            Id = 33,
+                            Id = 34,
                             ProductId = "overtime-06",
                             Size = 42,
                             StockQty = 4
                         },
                         new
                         {
-                            Id = 34,
+                            Id = 35,
                             ProductId = "overtime-06",
                             Size = 43,
                             StockQty = 6
                         },
                         new
                         {
-                            Id = 35,
+                            Id = 36,
                             ProductId = "overtime-06",
                             Size = 44,
                             StockQty = 8
-                        },
-                        new
-                        {
-                            Id = 36,
-                            ProductId = "overtime-06",
-                            Size = 45,
-                            StockQty = 10
                         });
                 });
 

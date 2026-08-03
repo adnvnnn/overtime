@@ -81,9 +81,15 @@ h1,h2,h3{ text-wrap: balance; margin: 0; }
 }
 .sidebar-brand{ display:flex; align-items:center; gap:10px; padding: 6px 10px 22px; }
 .sidebar-brand .mark{ width:30px; height:30px; color: var(--sidebar-active); flex:none; }
-.brand-text{ display:flex; flex-direction:column; line-height:1.2; }
+.brand-text{ display:flex; flex-direction:column; line-height:1.2; flex:1; }
 .brand-text .en{ font-weight:900; font-style:italic; letter-spacing:-0.02em; font-size:15px; transform: skewX(-6deg); display:inline-block; }
 .brand-text .fa{ font-size:11px; color: var(--sidebar-muted); }
+.sidebar-close-btn{
+  display:none; align-items:center; justify-content:center; flex:none;
+  width: 34px; height: 34px; border-radius: 10px; border: 1px solid color-mix(in srgb, var(--sidebar-muted) 40%, transparent);
+  background: transparent; color: var(--sidebar-ink); cursor:pointer;
+}
+.sidebar-close-btn:hover{ border-color: var(--sidebar-muted); }
 
 .sidebar-nav{ display:flex; flex-direction:column; gap:4px; flex:1; }
 .sidebar-nav a{
@@ -143,12 +149,13 @@ h1,h2,h3{ text-wrap: balance; margin: 0; }
   background: var(--surface); border:1px solid var(--line); border-radius: var(--radius);
   box-shadow: var(--shadow); padding: 22px 24px;
 }
-.panel + .panel{ margin-top: 20px; }
+.panel + .panel, .dash-grid + .panel{ margin-top: 20px; }
 .panel-head{ display:flex; align-items:center; justify-content:space-between; margin-bottom: 18px; gap:12px; flex-wrap:wrap; }
 .panel-head h2{ font-size:16.5px; font-weight:800; }
 .panel-head p{ margin:2px 0 0; font-size:12.5px; color: var(--muted); }
 
 .dash-grid{ display:grid; grid-template-columns: 1.6fr 1fr; gap: 20px; align-items:start; }
+.dash-grid > .panel + .panel{ margin-top: 0; }
 
 /* ---------- Bar chart (revenue trend) ---------- */
 .chart{ display:flex; align-items:flex-end; gap: 6px; height: 190px; padding-top: 10px; }
@@ -235,6 +242,11 @@ select.status-select{
 .stock-chip span{ font-size:11px; color:var(--muted); font-weight:700; }
 .stock-chip input{ width:100%; text-align:center; padding:6px 4px; border-radius:8px; border:1px solid var(--line); font: inherit; }
 
+.size-row-list{ display:flex; flex-direction:column; gap:10px; align-items:flex-start; }
+.size-row{ display:flex; align-items:end; gap:10px; }
+.size-row label{ display:flex; flex-direction:column; gap:4px; font-size:11px; color:var(--muted); font-weight:700; }
+.size-row input{ width:120px; padding:9px 10px; border-radius:8px; border:1px solid var(--line); font: inherit; }
+
 /* ---------- Login ---------- */
 .login-shell{ min-height: 100vh; display:flex; align-items:center; justify-content:center; background: var(--sidebar-bg); padding: 24px; }
 .login-card{
@@ -265,8 +277,17 @@ select.status-select{
   }
   html[dir="rtl"] .sidebar.open{ transform: translateX(0); }
   .topbar-menu-btn{ display:flex; align-items:center; justify-content:center; width:38px; height:38px; border-radius:10px; border:1px solid var(--line); background:var(--surface); }
+  .sidebar-close-btn{ display:flex; }
   .admin-content{ padding: 20px 16px 50px; }
   .admin-topbar{ padding: 14px 16px; }
   .stat-grid{ grid-template-columns: 1fr 1fr; gap:12px; }
   .user-name{ display:none; }
+
+  .sidebar-backdrop{
+    display:block; position: fixed; inset:0; z-index: 30;
+    background: rgba(10, 8, 16, .45);
+  }
+}
+@media (min-width: 861px){
+  .sidebar-backdrop{ display:none; }
 }
