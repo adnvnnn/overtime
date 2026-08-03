@@ -15,6 +15,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
     public DbSet<OrderItem> OrderItems => Set<OrderItem>();
     public DbSet<User> Users => Set<User>();
     public DbSet<OtpCode> OtpCodes => Set<OtpCode>();
+    public DbSet<AdminUser> AdminUsers => Set<AdminUser>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -51,5 +52,11 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
 
         modelBuilder.Entity<OtpCode>()
             .HasIndex(o => new { o.PhoneNumber, o.CreatedAt });
+
+        modelBuilder.Entity<AdminUser>(e =>
+        {
+            e.Property(a => a.Username).UseCollation("NOCASE");
+            e.HasIndex(a => a.Username).IsUnique();
+        });
     }
 }

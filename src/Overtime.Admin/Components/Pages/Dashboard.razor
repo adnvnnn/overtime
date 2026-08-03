@@ -6,28 +6,28 @@
 <div class="stat-grid">
     <div class="stat-card">
         <div class="stat-card-head">
-            <div class="stat-icon"><Icon Name="wallet" /></div>
+            <div class="stat-icon"><Icon Name="wallet" Class="ic" /></div>
         </div>
         <span class="stat-label">درآمد کل</span>
         <span class="stat-value">@_summary.TotalRevenue.FormatToman()</span>
     </div>
     <div class="stat-card">
         <div class="stat-card-head">
-            <div class="stat-icon"><Icon Name="receipt" /></div>
+            <div class="stat-icon"><Icon Name="receipt" Class="ic" /></div>
         </div>
         <span class="stat-label">تعداد سفارش‌ها</span>
         <span class="stat-value">@_summary.OrderCount.ToFa()</span>
     </div>
     <div class="stat-card">
         <div class="stat-card-head">
-            <div class="stat-icon"><Icon Name="package" /></div>
+            <div class="stat-icon"><Icon Name="package" Class="ic" /></div>
         </div>
         <span class="stat-label">تعداد محصولات</span>
         <span class="stat-value">@_summary.ProductCount.ToFa()</span>
     </div>
     <div class="stat-card">
         <div class="stat-card-head">
-            <div class="stat-icon"><Icon Name="users" /></div>
+            <div class="stat-icon"><Icon Name="users" Class="ic" /></div>
         </div>
         <span class="stat-label">مشتریان ثبت‌نامی</span>
         <span class="stat-value">@_summary.CustomerCount.ToFa()</span>
@@ -44,7 +44,7 @@
         </div>
         @if (_trend.Count == 0)
         {
-            <div class="empty-state"><Icon Name="trending-up" />هنوز سفارشی ثبت نشده است.</div>
+            <div class="empty-state"><Icon Name="trending-up" Class="ic" />هنوز سفارشی ثبت نشده است.</div>
         }
         else
         {
@@ -70,7 +70,7 @@
         </div>
         @if (_topProducts.Count == 0)
         {
-            <div class="empty-state"><Icon Name="package" />داده‌ای موجود نیست.</div>
+            <div class="empty-state"><Icon Name="package" Class="ic" />داده‌ای موجود نیست.</div>
         }
         else
         {
@@ -102,7 +102,7 @@
     </div>
     @if (_recentOrders.Count == 0)
     {
-        <div class="empty-state"><Icon Name="receipt" />هنوز سفارشی ثبت نشده است.</div>
+        <div class="empty-state"><Icon Name="receipt" Class="ic" />هنوز سفارشی ثبت نشده است.</div>
     }
     else
     {

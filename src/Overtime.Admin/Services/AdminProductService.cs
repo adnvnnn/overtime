@@ -15,7 +15,7 @@ public partial class AdminProductService(IDbContextFactory<AppDbContext> dbFacto
         if (!string.IsNullOrWhiteSpace(query))
         {
             var pattern = $"%{query.Trim()}%";
-            q = q.Where(p => EF.Functions.Like(p.Name, pattern) || EF.Functions.Like(p.Category, pattern));
+            q = q.Where(p => EF.Functions.Like(p.Name, pattern) || EF.Functions.Like(p.Brand, pattern) || EF.Functions.Like(p.Category, pattern));
         }
 
         return await q.OrderBy(p => p.DisplayOrder).ToListAsync();
@@ -42,18 +42,13 @@ public partial class AdminProductService(IDbContextFactory<AppDbContext> dbFacto
             id = $"{baseId}-{suffix++}";
         product.Id = id;
 
-        if (product.Sizes.Count == 0)
-        {
-            foreach (var size in DefaultSizes)
-                product.Sizes.Add(new ProductSize { ProductId = id, Size = size, StockQty = 0 });
-        }
+        foreach (var size in product.Sizes)
+            size.ProductId = id;
 
         db.Products.Add(product);
         await db.SaveChangesAsync();
         return product;
     }
-
-    private static readonly int[] DefaultSizes = [40, 41, 42, 43, 44, 45];
 
     public async Task UpdateAsync(Product product)
     {
@@ -63,7 +58,9 @@ public partial class AdminProductService(IDbContextFactory<AppDbContext> dbFacto
             return;
 
         existing.Name = product.Name;
+        existing.Brand = product.Brand;
         existing.Category = product.Category;
+        existing.Usage = product.Usage;
         existing.Price = product.Price;
         existing.Description = product.Description;
         existing.Badge = product.Badge;
@@ -78,15 +75,24 @@ public partial class AdminProductService(IDbContextFactory<AppDbContext> dbFacto
         await db.Products.Where(p => p.Id == id).ExecuteDeleteAsync();
     }
 
-    public async Task UpdateStockAsync(string productId, int size, int stockQty)
+    public async Task UpdateSizesAsync(string productId, List<ProductSize> sizes)
     {
         await using var db = await dbFactory.CreateDbContextAsync();
-        var row = await db.ProductSizes.FirstOrDefaultAsync(s => s.ProductId == productId && s.Size == size);
-        if (row is not null)
+        var existing = await db.ProductSizes.Where(s => s.ProductId == productId).ToListAsync();
+        var selectedBySize = sizes.ToDictionary(s => s.Size);
+
+        foreach (var row in existing)
         {
-            row.StockQty = Math.Max(0, stockQty);
-            await db.SaveChangesAsync();
+            if (selectedBySize.Remove(row.Size, out var selected))
+                row.StockQty = Math.Max(0, selected.StockQty);
+            else
+                db.ProductSizes.Remove(row);
         }
+
+        foreach (var newSize in selectedBySize.Values)
+            db.ProductSizes.Add(new ProductSize { ProductId = productId, Size = newSize.Size, StockQty = Math.Max(0, newSize.StockQty) });
+
+        await db.SaveChangesAsync();
     }
 
     private static string Slugify(string name)

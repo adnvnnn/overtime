@@ -12,7 +12,7 @@
         </div>
     </a>
     <div class="body">
-        <span class="cat-line">@Product.Category</span>
+        <span class="cat-line">@CategoryLine</span>
         <h3><a href="@($"/product/{Product.Id}")">@Product.Name</a></h3>
         <div class="row">
             <span class="price">@Product.Price.ToFa()<small>تومان</small></span>
@@ -28,6 +28,9 @@
     private bool _added;
 
     private string MainImage => Product.Images.Count > 0 ? Product.Images[0].Url : "";
+
+    private string CategoryLine => string.Join(" · ",
+        new[] { Product.Brand, Product.Category, Product.Usage }.Where(s => !string.IsNullOrEmpty(s)));
 
     private string SwatchVar => Product.Swatch switch
     {

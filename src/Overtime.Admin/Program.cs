@@ -19,6 +19,7 @@ builder.Services.AddScoped<DashboardService>();
 builder.Services.AddScoped<AdminProductService>();
 builder.Services.AddScoped<AdminOrderService>();
 builder.Services.AddScoped<AdminCustomerService>();
+builder.Services.AddScoped<AdminAccountService>();
 
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
     .AddCookie(options =>
@@ -42,6 +43,8 @@ using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<IDbContextFactory<AppDbContext>>().CreateDbContext();
     db.Database.Migrate();
+    await DemoDataSeeder.SeedIfEmptyAsync(db);
+    await AdminBootstrapper.SeedIfEmptyAsync(db, app.Configuration);
 }
 
 // Configure the HTTP request pipeline.
@@ -55,7 +58,7 @@ app.UseAuthentication();
 app.UseAuthorization();
 app.UseAntiforgery();
 
-app.MapStaticAssets();
+app.MapStaticAssets().AllowAnonymous();
 app.MapRazorComponents<App>()
     .AddInteractiveServerRenderMode();
 

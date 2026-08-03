@@ -1,0 +1,205 @@
+@page "/admins"
+@rendermode InteractiveServer
+@using System.ComponentModel.DataAnnotations
+@using System.Security.Claims
+@inject AdminAccountService AdminAccountService
+@inject AuthenticationStateProvider AuthStateProvider
+
+<PageTitle>مدیریت ادمین‌ها | مدیریت اورتایم</PageTitle>
+
+<div class="panel">
+    <div class="panel-head">
+        <div>
+            <h2>مدیریت ادمین‌ها</h2>
+            <p>@_admins.Count.ToFa() ادمین</p>
+        </div>
+        <button class="btn btn-primary btn-sm" type="button" @onclick="ToggleAddForm">
+            <Icon Name="plus" Class="ic" />
+            افزودن ادمین
+        </button>
+    </div>
+
+    @if (!string.IsNullOrEmpty(_error))
+    {
+        <div class="auth-alert">@_error</div>
+    }
+
+    @if (_showAddForm)
+    {
+        <EditForm Model="_newAdmin" OnValidSubmit="CreateAsync" class="form-grid" style="margin-bottom:22px;">
+            <DataAnnotationsValidator />
+            <label class="auth-field">
+                <span>نام کاربری</span>
+                <InputText @bind-Value="_newAdmin.Username" />
+                <ValidationMessage For="() => _newAdmin.Username" />
+            </label>
+            <label class="auth-field">
+                <span>نام کامل (اختیاری)</span>
+                <InputText @bind-Value="_newAdmin.FullName" />
+            </label>
+            <label class="auth-field">
+                <span>رمز عبور</span>
+                <InputText @bind-Value="_newAdmin.Password" type="password" />
+                <ValidationMessage For="() => _newAdmin.Password" />
+            </label>
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary btn-sm">ذخیره</button>
+                <button type="button" class="btn btn-ghost btn-sm" @onclick="ToggleAddForm">انصراف</button>
+            </div>
+        </EditForm>
+    }
+
+    @if (_admins.Count == 0)
+    {
+        <div class="empty-state"><Icon Name="users" Class="ic" />ادمینی یافت نشد.</div>
+    }
+    else
+    {
+        <div class="table-wrap">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>نام کاربری</th>
+                        <th>نام کامل</th>
+                        <th>تاریخ ایجاد</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var admin in _admins)
+                    {
+                        <tr>
+                            <td class="cell-title" dir="ltr" style="text-align:end">@admin.Username</td>
+                            <td>@(admin.FullName ?? "—")</td>
+                            <td class="num">@admin.CreatedAt.ToString("yyyy/MM/dd")</td>
+                            <td>
+                                <div class="row-actions">
+                                    <button class="icon-btn" type="button" aria-label="تغییر رمز عبور" title="تغییر رمز عبور" @onclick="() => ToggleReset(admin.Id)">
+                                        <Icon Name="lock" Class="ic" />
+                                    </button>
+                                    @if (admin.Id != _currentAdminId)
+                                    {
+                                        @if (_confirmDeleteId == admin.Id)
+                                        {
+                                            <button class="btn btn-danger btn-sm" type="button" @onclick="() => DeleteAsync(admin.Id)">تایید حذف</button>
+                                            <button class="icon-btn" type="button" aria-label="انصراف" @onclick="() => _confirmDeleteId = null">
+                                                <Icon Name="x" Class="ic" />
+                                            </button>
+                                        }
+                                        else
+                                        {
+                                            <button class="icon-btn" type="button" aria-label="حذف" title="حذف" @onclick="() => _confirmDeleteId = admin.Id">
+                                                <Icon Name="trash-2" Class="ic" />
+                                            </button>
+                                        }
+                                    }
+                                </div>
+                            </td>
+                        </tr>
+                        @if (_resetId == admin.Id)
+                        {
+                            <tr>
+                                <td colspan="4">
+                                    <div class="size-row">
+                                        <label>
+                                            <span>رمز عبور جدید</span>
+                                            <input type="password" @bind="_newPassword" />
+                                        </label>
+                                        <button class="btn btn-primary btn-sm" type="button" @onclick="() => ResetPasswordAsync(admin.Id)">ذخیره رمز جدید</button>
+                                        <button class="icon-btn" type="button" aria-label="انصراف" @onclick="() => _resetId = null">
+                                            <Icon Name="x" Class="ic" />
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+</div>
+
+@code {
+    private List<AdminUser> _admins = [];
+    private bool _showAddForm;
+    private NewAdminModel _newAdmin = new();
+    private string? _error;
+    private int? _confirmDeleteId;
+    private int? _resetId;
+    private string _newPassword = "";
+    private int _currentAdminId;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var state = await AuthStateProvider.GetAuthenticationStateAsync();
+        _currentAdminId = int.TryParse(state.User.FindFirst(ClaimTypes.NameIdentifier)?.Value, out var id) ? id : 0;
+        await Refresh();
+    }
+
+    private async Task Refresh() => _admins = await AdminAccountService.GetAllAsync();
+
+    private void ToggleAddForm()
+    {
+        _showAddForm = !_showAddForm;
+        _newAdmin = new();
+        _error = null;
+    }
+
+    private async Task CreateAsync()
+    {
+        var (ok, error) = await AdminAccountService.CreateAsync(_newAdmin.Username, _newAdmin.Password, _newAdmin.FullName);
+        if (!ok)
+        {
+            _error = error;
+            return;
+        }
+
+        _showAddForm = false;
+        _error = null;
+        await Refresh();
+    }
+
+    private void ToggleReset(int id)
+    {
+        _resetId = _resetId == id ? null : id;
+        _newPassword = "";
+    }
+
+    private async Task ResetPasswordAsync(int id)
+    {
+        if (string.IsNullOrWhiteSpace(_newPassword) || _newPassword.Length < 4)
+        {
+            _error = "رمز عبور باید حداقل ۴ کاراکتر باشد.";
+            return;
+        }
+
+        await AdminAccountService.ResetPasswordAsync(id, _newPassword);
+        _resetId = null;
+        _error = null;
+    }
+
+    private async Task DeleteAsync(int id)
+    {
+        var (ok, error) = await AdminAccountService.DeleteAsync(id);
+        _confirmDeleteId = null;
+        if (!ok)
+        {
+            _error = error;
+            return;
+        }
+        await Refresh();
+    }
+
+    public class NewAdminModel
+    {
+        [Required(ErrorMessage = "نام کاربری را وارد کنید")]
+        public string Username { get; set; } = "";
+
+        public string? FullName { get; set; }
+
+        [Required(ErrorMessage = "رمز عبور را وارد کنید")]
+        [MinLength(4, ErrorMessage = "رمز عبور باید حداقل ۴ کاراکتر باشد")]
+        public string Password { get; set; } = "";
+    }
+}
