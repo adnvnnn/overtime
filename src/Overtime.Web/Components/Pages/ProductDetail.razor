@@ -242,8 +242,15 @@
     {
         if (_galleryHandle is not null)
         {
-            await _galleryHandle.InvokeVoidAsync("dispose");
-            await _galleryHandle.DisposeAsync();
+            try
+            {
+                await _galleryHandle.InvokeVoidAsync("dispose");
+                await _galleryHandle.DisposeAsync();
+            }
+            catch (JSDisconnectedException)
+            {
+                // Circuit already torn down (e.g. page reload/navigation) — nothing to clean up client-side.
+            }
         }
         _dotNetRef?.Dispose();
     }
