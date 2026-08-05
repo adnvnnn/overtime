@@ -220,7 +220,7 @@
 
   .pdp-dots{
     position:absolute; bottom:14px; left:50%; translate: -50% 0; z-index:3;
-    display:flex; gap:6px;
+    display:flex; gap:6px; direction:rtl;
   }
   .pdp-dot{
     width:7px; height:7px; padding:0; border:none; border-radius:999px; cursor:pointer;
@@ -230,7 +230,7 @@
   .pdp-dot.active{ background: var(--accent); transform: scale(1.35); }
 
   .pdp-media{ display:flex; flex-direction:column; gap:14px; }
-  .pdp-thumbs{ display:flex; gap:10px; flex-wrap:wrap; }
+  .pdp-thumbs{ display:flex; gap:10px; flex-wrap:wrap; direction:rtl; }
   .pdp-thumbs:empty{ display:none; }
   .pdp-thumb{
     width:72px; height:72px; padding:0; flex:none; cursor:pointer;
