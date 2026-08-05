@@ -306,9 +306,9 @@
     border-radius: 28px; padding: 56px; background: var(--surface); border: 1px solid var(--line);
     display:grid; grid-template-columns: 1fr 1fr; gap: 40px; align-items:center;
   }
-  .insta .grid6{ display:grid; grid-template-columns: repeat(3,1fr); gap: 10px; }
+  .insta .grid6{ display:grid; grid-template-columns: repeat(3,1fr); gap: 10px; min-width: 0; }
   .insta .grid6 .sq{
-    aspect-ratio:1; border-radius: 12px;
+    aspect-ratio:1; border-radius: 12px; min-width: 0;
     display:flex; align-items:center; justify-content:center;
     color: #ffffff;
   }
@@ -317,6 +317,7 @@
     font-family: "Segoe UI", Arial, sans-serif;
     font-weight: 800; font-size: 15px; letter-spacing: .06em;
     text-transform: uppercase; opacity: .92; text-align:center; padding: 0 6px;
+    overflow-wrap: break-word; word-break: break-word;
   }
   .insta .grid6 .sq:nth-child(1){ background: #6c2fd6; }
   .insta .grid6 .sq:nth-child(2){ background: #17111f; }
@@ -518,6 +519,7 @@
     .features{ grid-template-columns: 1fr; }
     .hero-stats{ flex-wrap:wrap; row-gap: 16px; }
     .insta{ padding: 22px; }
+    .insta .grid6{ grid-template-columns: repeat(2,1fr); }
     .loc-card{ padding: 24px; }
     .brand .name .fa{ display:none; }
   }
