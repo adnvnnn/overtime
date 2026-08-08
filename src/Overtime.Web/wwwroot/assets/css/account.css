@@ -41,3 +41,189 @@
 .user-menu{ position: relative; display:flex; align-items:center; }
 .user-menu .btn{ padding: 9px 16px; }
 .user-menu form{ display: contents; }
+
+/* Account Section */
+.account-section{ padding: 40px 0 100px; }
+.account-header{
+  display: flex; justify-content: space-between; align-items: center;
+  margin-bottom: 32px; gap: 20px;
+}
+.account-header h1{ margin: 0; font-size: 26px; font-weight: 800; }
+.account-header .btn{ flex-shrink: 0; }
+
+.account-empty{
+  text-align: center; padding: 60px 20px;
+  color: var(--muted);
+}
+
+/* Address List */
+.address-list{
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
+  gap: 20px;
+}
+
+.address-card{
+  background: var(--surface); border: 1px solid var(--line);
+  border-radius: var(--radius); padding: 20px; position: relative;
+}
+
+.address-card.default{
+  border-color: var(--accent); box-shadow: 0 0 0 1px color-mix(in srgb, var(--accent) 20%, transparent);
+}
+
+.address-card .badge{
+  position: absolute; top: 12px; right: 12px;
+  font-size: 11px; font-weight: 600; color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 10%, transparent);
+  padding: 4px 10px; border-radius: 20px;
+}
+
+.address-content{
+  margin-bottom: 16px;
+}
+
+.address-content h3{
+  margin: 0 0 8px; font-size: 16px; font-weight: 700;
+}
+
+.address-content p{
+  margin: 4px 0; font-size: 14px; line-height: 1.5;
+  color: var(--ink-soft);
+}
+
+.address-content .postal,
+.address-content .phone{
+  font-size: 13px;
+  color: var(--muted);
+}
+
+.address-actions{
+  display: flex; gap: 8px;
+}
+
+.address-actions .btn{
+  flex: 1; padding: 8px 12px; font-size: 13px;
+}
+
+/* Address Form */
+.address-form-container{
+  max-width: 600px; margin: 0 auto;
+}
+
+.address-form-container h1{
+  font-size: 26px; font-weight: 800; margin-bottom: 30px;
+}
+
+.address-form{
+  display: flex; flex-direction: column; gap: 20px;
+}
+
+.form-group{
+  display: flex; flex-direction: column; gap: 8px;
+}
+
+.form-group label{
+  font-size: 14px; font-weight: 600; color: var(--ink-soft);
+}
+
+.form-group input{
+  font-family: inherit; font-size: 16px; padding: 12px 14px;
+  border-radius: 10px; border: 1px solid var(--line);
+  background: var(--bg); color: var(--ink);
+}
+
+.form-group input:focus{
+  outline: 2px solid var(--accent); outline-offset: 1px;
+  border-color: var(--accent);
+}
+
+.form-group.checkbox{
+  flex-direction: row; align-items: center; gap: 10px;
+}
+
+.form-group.checkbox input{
+  width: 18px; height: 18px; margin: 0; flex-shrink: 0;
+}
+
+.form-group.checkbox label{
+  margin: 0; font-size: 14px;
+}
+
+.form-group .validation-message{
+  color: #e5484d; font-size: 12px; font-weight: 500;
+}
+
+.form-row{
+  display: grid; grid-template-columns: 1fr 1fr; gap: 20px;
+}
+
+.form-actions{
+  display: flex; gap: 12px; margin-top: 10px;
+}
+
+.form-actions .btn{ flex: 1; justify-content: center; }
+
+/* Cart Checkout - Address Selection */
+.cart-checkout-step{
+  padding: 16px; background: var(--surface-2); border-radius: 10px;
+}
+
+.cart-checkout-step h4{
+  margin: 0 0 16px; font-size: 16px; font-weight: 700;
+}
+
+.no-address{
+  text-align: center; padding: 24px; color: var(--ink-soft);
+}
+
+.no-address p{ margin: 0 0 12px; }
+
+.address-options{
+  display: flex; flex-direction: column; gap: 12px; margin-bottom: 16px;
+}
+
+.address-option{
+  display: flex; align-items: flex-start; gap: 12px;
+  padding: 12px; border: 1px solid var(--line); border-radius: 8px;
+  background: var(--bg); cursor: pointer; transition: all 200ms;
+}
+
+.address-option:hover{
+  border-color: var(--accent); background: color-mix(in srgb, var(--accent) 5%, transparent);
+}
+
+.address-option.selected{
+  border-color: var(--accent); background: color-mix(in srgb, var(--accent) 10%, transparent);
+}
+
+.address-option input[type="radio"]{
+  margin-top: 2px; flex-shrink: 0; width: 18px; height: 18px;
+}
+
+.option-content{
+  flex: 1; display: flex; flex-direction: column; gap: 4px;
+  font-size: 13px;
+}
+
+.option-content strong{
+  font-weight: 600; color: var(--ink);
+}
+
+.option-content .address-text{
+  color: var(--ink-soft); line-height: 1.4;
+}
+
+.badge-small{
+  font-size: 11px; font-weight: 600; color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 15%, transparent);
+  padding: 3px 8px; border-radius: 12px; flex-shrink: 0;
+  align-self: center;
+}
+
+.checkout-buttons{
+  display: flex; gap: 12px;
+}
+
+.checkout-buttons .btn{
+  flex: 1; justify-content: center;
+}
