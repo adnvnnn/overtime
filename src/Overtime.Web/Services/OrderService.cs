@@ -1,10 +1,12 @@
+using System.Security.Claims;
+using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Overtime.Data;
 using Overtime.Data.Entities;
 
 namespace Overtime.Web.Services;
 
-public class OrderService(IDbContextFactory<AppDbContext> dbFactory, CartContext cartContext, CartService cartService)
+public class OrderService(IDbContextFactory<AppDbContext> dbFactory, CartContext cartContext, CartService cartService, IHttpContextAccessor httpContext)
 {
     public async Task<string?> CheckoutAsync()
     {
@@ -17,11 +19,13 @@ public class OrderService(IDbContextFactory<AppDbContext> dbFactory, CartContext
         if (items.Count == 0)
             return null;
 
+        var userId = GetCurrentUserId();
         var orderNumber = $"OT-{Random.Shared.Next(10000, 99999)}";
         var order = new Order
         {
             OrderNumber = orderNumber,
             CartId = cartContext.CartId,
+            UserId = userId,
             CreatedAt = DateTime.UtcNow,
             Total = items.Sum(i => i.Qty * (i.Product?.Price ?? 0)),
         };
@@ -48,5 +52,25 @@ public class OrderService(IDbContextFactory<AppDbContext> dbFactory, CartContext
 
         cartService.NotifyChanged();
         return orderNumber;
+    }
+
+    public async Task<List<Order>> GetUserOrdersAsync(int userId)
+    {
+        await using var db = await dbFactory.CreateDbContextAsync();
+        return await db.Orders
+            .Where(o => o.UserId == userId)
+            .Include(o => o.Items)
+            .OrderByDescending(o => o.CreatedAt)
+            .ToListAsync();
+    }
+
+    private int? GetCurrentUserId()
+    {
+        var user = httpContext?.HttpContext?.User;
+        if (user?.Identity?.IsAuthenticated != true)
+            return null;
+
+        var userIdClaim = user.FindFirst(ClaimTypes.NameIdentifier);
+        return userIdClaim != null && int.TryParse(userIdClaim.Value, out var userId) ? userId : null;
     }
 }

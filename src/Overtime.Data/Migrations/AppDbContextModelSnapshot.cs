@@ -95,6 +95,12 @@ namespace Overtime.Data.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
 
+                    b.Property<string>("CancellationReason")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime?>("CancelledAt")
+                        .HasColumnType("TEXT");
+
                     b.Property<Guid>("CartId")
                         .HasColumnType("TEXT");
 
@@ -104,6 +110,9 @@ namespace Overtime.Data.Migrations
                     b.Property<string>("OrderNumber")
                         .IsRequired()
                         .HasColumnType("TEXT");
+
+                    b.Property<int?>("UserId")
+                        .HasColumnType("INTEGER");
 
                     b.Property<int>("Status")
                         .HasColumnType("INTEGER");

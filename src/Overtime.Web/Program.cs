@@ -21,6 +21,7 @@ builder.Services.AddScoped<CartService>();
 builder.Services.AddScoped<OrderService>();
 builder.Services.AddScoped<ToastService>();
 builder.Services.AddScoped<OtpService>();
+builder.Services.AddScoped<UserOrderService>();
 
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
     .AddCookie(options =>

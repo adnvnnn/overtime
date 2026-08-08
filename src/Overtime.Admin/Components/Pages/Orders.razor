@@ -71,28 +71,45 @@
                         {
                             <tr>
                                 <td colspan="6">
-                                    <div class="table-wrap">
-                                        <table class="data-table">
-                                            <thead>
-                                                <tr>
-                                                    <th>محصول</th>
-                                                    <th>سایز</th>
-                                                    <th>تعداد</th>
-                                                    <th>قیمت واحد</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody>
-                                                @foreach (var item in order.Items)
-                                                {
+                                    <div class="order-details">
+                                        <div class="table-wrap">
+                                            <table class="data-table">
+                                                <thead>
                                                     <tr>
-                                                        <td>@item.ProductName</td>
-                                                        <td class="num">@item.Size.ToFa()</td>
-                                                        <td class="num">@item.Qty.ToFa()</td>
-                                                        <td class="num">@item.UnitPrice.FormatToman()</td>
+                                                        <th>محصول</th>
+                                                        <th>سایز</th>
+                                                        <th>تعداد</th>
+                                                        <th>قیمت واحد</th>
                                                     </tr>
-                                                }
-                                            </tbody>
-                                        </table>
+                                                </thead>
+                                                <tbody>
+                                                    @foreach (var item in order.Items)
+                                                    {
+                                                        <tr>
+                                                            <td>@item.ProductName</td>
+                                                            <td class="num">@item.Size.ToFa()</td>
+                                                            <td class="num">@item.Qty.ToFa()</td>
+                                                            <td class="num">@item.UnitPrice.FormatToman()</td>
+                                                        </tr>
+                                                    }
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                        @if (order.Status != OrderStatus.Cancelled)
+                                        {
+                                            <div class="order-actions">
+                                                <button type="button" class="btn btn-ghost btn-sm"
+                                                        @onclick="() => ShowCancelDialog(order)">
+                                                    لغو سفارش
+                                                </button>
+                                            </div>
+                                        }
+                                        @if (order.Status == OrderStatus.Cancelled && !string.IsNullOrEmpty(order.CancellationReason))
+                                        {
+                                            <div class="cancellation-info">
+                                                <strong>دلیل لغو:</strong> @order.CancellationReason
+                                            </div>
+                                        }
                                     </div>
                                 </td>
                             </tr>
@@ -104,11 +121,49 @@
     }
 </div>
 
+@if (_showCancelDialog && _selectedOrder != null)
+{
+    <div class="modal-overlay" @onclick="HideCancelDialog">
+        <div class="modal-content" @onclick:stopPropagation="true">
+            <div class="modal-head">
+                <h3>لغو سفارش</h3>
+                <button type="button" class="icon-btn modal-close" @onclick="HideCancelDialog">
+                    <Icon Name="x" Class="ic" />
+                </button>
+            </div>
+            <div class="modal-body">
+                <p>شماره سفارش: <strong>@_selectedOrder.OrderNumber</strong></p>
+                <label class="form-field">
+                    <span>دلیل لغو (اختیاری)</span>
+                    <textarea @bind="_cancelReason" placeholder="مثال: درخواست کاربر برای لغو"></textarea>
+                </label>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-ghost" @onclick="HideCancelDialog">انصراف</button>
+                <button type="button" class="btn btn-danger" @onclick="ConfirmCancel" disabled="@_isCancelling">
+                    @if (_isCancelling)
+                    {
+                        <span>در حال لغو...</span>
+                    }
+                    else
+                    {
+                        <span>تایید لغو</span>
+                    }
+                </button>
+            </div>
+        </div>
+    </div>
+}
+
 @code {
     private List<Order> _orders = [];
     private string _query = "";
     private OrderStatus? _statusFilter;
     private int? _expandedId;
+    private bool _showCancelDialog;
+    private Order? _selectedOrder;
+    private string _cancelReason = "";
+    private bool _isCancelling;
 
     protected override async Task OnInitializedAsync() => await Refresh();
 
@@ -137,6 +192,39 @@
     }
 
     private void Toggle(int orderId) => _expandedId = _expandedId == orderId ? null : orderId;
+
+    private void ShowCancelDialog(Order order)
+    {
+        _selectedOrder = order;
+        _cancelReason = "";
+        _showCancelDialog = true;
+    }
+
+    private void HideCancelDialog()
+    {
+        _showCancelDialog = false;
+        _selectedOrder = null;
+        _cancelReason = "";
+    }
+
+    private async Task ConfirmCancel()
+    {
+        if (_selectedOrder is null)
+            return;
+
+        _isCancelling = true;
+        try
+        {
+            await OrderService.CancelOrderAsync(_selectedOrder.Id, _cancelReason);
+            _selectedOrder.Status = OrderStatus.Cancelled;
+            _selectedOrder.CancellationReason = _cancelReason;
+            HideCancelDialog();
+        }
+        finally
+        {
+            _isCancelling = false;
+        }
+    }
 
     private static string StatusLabel(OrderStatus status) => status switch
     {

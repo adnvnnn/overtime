@@ -1,0 +1,222 @@
+@page "/orders"
+@rendermode InteractiveServer
+@attribute [Authorize]
+@inject UserOrderService OrderService
+@inject ToastService ToastService
+
+<PageTitle>سفارش‌های من | Overtime</PageTitle>
+
+<div class="wrap">
+    <nav class="breadcrumb" aria-label="مسیر صفحه">
+        <a href="/">خانه</a>
+        <span>/</span>
+        <span class="cur">سفارش‌های من</span>
+    </nav>
+</div>
+
+<section class="panel">
+    <div class="panel-head">
+        <div>
+            <h2>سفارش‌های من</h2>
+            <p>@_orders.Count.ToFa() سفارش</p>
+        </div>
+    </div>
+
+    @if (_orders.Count == 0)
+    {
+        <div class="empty-state">
+            <Icon Name="receipt" Class="ic" />
+            <p>هیچ سفارشی ثبت نشده است.</p>
+            <a href="/products" class="btn btn-primary btn-sm">شروع خریدتان</a>
+        </div>
+    }
+    else
+    {
+        <div class="table-wrap">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>شماره سفارش</th>
+                        <th>تاریخ ثبت</th>
+                        <th>اقلام</th>
+                        <th>مبلغ</th>
+                        <th>وضعیت</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var order in _orders)
+                    {
+                        <tr>
+                            <td class="cell-title">@order.OrderNumber</td>
+                            <td class="num">@order.CreatedAt.ToString("yyyy/MM/dd HH:mm")</td>
+                            <td class="num">@order.Items.Sum(i => i.Qty).ToFa()</td>
+                            <td class="num">@order.Total.FormatToman()</td>
+                            <td>
+                                <span class="status-badge">@StatusLabel(order.Status)</span>
+                            </td>
+                            <td>
+                                <button class="icon-btn" type="button" aria-label="جزئیات" title="نمایش اقلام"
+                                        @onclick="() => Toggle(order.Id)">
+                                    <Icon Name="chevron-down" Class="ic" />
+                                </button>
+                            </td>
+                        </tr>
+                        @if (_expandedId == order.Id)
+                        {
+                            <tr>
+                                <td colspan="6">
+                                    <div class="order-details">
+                                        <div class="table-wrap">
+                                            <table class="data-table">
+                                                <thead>
+                                                    <tr>
+                                                        <th>محصول</th>
+                                                        <th>سایز</th>
+                                                        <th>تعداد</th>
+                                                        <th>قیمت واحد</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    @foreach (var item in order.Items)
+                                                    {
+                                                        <tr>
+                                                            <td>@item.ProductName</td>
+                                                            <td class="num">@item.Size.ToFa()</td>
+                                                            <td class="num">@item.Qty.ToFa()</td>
+                                                            <td class="num">@item.UnitPrice.FormatToman()</td>
+                                                        </tr>
+                                                    }
+                                                </tbody>
+                                            </table>
+                                        </div>
+
+                                        <div class="order-actions">
+                                            @if (CanCancelOrder(order))
+                                            {
+                                                <button type="button" class="btn btn-ghost btn-sm"
+                                                        @onclick="() => ShowCancelDialog(order)">
+                                                    درخواست لغو سفارش
+                                                </button>
+                                            }
+                                            @if (order.Status == OrderStatus.Cancelled && !string.IsNullOrEmpty(order.CancellationReason))
+                                            {
+                                                <div class="cancellation-info">
+                                                    <strong>دلیل لغو:</strong> @order.CancellationReason
+                                                </div>
+                                            }
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+</section>
+
+@if (_showCancelDialog && _selectedOrder != null)
+{
+    <div class="modal-overlay" @onclick="HideCancelDialog">
+        <div class="modal-content" @onclick:stopPropagation="true">
+            <div class="modal-head">
+                <h3>درخواست لغو سفارش</h3>
+                <button type="button" class="icon-btn modal-close" @onclick="HideCancelDialog">
+                    <Icon Name="x" Class="ic" />
+                </button>
+            </div>
+            <div class="modal-body">
+                <p>شماره سفارش: <strong>@_selectedOrder.OrderNumber</strong></p>
+                <label class="form-field">
+                    <span>دلیل لغو (اختیاری)</span>
+                    <textarea @bind="_cancelReason" placeholder="مثال: مواردی که دنبال آن بودم نیست"></textarea>
+                </label>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-ghost" @onclick="HideCancelDialog">انصراف</button>
+                <button type="button" class="btn btn-danger" @onclick="ConfirmCancel" disabled="@_isCancelling">
+                    @if (_isCancelling)
+                    {
+                        <span>در حال لغو...</span>
+                    }
+                    else
+                    {
+                        <span>تایید لغو</span>
+                    }
+                </button>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    private List<Order> _orders = [];
+    private int? _expandedId;
+    private bool _showCancelDialog;
+    private Order? _selectedOrder;
+    private string _cancelReason = "";
+    private bool _isCancelling;
+
+    protected override async Task OnInitializedAsync() => await Refresh();
+
+    private async Task Refresh() => _orders = await OrderService.GetMyOrdersAsync();
+
+    private void Toggle(int orderId) => _expandedId = _expandedId == orderId ? null : orderId;
+
+    private void ShowCancelDialog(Order order)
+    {
+        _selectedOrder = order;
+        _cancelReason = "";
+        _showCancelDialog = true;
+    }
+
+    private void HideCancelDialog()
+    {
+        _showCancelDialog = false;
+        _selectedOrder = null;
+        _cancelReason = "";
+    }
+
+    private async Task ConfirmCancel()
+    {
+        if (_selectedOrder is null)
+            return;
+
+        _isCancelling = true;
+        try
+        {
+            var success = await OrderService.RequestCancellationAsync(_selectedOrder.Id, _cancelReason);
+            if (success)
+            {
+                ToastService.ShowSuccess("سفارش با موفقیت لغو شد");
+                HideCancelDialog();
+                await Refresh();
+            }
+            else
+            {
+                ToastService.ShowError("امکان لغو این سفارش وجود ندارد");
+            }
+        }
+        finally
+        {
+            _isCancelling = false;
+        }
+    }
+
+    private bool CanCancelOrder(Order order) =>
+        order.Status != OrderStatus.Delivered &&
+        order.Status != OrderStatus.Cancelled &&
+        order.Status != OrderStatus.Shipped;
+
+    private static string StatusLabel(OrderStatus status) => status switch
+    {
+        OrderStatus.Pending => "در انتظار",
+        OrderStatus.Processing => "در حال پردازش",
+        OrderStatus.Shipped => "ارسال شده",
+        OrderStatus.Delivered => "تحویل شده",
+        OrderStatus.Cancelled => "لغو شده",
+        _ => status.ToString(),
+    };
+}
