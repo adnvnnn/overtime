@@ -19,6 +19,7 @@ builder.Services.AddScoped<CartContext>();
 builder.Services.AddScoped<ProductService>();
 builder.Services.AddScoped<CartService>();
 builder.Services.AddScoped<OrderService>();
+builder.Services.AddScoped<AddressService>();
 builder.Services.AddScoped<ToastService>();
 builder.Services.AddScoped<OtpService>();
 
