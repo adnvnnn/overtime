@@ -6,4 +6,6 @@ public class User
     public string PhoneNumber { get; set; } = "";
     public string? FullName { get; set; }
     public DateTime CreatedAt { get; set; }
+
+    public List<Address> Addresses { get; set; } = [];
 }

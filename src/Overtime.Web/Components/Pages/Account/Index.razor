@@ -1,0 +1,98 @@
+@page "/account"
+@attribute [Authorize]
+@using System.Security.Claims
+@inject AddressService AddressService
+@inject NavigationManager NavigationManager
+
+<PageTitle>Overtime | حساب کاربری</PageTitle>
+
+<div class="wrap">
+    <nav class="breadcrumb" aria-label="مسیر صفحه">
+        <a href="/">خانه</a>
+        <span>/</span>
+        <span class="cur">حساب کاربری</span>
+    </nav>
+</div>
+
+<section class="account-section">
+    <div class="wrap">
+        <div class="account-header">
+            <h1>آدرس‌های ارسال</h1>
+            <button class="btn btn-primary" @onclick="GoToAddAddress">افزودن آدرس جدید</button>
+        </div>
+
+        @if (_addresses.Count == 0)
+        {
+            <div class="account-empty">
+                <p>آدرسی برای ارسال ثبت نشده است.</p>
+            </div>
+        }
+        else
+        {
+            <div class="address-list">
+                @foreach (var address in _addresses)
+                {
+                    <div class="address-card @(address.IsDefault ? "default" : "")">
+                        @if (address.IsDefault)
+                        {
+                            <span class="badge">آدرس پیش‌فرض</span>
+                        }
+                        <div class="address-content">
+                            <h3>@address.RecipientName</h3>
+                            <p>@address.Address1</p>
+                            @if (!string.IsNullOrEmpty(address.Address2))
+                            {
+                                <p>@address.Address2</p>
+                            }
+                            <p>@address.District، @address.City، @address.Province</p>
+                            <p class="postal">کد پستی: @address.PostalCode</p>
+                            <p class="phone">تلفن: @address.PhoneNumber</p>
+                        </div>
+                        <div class="address-actions">
+                            <button class="btn btn-ghost btn-sm" @onclick="() => GoToEditAddress(address.Id)">ویرایش</button>
+                            <button class="btn btn-ghost btn-sm" @onclick="() => DeleteAddress(address.Id)">حذف</button>
+                        </div>
+                    </div>
+                }
+            </div>
+        }
+    </div>
+</section>
+
+@code {
+    [CascadingParameter]
+    public HttpContext HttpContext { get; set; } = default!;
+
+    private List<AddressLine> _addresses = [];
+    private int _userId;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var userIdClaim = HttpContext?.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        if (!int.TryParse(userIdClaim, out _userId))
+            NavigationManager.NavigateTo("/account/login");
+        else
+            await LoadAddresses();
+    }
+
+    private async Task LoadAddresses()
+    {
+        _addresses = await AddressService.GetUserAddressesAsync(_userId);
+    }
+
+    private void GoToAddAddress() => NavigationManager.NavigateTo("/account/address/new");
+
+    private void GoToEditAddress(int addressId) => NavigationManager.NavigateTo($"/account/address/{addressId}");
+
+    private async Task DeleteAddress(int addressId)
+    {
+        if (await ConfirmDelete())
+        {
+            await AddressService.DeleteAddressAsync(addressId, _userId);
+            await LoadAddresses();
+        }
+    }
+
+    private static Task<bool> ConfirmDelete() =>
+        Task.FromResult(true); // In a real app, show a confirmation dialog
+}

@@ -1,0 +1,177 @@
+@page "/account/address/new"
+@page "/account/address/{AddressId:int}"
+@attribute [Authorize]
+@using System.ComponentModel.DataAnnotations
+@using System.Security.Claims
+@inject AddressService AddressService
+@inject NavigationManager NavigationManager
+
+<PageTitle>Overtime | @(IsNew ? "افزودن آدرس" : "ویرایش آدرس")</PageTitle>
+
+<div class="wrap">
+    <nav class="breadcrumb" aria-label="مسیر صفحه">
+        <a href="/">خانه</a>
+        <span>/</span>
+        <a href="/account">حساب کاربری</a>
+        <span>/</span>
+        <span class="cur">@(IsNew ? "آدرس جدید" : "ویرایش آدرس")</span>
+    </nav>
+</div>
+
+<section class="account-section">
+    <div class="wrap">
+        <div class="address-form-container">
+            <h1>@(IsNew ? "افزودن آدرس جدید" : "ویرایش آدرس")</h1>
+
+            <EditForm Model="FormModel" FormName="address-form" OnValidSubmit="SaveAddress" class="address-form">
+                <DataAnnotationsValidator />
+
+                <div class="form-group">
+                    <label>نام گیرنده *</label>
+                    <InputText @bind-Value="FormModel.RecipientName" placeholder="نام کامل" />
+                    <ValidationMessage For="() => FormModel.RecipientName" />
+                </div>
+
+                <div class="form-group">
+                    <label>شماره تلفن *</label>
+                    <InputText @bind-Value="FormModel.PhoneNumber" type="tel" placeholder="۰۹xxxxxxxxx" dir="ltr" />
+                    <ValidationMessage For="() => FormModel.PhoneNumber" />
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>استان *</label>
+                        <InputText @bind-Value="FormModel.Province" placeholder="استان" />
+                        <ValidationMessage For="() => FormModel.Province" />
+                    </div>
+                    <div class="form-group">
+                        <label>شهر *</label>
+                        <InputText @bind-Value="FormModel.City" placeholder="شهر" />
+                        <ValidationMessage For="() => FormModel.City" />
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>منطقه *</label>
+                    <InputText @bind-Value="FormModel.District" placeholder="منطقه" />
+                    <ValidationMessage For="() => FormModel.District" />
+                </div>
+
+                <div class="form-group">
+                    <label>آدرس *</label>
+                    <InputText @bind-Value="FormModel.Address1" placeholder="آدرس کامل" />
+                    <ValidationMessage For="() => FormModel.Address1" />
+                </div>
+
+                <div class="form-group">
+                    <label>آدرس دوم (اختیاری)</label>
+                    <InputText @bind-Value="FormModel.Address2" placeholder="آدرس دوم" />
+                </div>
+
+                <div class="form-group">
+                    <label>کد پستی *</label>
+                    <InputText @bind-Value="FormModel.PostalCode" placeholder="کد پستی" dir="ltr" />
+                    <ValidationMessage For="() => FormModel.PostalCode" />
+                </div>
+
+                <div class="form-group checkbox">
+                    <InputCheckbox @bind-Value="FormModel.IsDefault" />
+                    <label>این آدرس را به عنوان آدرس پیش‌فرض انتخاب کن</label>
+                </div>
+
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary">@(IsNew ? "افزودن" : "ذخیره")</button>
+                    <button type="button" class="btn btn-ghost" @onclick="() => NavigationManager.NavigateTo('/account')">انصراف</button>
+                </div>
+            </EditForm>
+        </div>
+    </div>
+</section>
+
+@code {
+    [Parameter]
+    public int? AddressId { get; set; }
+
+    [CascadingParameter]
+    public HttpContext HttpContext { get; set; } = default!;
+
+    [SupplyParameterFromForm]
+    public AddressFormModel FormModel { get; set; } = new();
+
+    private int _userId;
+    private bool IsNew => AddressId is null;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var userIdClaim = HttpContext?.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        if (!int.TryParse(userIdClaim, out _userId))
+            NavigationManager.NavigateTo("/account/login");
+        else if (!IsNew)
+            await LoadAddress();
+    }
+
+    private async Task LoadAddress()
+    {
+        var address = await AddressService.GetAddressAsync(AddressId!.Value, _userId);
+        if (address is not null)
+        {
+            FormModel.RecipientName = address.RecipientName;
+            FormModel.PhoneNumber = address.PhoneNumber;
+            FormModel.Province = address.Province;
+            FormModel.City = address.City;
+            FormModel.District = address.District;
+            FormModel.Address1 = address.Address1;
+            FormModel.Address2 = address.Address2;
+            FormModel.PostalCode = address.PostalCode;
+            FormModel.IsDefault = address.IsDefault;
+        }
+        else
+            NavigationManager.NavigateTo("/account");
+    }
+
+    private async Task SaveAddress()
+    {
+        if (IsNew)
+        {
+            await AddressService.AddAddressAsync(_userId, FormModel.RecipientName, FormModel.PhoneNumber,
+                FormModel.Province, FormModel.City, FormModel.District, FormModel.Address1,
+                FormModel.Address2, FormModel.PostalCode, FormModel.IsDefault);
+        }
+        else
+        {
+            await AddressService.UpdateAddressAsync(AddressId!.Value, _userId, FormModel.RecipientName,
+                FormModel.PhoneNumber, FormModel.Province, FormModel.City, FormModel.District,
+                FormModel.Address1, FormModel.Address2, FormModel.PostalCode, FormModel.IsDefault);
+        }
+
+        NavigationManager.NavigateTo("/account");
+    }
+
+    public class AddressFormModel
+    {
+        [Required(ErrorMessage = "نام گیرنده را وارد کنید")]
+        public string RecipientName { get; set; } = "";
+
+        [Required(ErrorMessage = "شماره تلفن را وارد کنید")]
+        public string PhoneNumber { get; set; } = "";
+
+        [Required(ErrorMessage = "استان را وارد کنید")]
+        public string Province { get; set; } = "";
+
+        [Required(ErrorMessage = "شهر را وارد کنید")]
+        public string City { get; set; } = "";
+
+        [Required(ErrorMessage = "منطقه را وارد کنید")]
+        public string District { get; set; } = "";
+
+        [Required(ErrorMessage = "آدرس را وارد کنید")]
+        public string Address1 { get; set; } = "";
+
+        public string? Address2 { get; set; }
+
+        [Required(ErrorMessage = "کد پستی را وارد کنید")]
+        public string PostalCode { get; set; } = "";
+
+        public bool IsDefault { get; set; }
+    }
+}
