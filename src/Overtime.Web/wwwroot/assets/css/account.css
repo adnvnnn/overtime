@@ -44,6 +44,19 @@
 
 /* Account Section */
 .account-section{ padding: 40px 0 100px; }
+
+.account-tabs{
+  display: flex; gap: 4px; margin-bottom: 28px;
+  border-bottom: 1px solid var(--line);
+}
+.account-tabs a{
+  padding: 10px 4px; margin-inline-end: 24px; font-size: 14px; font-weight: 700;
+  color: var(--muted); text-decoration: none; border-bottom: 2px solid transparent;
+  margin-bottom: -1px; transition: color .15s ease, border-color .15s ease;
+}
+.account-tabs a:hover{ color: var(--ink); }
+.account-tabs a.active{ color: var(--accent); border-color: var(--accent); }
+
 .account-header{
   display: flex; justify-content: space-between; align-items: center;
   margin-bottom: 32px; gap: 20px;
@@ -103,6 +116,14 @@
 
 .address-actions .btn{
   flex: 1; padding: 8px 12px; font-size: 13px;
+}
+
+.address-confirm{
+  display: flex; flex-direction: column; gap: 8px;
+}
+
+.address-confirm > span{
+  font-size: 13.5px; font-weight: 600; color: var(--ink);
 }
 
 /* Address Form */
@@ -227,3 +248,41 @@
 .checkout-buttons .btn{
   flex: 1; justify-content: center;
 }
+
+/* Order history */
+.order-status-badge{
+  font-size: 12px; font-weight: 700; padding: 5px 12px; border-radius: 20px; flex-shrink: 0;
+}
+.status-pending{ background: color-mix(in srgb, #d97706 14%, transparent); color: #d97706; }
+.status-processing{ background: color-mix(in srgb, var(--accent) 14%, transparent); color: var(--accent); }
+.status-shipped{ background: color-mix(in srgb, #2563eb 14%, transparent); color: #2563eb; }
+.status-delivered{ background: color-mix(in srgb, #16a34a 14%, transparent); color: #16a34a; }
+.status-cancelled{ background: color-mix(in srgb, #e5484d 14%, transparent); color: #e5484d; }
+
+.order-list{ display: flex; flex-direction: column; gap: 18px; }
+
+.order-card{
+  background: var(--surface); border: 1px solid var(--line);
+  border-radius: var(--radius); padding: 20px;
+}
+
+.order-card-head{
+  display: flex; justify-content: space-between; align-items: flex-start;
+  gap: 12px; margin-bottom: 14px; padding-bottom: 14px; border-bottom: 1px solid var(--line);
+}
+.order-card-head b{ display: block; font-size: 15px; margin-bottom: 4px; }
+.order-date{ font-size: 13px; color: var(--muted); }
+
+.order-items{ display: flex; flex-direction: column; gap: 8px; margin-bottom: 12px; }
+.order-item-row{
+  display: flex; justify-content: space-between; gap: 12px;
+  font-size: 13.5px; color: var(--ink-soft);
+}
+
+.order-address{ font-size: 13px; color: var(--muted); margin: 0 0 12px; }
+
+.order-card-foot{
+  display: flex; justify-content: space-between; align-items: center;
+  padding-top: 12px; border-top: 1px solid var(--line); font-size: 14px;
+}
+.order-card-foot b{ font-size: 16px; }

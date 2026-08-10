@@ -1,0 +1,28 @@
+@using Overtime.Data.Entities
+
+<span class="order-status-badge @CssClass">@Label</span>
+
+@code {
+    [Parameter, EditorRequired]
+    public OrderStatus Status { get; set; }
+
+    private string CssClass => Status switch
+    {
+        OrderStatus.Pending => "status-pending",
+        OrderStatus.Processing => "status-processing",
+        OrderStatus.Shipped => "status-shipped",
+        OrderStatus.Delivered => "status-delivered",
+        OrderStatus.Cancelled => "status-cancelled",
+        _ => "",
+    };
+
+    private string Label => Status switch
+    {
+        OrderStatus.Pending => "در انتظار",
+        OrderStatus.Processing => "در حال پردازش",
+        OrderStatus.Shipped => "ارسال شده",
+        OrderStatus.Delivered => "تحویل شده",
+        OrderStatus.Cancelled => "لغو شده",
+        _ => Status.ToString(),
+    };
+}
