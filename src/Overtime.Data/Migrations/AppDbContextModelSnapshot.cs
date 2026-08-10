@@ -1131,7 +1131,7 @@ namespace Overtime.Data.Migrations
                     b.HasOne("Overtime.Data.Entities.User", "User")
                         .WithMany()
                         .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.SetNull);
+                        .OnDelete(DeleteBehavior.NoAction);
 
                     b.Navigation("Address");
 
