@@ -61,7 +61,10 @@ window.overtimeGallery = {
 // math. Since the number of items visible at once changes at each
 // responsive breakpoint, the reachable dot count is measured from the real
 // layout instead of assumed, so the dots always match how many distinct
-// positions the carousel can actually scroll to.
+// positions the carousel can actually scroll to. Visibility is also
+// reported back so the Blazor side can pause auto-scroll while the
+// carousel is off-screen — scrollIntoView would otherwise yank the whole
+// page back to it every few seconds.
 window.overtimeCarousel = {
   attach: function (trackEl, dotNetRef) {
     if (!trackEl || trackEl.nodeType !== 1) return null;
@@ -85,9 +88,15 @@ window.overtimeCarousel = {
     var resizeObserver = new ResizeObserver(reportMaxIndex);
     resizeObserver.observe(trackEl);
 
+    var intersectionObserver = new IntersectionObserver(function (entries) {
+      dotNetRef.invokeMethodAsync("OnVisibilityChanged", entries[entries.length - 1].isIntersecting);
+    }, { threshold: 0.3 });
+    intersectionObserver.observe(trackEl);
+
     return {
       dispose: function () {
         resizeObserver.disconnect();
+        intersectionObserver.disconnect();
       }
     };
   },
