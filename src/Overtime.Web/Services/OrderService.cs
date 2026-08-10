@@ -6,7 +6,7 @@ namespace Overtime.Web.Services;
 
 public class OrderService(IDbContextFactory<AppDbContext> dbFactory, CartContext cartContext, CartService cartService)
 {
-    public async Task<string?> CheckoutAsync()
+    public async Task<string?> CheckoutAsync(int? userId = null, int? addressId = null)
     {
         await using var db = await dbFactory.CreateDbContextAsync();
         var items = await db.CartItems
@@ -24,6 +24,8 @@ public class OrderService(IDbContextFactory<AppDbContext> dbFactory, CartContext
             CartId = cartContext.CartId,
             CreatedAt = DateTime.UtcNow,
             Total = items.Sum(i => i.Qty * (i.Product?.Price ?? 0)),
+            UserId = userId,
+            AddressId = addressId,
         };
 
         foreach (var item in items)
