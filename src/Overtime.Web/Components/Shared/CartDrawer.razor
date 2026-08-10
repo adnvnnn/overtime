@@ -3,6 +3,7 @@
 @inject CartService CartService
 @inject OrderService OrderService
 @inject AddressService AddressService
+@inject ToastService ToastService
 
 <div class="cart-backdrop @(CartService.IsDrawerOpen ? "open" : "")" @onclick="Close"></div>
 <aside class="cart-drawer @(CartService.IsDrawerOpen ? "open" : "")" id="cartDrawer" role="dialog" aria-modal="true"
@@ -148,7 +149,12 @@
 
     private async Task Refresh() => _lines = await CartService.GetLinesAsync();
 
-    private async Task ChangeQty(int id, int delta) => await CartService.ChangeQtyAsync(id, delta);
+    private async Task ChangeQty(int id, int delta)
+    {
+        var ok = await CartService.ChangeQtyAsync(id, delta);
+        if (!ok && delta > 0)
+            ToastService.ShowMessage("موجودی کافی نیست");
+    }
     private async Task Remove(int id) => await CartService.RemoveItemAsync(id);
 
     private void Close()
@@ -177,14 +183,18 @@
 
     private async Task ConfirmCheckout()
     {
-        if (_selectedAddressId.HasValue)
+        if (!_selectedAddressId.HasValue)
+            return;
+
+        var (number, error) = await OrderService.CheckoutAsync(_userId, _selectedAddressId.Value);
+        if (number is not null)
         {
-            var number = await OrderService.CheckoutAsync(_userId, _selectedAddressId.Value);
-            if (number is not null)
-            {
-                _orderNumber = number.ToFa();
-                _isAddressSelection = false;
-            }
+            _orderNumber = number.ToFa();
+            _isAddressSelection = false;
+        }
+        else if (error is not null)
+        {
+            ToastService.ShowMessage(error);
         }
     }
 
