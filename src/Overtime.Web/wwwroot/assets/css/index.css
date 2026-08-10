@@ -469,45 +469,29 @@
   .cart-success p{ color: var(--muted); font-size:13.5px; max-width:26ch; }
   .cart-success .ordno{ font-size:12.5px; color: var(--accent); font-weight:700; font-variant-numeric: tabular-nums; }
 
-  /* ---------- Carousel ---------- */
-  .carousel-section{ }
-  .carousel-container{
-    position: relative; margin-bottom: 30px;
+  /* ---------- Carousel (BlazorBootstrap) ---------- */
+  .carousel-section .carousel{ padding-bottom: 8px; }
+  .carousel-section .carousel-slide{
+    max-width: 340px; margin: 0 auto; padding: 4px 8px 32px;
   }
-  .carousel-track{
-    display: flex; gap: 24px;
-    overflow-x: auto; overscroll-behavior-x: contain;
-    scroll-snap-type: x mandatory; scroll-behavior: smooth;
-    scrollbar-width: none; -ms-overflow-style: none;
+  .carousel-section .carousel-control-prev,
+  .carousel-section .carousel-control-next{
+    width: 44px; height: 44px; top: 50%; bottom: auto; transform: translateY(-50%);
+    border-radius: 999px; border: 1px solid var(--line);
+    background: var(--surface); box-shadow: var(--shadow); opacity: 1;
   }
-  .carousel-track::-webkit-scrollbar{ display: none; }
-  .carousel-item{
-    flex: 0 0 calc(25% - 18px); min-width: 0;
-    scroll-snap-align: start;
+  .carousel-section .carousel-control-prev-icon,
+  .carousel-section .carousel-control-next-icon{
+    width: 20px; height: 20px;
   }
-  .carousel-btn{
-    position: absolute; top: 50%; transform: translateY(-50%);
-    width: 44px; height: 44px; border-radius: 999px; border: 1px solid var(--line);
-    background: var(--surface); color: var(--ink); cursor: pointer;
-    display: flex; align-items: center; justify-content: center;
-    transition: border-color .15s ease, background .15s ease;
-    box-shadow: var(--shadow); z-index: 10;
+  :root[data-theme="dark"] .carousel-section .carousel-control-prev-icon,
+  :root[data-theme="dark"] .carousel-section .carousel-control-next-icon{
+    filter: invert(1);
   }
-  .carousel-btn:hover{
-    border-color: var(--accent); background: var(--accent); color: var(--accent-ink);
+  @media (prefers-color-scheme: dark){
+    .carousel-section .carousel-control-prev-icon,
+    .carousel-section .carousel-control-next-icon{ filter: invert(1); }
   }
-  .carousel-btn svg{ width: 20px; height: 20px; }
-  .carousel-prev{ inset-inline-end: auto; inset-inline-start: -22px; }
-  .carousel-next{ inset-inline-start: auto; inset-inline-end: -22px; }
-  .carousel-dots{
-    display: flex; gap: 8px; justify-content: center;
-  }
-  .carousel-dots .dot{
-    width: 10px; height: 10px; border-radius: 50%; border: none;
-    background: var(--line); cursor: pointer; transition: background .15s ease;
-  }
-  .carousel-dots .dot.active{ background: var(--accent); }
-  .carousel-dots .dot:hover{ background: var(--accent); }
 
   /* ---------- Toast ---------- */
   .toast{
