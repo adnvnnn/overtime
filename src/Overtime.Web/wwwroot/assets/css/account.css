@@ -105,6 +105,14 @@
   flex: 1; padding: 8px 12px; font-size: 13px;
 }
 
+.address-confirm{
+  display: flex; flex-direction: column; gap: 8px;
+}
+
+.address-confirm > span{
+  font-size: 13.5px; font-weight: 600; color: var(--ink);
+}
+
 /* Address Form */
 .address-form-container{
   max-width: 600px; margin: 0 auto;
