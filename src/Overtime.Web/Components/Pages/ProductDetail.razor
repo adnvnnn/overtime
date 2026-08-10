@@ -1,7 +1,9 @@
 @page "/product/{Id}"
 @implements IAsyncDisposable
+@using System.Security.Claims
 @inject ProductService ProductService
 @inject CartService CartService
+@inject ReviewService ReviewService
 @inject ToastService ToastService
 @inject IJSRuntime JS
 @inject NavigationManager Navigator
@@ -126,6 +128,78 @@
                 </div>
             </div>
 
+            <div class="pdp-reviews">
+                <div class="reviews-head">
+                    <h2>نظرات کاربران</h2>
+                    @if (_reviewCount > 0)
+                    {
+                        <div class="reviews-summary">
+                            <span class="avg">@_avgRating.ToFa(1)</span>
+                            <span class="stars-mini" aria-hidden="true">
+                                @for (var i = 1; i <= 5; i++)
+                                {
+                                    <Icon Name="star" Class="@(i <= Math.Round(_avgRating) ? "filled" : "")" />
+                                }
+                            </span>
+                            <span class="count">(@_reviewCount.ToFa() نظر)</span>
+                        </div>
+                    }
+                </div>
+
+                @if (_userId is null)
+                {
+                    <p class="reviews-login-cta">برای ثبت نظر ابتدا <a href="@LoginUrl">وارد حساب کاربری</a> شوید.</p>
+                }
+                else
+                {
+                    <div class="review-form">
+                        <label>امتیاز شما</label>
+                        <div class="star-picker" role="radiogroup" aria-label="امتیاز شما">
+                            @for (var i = 1; i <= 5; i++)
+                            {
+                                var value = i;
+                                <button type="button" class="star-btn @(value <= _formRating ? "on" : "")" aria-label="@value.ToFa() ستاره" @onclick="() => SetFormRating(value)">
+                                    <Icon Name="star" />
+                                </button>
+                            }
+                        </div>
+                        <textarea class="review-comment" rows="3" placeholder="نظر شما درباره این محصول (اختیاری)" @bind="_formComment"></textarea>
+                        <button class="btn btn-primary btn-sm" type="button" disabled="@(_formRating < 1 || _reviewSubmitting)" @onclick="SubmitReview">
+                            @(_myReview is null ? "ثبت نظر" : "ویرایش نظر")
+                        </button>
+                    </div>
+                }
+
+                @if (_reviews.Count == 0)
+                {
+                    <p class="reviews-empty">هنوز نظری برای این محصول ثبت نشده است. اولین نفر باشید!</p>
+                }
+                else
+                {
+                    <div class="review-list">
+                        @foreach (var review in _reviews)
+                        {
+                            <div class="review-item">
+                                <div class="review-item-head">
+                                    <b>@review.ReviewerName</b>
+                                    <span class="stars-mini" aria-hidden="true">
+                                        @for (var i = 1; i <= 5; i++)
+                                        {
+                                            <Icon Name="star" Class="@(i <= review.Rating ? "filled" : "")" />
+                                        }
+                                    </span>
+                                    <span class="review-date">@review.CreatedAt.ToString("yyyy/MM/dd")</span>
+                                </div>
+                                @if (!string.IsNullOrWhiteSpace(review.Comment))
+                                {
+                                    <p>@review.Comment</p>
+                                }
+                            </div>
+                        }
+                    </div>
+                }
+            </div>
+
             <div class="related-head">
                 <p class="eyebrow">محصولات مشابه</p>
                 <h2>شاید این مدل‌ها را هم بپسندید</h2>
@@ -158,6 +232,20 @@
     private IJSObjectReference? _galleryHandle;
     private string? _galleryAttachedId;
 
+    private List<ReviewLine> _reviews = [];
+    private double _avgRating;
+    private int _reviewCount;
+    private int? _userId;
+    private ReviewLine? _myReview;
+    private int _formRating;
+    private string _formComment = "";
+    private bool _reviewSubmitting;
+
+    [CascadingParameter]
+    private HttpContext? HttpContext { get; set; }
+
+    private string LoginUrl => $"/account/login?returnUrl={Uri.EscapeDataString($"/product/{Id}")}";
+
     private string CategoryLine => Product is null ? "" : string.Join(" · ",
         new[] { Product.Brand, Product.Category, Product.Usage }.Where(s => !string.IsNullOrEmpty(s)));
 
@@ -188,6 +276,9 @@
         _qty = 1;
         _shake = false;
         _related = await ProductService.GetRelatedAsync(product.Id, 3);
+
+        ExtractUserId();
+        await LoadReviews();
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -247,9 +338,54 @@
             return;
         }
 
-        await CartService.AddItemAsync(Product.Id, _selectedSize.Value, _qty);
-        ToastService.ShowMessage($"{Product.Name} به سبد اضافه شد");
+        var added = await CartService.AddItemAsync(Product.Id, _selectedSize.Value, _qty);
+        if (added == 0)
+        {
+            ToastService.ShowMessage("موجودی این سایز کافی نیست");
+            return;
+        }
+
+        ToastService.ShowMessage(added < _qty
+            ? $"تنها {added.ToFa()} عدد از {Product.Name} به دلیل محدودیت موجودی اضافه شد"
+            : $"{Product.Name} به سبد اضافه شد");
         CartService.OpenDrawer();
+    }
+
+    private void ExtractUserId()
+    {
+        var claim = HttpContext?.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        _userId = int.TryParse(claim, out var id) ? id : null;
+    }
+
+    private async Task LoadReviews()
+    {
+        if (Product is null)
+            return;
+
+        _reviews = await ReviewService.GetProductReviewsAsync(Product.Id);
+        (_avgRating, _reviewCount) = await ReviewService.GetRatingSummaryAsync(Product.Id);
+
+        if (_userId is not null)
+        {
+            _myReview = await ReviewService.GetUserReviewAsync(Product.Id, _userId.Value);
+            _formRating = _myReview?.Rating ?? 0;
+            _formComment = _myReview?.Comment ?? "";
+        }
+    }
+
+    private void SetFormRating(int rating) => _formRating = rating;
+
+    private async Task SubmitReview()
+    {
+        if (Product is null || _userId is null || _formRating < 1 || _reviewSubmitting)
+            return;
+
+        _reviewSubmitting = true;
+        await ReviewService.SubmitReviewAsync(Product.Id, _userId.Value, _formRating,
+            string.IsNullOrWhiteSpace(_formComment) ? null : _formComment.Trim());
+        await LoadReviews();
+        _reviewSubmitting = false;
+        ToastService.ShowMessage("نظر شما ثبت شد");
     }
 
     public async ValueTask DisposeAsync()

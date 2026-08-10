@@ -4,9 +4,33 @@ using Overtime.Data.Entities;
 
 namespace Overtime.Web.Services;
 
+public record OrderLineItem(string ProductName, int Size, int Qty, long UnitPrice);
+public record OrderSummary(int Id, string OrderNumber, DateTime CreatedAt, long Total, OrderStatus Status, List<OrderLineItem> Items, string? AddressSummary);
+
 public class OrderService(IDbContextFactory<AppDbContext> dbFactory, CartContext cartContext, CartService cartService)
 {
-    public async Task<string?> CheckoutAsync(int? userId = null, int? addressId = null)
+    public async Task<List<OrderSummary>> GetUserOrdersAsync(int userId)
+    {
+        await using var db = await dbFactory.CreateDbContextAsync();
+        var orders = await db.Orders
+            .Where(o => o.UserId == userId)
+            .Include(o => o.Items)
+            .Include(o => o.Address)
+            .OrderByDescending(o => o.CreatedAt)
+            .ToListAsync();
+
+        return orders.Select(o => new OrderSummary(
+            o.Id,
+            o.OrderNumber,
+            o.CreatedAt,
+            o.Total,
+            o.Status,
+            o.Items.Select(i => new OrderLineItem(i.ProductName, i.Size, i.Qty, i.UnitPrice)).ToList(),
+            o.Address is null ? null : $"{o.Address.Province}، {o.Address.City}، {o.Address.District}"
+        )).ToList();
+    }
+
+    public async Task<(string? OrderNumber, string? Error)> CheckoutAsync(int? userId = null, int? addressId = null)
     {
         await using var db = await dbFactory.CreateDbContextAsync();
         var items = await db.CartItems
@@ -15,7 +39,18 @@ public class OrderService(IDbContextFactory<AppDbContext> dbFactory, CartContext
             .ToListAsync();
 
         if (items.Count == 0)
-            return null;
+            return (null, "سبد خرید شما خالی است.");
+
+        var sizes = await db.ProductSizes
+            .Where(s => items.Select(i => i.ProductId).Contains(s.ProductId))
+            .ToListAsync();
+
+        foreach (var item in items)
+        {
+            var size = sizes.FirstOrDefault(s => s.ProductId == item.ProductId && s.Size == item.Size);
+            if (size is null || size.StockQty < item.Qty)
+                return (null, $"موجودی «{item.Product?.Name}» برای تکمیل این سفارش کافی نیست.");
+        }
 
         var orderNumber = $"OT-{Random.Shared.Next(10000, 99999)}";
         var order = new Order
@@ -39,9 +74,8 @@ public class OrderService(IDbContextFactory<AppDbContext> dbFactory, CartContext
                 UnitPrice = item.Product?.Price ?? 0,
             });
 
-            var size = await db.ProductSizes.FirstOrDefaultAsync(s => s.ProductId == item.ProductId && s.Size == item.Size);
-            if (size is not null)
-                size.StockQty = Math.Max(0, size.StockQty - item.Qty);
+            var size = sizes.First(s => s.ProductId == item.ProductId && s.Size == item.Size);
+            size.StockQty -= item.Qty;
         }
 
         db.Orders.Add(order);
@@ -49,6 +83,6 @@ public class OrderService(IDbContextFactory<AppDbContext> dbFactory, CartContext
         await db.SaveChangesAsync();
 
         cartService.NotifyChanged();
-        return orderNumber;
+        return (orderNumber, null);
     }
 }

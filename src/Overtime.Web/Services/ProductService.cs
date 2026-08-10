@@ -6,7 +6,8 @@ namespace Overtime.Web.Services;
 
 public class ProductService(IDbContextFactory<AppDbContext> dbFactory)
 {
-    public async Task<List<Product>> GetCatalogAsync(string category = "all", string? query = null, string sort = "default")
+    public async Task<List<Product>> GetCatalogAsync(string category = "all", string? query = null, string sort = "default",
+        long? minPrice = null, long? maxPrice = null, bool inStockOnly = false)
     {
         await using var db = await dbFactory.CreateDbContextAsync();
         IQueryable<Product> q = db.Products.Include(p => p.Images.OrderBy(i => i.SortOrder));
@@ -19,6 +20,15 @@ public class ProductService(IDbContextFactory<AppDbContext> dbFactory)
             var pattern = $"%{query.Trim()}%";
             q = q.Where(p => EF.Functions.Like(p.Name, pattern) || EF.Functions.Like(p.Category, pattern));
         }
+
+        if (minPrice is not null)
+            q = q.Where(p => p.Price >= minPrice.Value);
+
+        if (maxPrice is not null)
+            q = q.Where(p => p.Price <= maxPrice.Value);
+
+        if (inStockOnly)
+            q = q.Where(p => p.Sizes.Any(s => s.StockQty > 0));
 
         q = sort switch
         {
@@ -35,6 +45,15 @@ public class ProductService(IDbContextFactory<AppDbContext> dbFactory)
     {
         await using var db = await dbFactory.CreateDbContextAsync();
         return await db.Products.CountAsync();
+    }
+
+    public async Task<(long Min, long Max)> GetPriceBoundsAsync()
+    {
+        await using var db = await dbFactory.CreateDbContextAsync();
+        if (!await db.Products.AnyAsync())
+            return (0, 0);
+
+        return (await db.Products.MinAsync(p => p.Price), await db.Products.MaxAsync(p => p.Price));
     }
 
     public async Task<Product?> GetByIdAsync(string id)

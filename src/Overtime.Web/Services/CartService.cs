@@ -67,36 +67,63 @@ public class CartService(IDbContextFactory<AppDbContext> dbFactory, CartContext 
             .FirstOrDefaultAsync();
         if (size is null) return false;
 
-        await AddItemAsync(db, productId, size.Size, 1);
+        var added = await AddItemAsync(db, productId, size.Size, 1, size.StockQty);
         Changed?.Invoke();
-        return true;
+        return added > 0;
     }
 
-    public async Task AddItemAsync(string productId, int size, int qty)
+    // Returns how many units were actually added — may be less than requested (or zero)
+    // when the cart already holds all the available stock for that size.
+    public async Task<int> AddItemAsync(string productId, int size, int qty)
     {
         await using var db = await dbFactory.CreateDbContextAsync();
-        await AddItemAsync(db, productId, size, qty);
+        var stock = await db.ProductSizes
+            .Where(s => s.ProductId == productId && s.Size == size)
+            .Select(s => (int?)s.StockQty)
+            .FirstOrDefaultAsync() ?? 0;
+
+        var added = await AddItemAsync(db, productId, size, qty, stock);
         Changed?.Invoke();
+        return added;
     }
 
-    private async Task AddItemAsync(AppDbContext db, string productId, int size, int qty)
+    private async Task<int> AddItemAsync(AppDbContext db, string productId, int size, int qty, int stock)
     {
         await EnsureCartAsync(db);
         var existing = await db.CartItems.FirstOrDefaultAsync(i =>
             i.CartId == cartContext.CartId && i.ProductId == productId && i.Size == size);
+
+        var currentQty = existing?.Qty ?? 0;
+        var targetQty = Math.Min(stock, currentQty + qty);
+        var added = targetQty - currentQty;
+        if (added <= 0)
+            return 0;
+
         if (existing is not null)
-            existing.Qty += qty;
+            existing.Qty = targetQty;
         else
-            db.CartItems.Add(new CartItem { CartId = cartContext.CartId, ProductId = productId, Size = size, Qty = qty });
+            db.CartItems.Add(new CartItem { CartId = cartContext.CartId, ProductId = productId, Size = size, Qty = targetQty });
 
         await db.SaveChangesAsync();
+        return added;
     }
 
-    public async Task ChangeQtyAsync(int cartItemId, int delta)
+    // Returns false (without applying the change) when incrementing would exceed available stock.
+    public async Task<bool> ChangeQtyAsync(int cartItemId, int delta)
     {
         await using var db = await dbFactory.CreateDbContextAsync();
         var item = await db.CartItems.FirstOrDefaultAsync(i => i.Id == cartItemId && i.CartId == cartContext.CartId);
-        if (item is null) return;
+        if (item is null) return false;
+
+        if (delta > 0)
+        {
+            var stock = await db.ProductSizes
+                .Where(s => s.ProductId == item.ProductId && s.Size == item.Size)
+                .Select(s => (int?)s.StockQty)
+                .FirstOrDefaultAsync() ?? 0;
+            if (item.Qty >= stock)
+                return false;
+        }
 
         item.Qty += delta;
         if (item.Qty <= 0)
@@ -104,6 +131,7 @@ public class CartService(IDbContextFactory<AppDbContext> dbFactory, CartContext 
 
         await db.SaveChangesAsync();
         Changed?.Invoke();
+        return true;
     }
 
     public async Task RemoveItemAsync(int cartItemId)
