@@ -1,7 +1,10 @@
+using System.ComponentModel.DataAnnotations;
+
 namespace Overtime.Data.Entities;
 
 public class Product
 {
+    [MaxLength(50)]
     public string Id { get; set; } = "";
     public string Name { get; set; } = "";
     public string Brand { get; set; } = "";
