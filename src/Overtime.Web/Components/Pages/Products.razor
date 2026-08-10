@@ -38,6 +38,15 @@
                 <option value="price-desc">گران‌ترین</option>
                 <option value="name">نام (الفبا)</option>
             </select>
+            <div class="price-filter">
+                <input type="number" min="0" step="10000" placeholder="@(_priceBounds.Min.ToFa())" aria-label="حداقل قیمت" value="@_minPrice" @onchange="OnMinPriceChange" />
+                <span>تا</span>
+                <input type="number" min="0" step="10000" placeholder="@(_priceBounds.Max.ToFa())" aria-label="حداکثر قیمت" value="@_maxPrice" @onchange="OnMaxPriceChange" />
+            </div>
+            <label class="stock-filter">
+                <input type="checkbox" checked="@_inStockOnly" @onchange="OnInStockChange" />
+                <span>فقط کالای موجود</span>
+            </label>
         </div>
 
         <div class="products">
@@ -75,6 +84,10 @@
     private string _category = "all";
     private string _query = "";
     private string _sort = "default";
+    private long? _minPrice;
+    private long? _maxPrice;
+    private bool _inStockOnly;
+    private (long Min, long Max) _priceBounds;
     private List<Product> _products = [];
     private int _totalCount;
     private string _countText = "";
@@ -82,6 +95,7 @@
     protected override async Task OnInitializedAsync()
     {
         _totalCount = await ProductService.CountAllAsync();
+        _priceBounds = await ProductService.GetPriceBoundsAsync();
         if (!string.IsNullOrEmpty(CatQuery) && Tabs.Any(t => t.Value == CatQuery))
             _category = CatQuery;
         await Refresh();
@@ -89,7 +103,7 @@
 
     private async Task Refresh()
     {
-        _products = await ProductService.GetCatalogAsync(_category, _query, _sort);
+        _products = await ProductService.GetCatalogAsync(_category, _query, _sort, _minPrice, _maxPrice, _inStockOnly);
         _countText = $"{_products.Count.ToFa()} از {_totalCount.ToFa()} محصول";
     }
 
@@ -111,11 +125,32 @@
         await Refresh();
     }
 
+    private async Task OnMinPriceChange(ChangeEventArgs e)
+    {
+        _minPrice = long.TryParse(e.Value?.ToString(), out var value) && value > 0 ? value : null;
+        await Refresh();
+    }
+
+    private async Task OnMaxPriceChange(ChangeEventArgs e)
+    {
+        _maxPrice = long.TryParse(e.Value?.ToString(), out var value) && value > 0 ? value : null;
+        await Refresh();
+    }
+
+    private async Task OnInStockChange(ChangeEventArgs e)
+    {
+        _inStockOnly = e.Value is bool value && value;
+        await Refresh();
+    }
+
     private async Task ResetFilters()
     {
         _category = "all";
         _query = "";
         _sort = "default";
+        _minPrice = null;
+        _maxPrice = null;
+        _inStockOnly = false;
         await Refresh();
     }
 }
