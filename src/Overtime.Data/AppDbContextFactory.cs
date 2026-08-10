@@ -9,7 +9,7 @@ public class AppDbContextFactory : IDesignTimeDbContextFactory<AppDbContext>
     public AppDbContext CreateDbContext(string[] args)
     {
         var options = new DbContextOptionsBuilder<AppDbContext>()
-            .UseSqlite("Data Source=overtime.db")
+            .UseSqlServer(@"Server=(localdb)\mssqllocaldb;Database=Overtime;Trusted_Connection=True")
             .Options;
         return new AppDbContext(options);
     }
