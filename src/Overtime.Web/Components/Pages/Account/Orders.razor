@@ -1,0 +1,85 @@
+@page "/account/orders"
+@attribute [Authorize]
+@using System.Security.Claims
+@using Microsoft.AspNetCore.Authorization
+@inject OrderService OrderService
+@inject NavigationManager NavigationManager
+
+<PageTitle>Overtime | سفارش‌های من</PageTitle>
+
+<div class="wrap">
+    <nav class="breadcrumb" aria-label="مسیر صفحه">
+        <a href="/">خانه</a>
+        <span>/</span>
+        <a href="/account">حساب کاربری</a>
+        <span>/</span>
+        <span class="cur">سفارش‌های من</span>
+    </nav>
+</div>
+
+<section class="account-section">
+    <div class="wrap">
+        <AccountTabs />
+
+        <div class="account-header">
+            <h1>سفارش‌های من</h1>
+        </div>
+
+        @if (_orders.Count == 0)
+        {
+            <div class="account-empty">
+                <p>هنوز سفارشی ثبت نکرده‌اید.</p>
+            </div>
+        }
+        else
+        {
+            <div class="order-list">
+                @foreach (var order in _orders)
+                {
+                    <div class="order-card">
+                        <div class="order-card-head">
+                            <div>
+                                <b>سفارش @order.OrderNumber</b>
+                                <span class="order-date">@order.CreatedAt.ToString("yyyy/MM/dd HH:mm")</span>
+                            </div>
+                            <OrderStatusBadge Status="order.Status" />
+                        </div>
+                        <div class="order-items">
+                            @foreach (var item in order.Items)
+                            {
+                                <div class="order-item-row">
+                                    <span>@item.ProductName · سایز @item.Size.ToFa()</span>
+                                    <span>@item.Qty.ToFa() × @item.UnitPrice.FormatToman()</span>
+                                </div>
+                            }
+                        </div>
+                        @if (!string.IsNullOrEmpty(order.AddressSummary))
+                        {
+                            <p class="order-address">آدرس ارسال: @order.AddressSummary</p>
+                        }
+                        <div class="order-card-foot">
+                            <span>جمع کل</span>
+                            <b>@order.Total.FormatToman()</b>
+                        </div>
+                    </div>
+                }
+            </div>
+        }
+    </div>
+</section>
+
+@code {
+    [CascadingParameter]
+    public HttpContext HttpContext { get; set; } = default!;
+
+    private List<OrderSummary> _orders = [];
+
+    protected override async Task OnInitializedAsync()
+    {
+        var userIdClaim = HttpContext?.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        if (!int.TryParse(userIdClaim, out var userId))
+            NavigationManager.NavigateTo("/account/login");
+        else
+            _orders = await OrderService.GetUserOrdersAsync(userId);
+    }
+}

@@ -33,6 +33,9 @@
             <AuthorizeView>
                 <Authorized>
                     <div class="user-menu">
+                        <a class="cart-btn" href="/account" aria-label="حساب کاربری" title="حساب کاربری">
+                            <Icon Name="user" Class="ic" />
+                        </a>
                         <form method="post" action="/account/logout">
                             <AntiforgeryToken />
                             <button class="cart-btn" type="submit" aria-label="خروج از حساب کاربری" title="خروج">
