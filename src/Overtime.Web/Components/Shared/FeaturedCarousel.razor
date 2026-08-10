@@ -1,4 +1,5 @@
-@using BlazorBootstrap
+@using BbCarousel = BlazorBootstrap.Carousel
+@using BbCarouselItem = BlazorBootstrap.CarouselItem
 @inject ProductService ProductService
 
 <section id="carousel" class="carousel-section">
@@ -12,11 +13,11 @@
         </div>
         @if (_products.Count > 0)
         {
-            <Carousel Autoplay="CarouselAutoPlay.StartOnPageLoad" ShowIndicators="false">
+            <BbCarousel Autoplay="BlazorBootstrap.CarouselAutoPlay.StartOnPageLoad" ShowIndicators="false">
                 @for (var i = 0; i < _products.Count; i++)
                 {
                     var product = _products[i];
-                    <CarouselItem Active="@(i == 0)" Interval="5000">
+                    <BbCarouselItem Active="@(i == 0)" Interval="5000">
                         <div class="fc-slide">
                             <div class="fc-content">
                                 <p class="eyebrow">@CategoryLine(product)</p>
@@ -43,9 +44,9 @@
                                 <img class="fc-shoe" src="@MainImage(product)" alt="@product.Name">
                             </div>
                         </div>
-                    </CarouselItem>
+                    </BbCarouselItem>
                 }
-            </Carousel>
+            </BbCarousel>
         }
     </div>
 </section>
