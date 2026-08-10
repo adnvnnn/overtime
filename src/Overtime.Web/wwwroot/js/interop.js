@@ -15,7 +15,7 @@ window.overtimeTheme = {
 // (-1/+1) back to the Blazor component instead of mutating the DOM directly.
 window.overtimeGallery = {
   attach: function (sliderEl, dotNetRef) {
-    if (!sliderEl) return null;
+    if (!sliderEl || sliderEl.nodeType !== 1) return null;
     let dragging = false, startX = 0, deltaX = 0;
 
     function pointerX(e) { return e.touches ? e.touches[0].clientX : e.clientX; }
