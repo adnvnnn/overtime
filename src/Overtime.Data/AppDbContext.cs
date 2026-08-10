@@ -14,6 +14,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
     public DbSet<Order> Orders => Set<Order>();
     public DbSet<OrderItem> OrderItems => Set<OrderItem>();
     public DbSet<User> Users => Set<User>();
+    public DbSet<Address> Addresses => Set<Address>();
     public DbSet<OtpCode> OtpCodes => Set<OtpCode>();
     public DbSet<AdminUser> AdminUsers => Set<AdminUser>();
 
@@ -47,8 +48,19 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
         modelBuilder.Entity<Order>()
             .HasMany(o => o.Items).WithOne().HasForeignKey(i => i.OrderId).OnDelete(DeleteBehavior.Cascade);
 
-        modelBuilder.Entity<User>()
-            .HasIndex(u => u.PhoneNumber).IsUnique();
+        modelBuilder.Entity<User>(e =>
+        {
+            e.HasIndex(u => u.PhoneNumber).IsUnique();
+            e.HasMany(u => u.Addresses).WithOne(a => a.User).HasForeignKey(a => a.UserId).OnDelete(DeleteBehavior.Cascade);
+        });
+
+        modelBuilder.Entity<Address>().HasIndex(a => new { a.UserId, a.IsDefault });
+
+        modelBuilder.Entity<Order>(e =>
+        {
+            e.HasOne(o => o.Address).WithMany().HasForeignKey(o => o.AddressId).OnDelete(DeleteBehavior.SetNull);
+            e.HasOne(o => o.User).WithMany().HasForeignKey(o => o.UserId).OnDelete(DeleteBehavior.SetNull);
+        });
 
         modelBuilder.Entity<OtpCode>()
             .HasIndex(o => new { o.PhoneNumber, o.CreatedAt });

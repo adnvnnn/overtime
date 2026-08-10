@@ -1,6 +1,8 @@
 @implements IDisposable
+@using System.Security.Claims
 @inject CartService CartService
 @inject OrderService OrderService
+@inject AddressService AddressService
 
 <div class="cart-backdrop @(CartService.IsDrawerOpen ? "open" : "")" @onclick="Close"></div>
 <aside class="cart-drawer @(CartService.IsDrawerOpen ? "open" : "")" id="cartDrawer" role="dialog" aria-modal="true"
@@ -18,6 +20,48 @@
                 <p>این یک فروشگاه نمایشی است؛ همکاران اورتایم به‌زودی برای هماهنگی ارسال با شما تماس می‌گیرند.</p>
                 <span class="ordno">شماره سفارش دمو: @_orderNumber</span>
                 <button class="btn btn-ghost btn-sm" type="button" @onclick="Close">بستن</button>
+            </div>
+        }
+        else if (_isAddressSelection)
+        {
+            <div class="cart-checkout-step">
+                <h4>انتخاب آدرس ارسال</h4>
+                @if (_addresses.Count == 0)
+                {
+                    <div class="no-address">
+                        <p>هیچ آدرسی ثبت نشده است.</p>
+                        <button class="btn btn-primary btn-sm" type="button" @onclick="GoToAddAddress">افزودن آدرس جدید</button>
+                    </div>
+                }
+                else
+                {
+                    <div class="address-options">
+                        @foreach (var address in _addresses)
+                        {
+                            <div class="address-option @(_selectedAddressId == address.Id ? "selected" : "")" @onclick="() => SelectAddress(address.Id)">
+                                <input type="radio" name="address" value="@address.Id" @onchange="e => SelectAddress((int)e.Value!)" checked="@(_selectedAddressId == address.Id)" />
+                                <div class="option-content">
+                                    <strong>@address.RecipientName</strong>
+                                    <span class="address-text">@address.Address1</span>
+                                    @if (!string.IsNullOrEmpty(address.Address2))
+                                    {
+                                        <span class="address-text">@address.Address2</span>
+                                    }
+                                    <span class="address-text">@address.District، @address.City، @address.Province</span>
+                                </div>
+                                @if (address.IsDefault)
+                                {
+                                    <span class="badge-small">پیش‌فرض</span>
+                                }
+                            </div>
+                        }
+                    </div>
+                    <button class="btn btn-ghost btn-sm" type="button" @onclick="GoToAddAddress">افزودن آدرس جدید</button>
+                }
+                <div class="checkout-buttons">
+                    <button class="btn btn-primary" type="button" disabled="@(_selectedAddressId is null)" @onclick="ConfirmCheckout">تایید و ادامه</button>
+                    <button class="btn btn-ghost" type="button" @onclick="CancelAddressSelection">انصراف</button>
+                </div>
             </div>
         }
         else if (_lines.Count == 0)
@@ -57,7 +101,7 @@
             }
         }
     </div>
-    @if (_orderNumber is null)
+    @if (_orderNumber is null && !_isAddressSelection)
     {
         <div class="cart-foot">
             <div class="cart-subtotal"><span>جمع کل</span><b>@Subtotal.FormatToman()</b></div>
@@ -69,13 +113,31 @@
 
 @code {
     private List<CartLine> _lines = [];
+    private List<AddressLine> _addresses = [];
     private string? _orderNumber;
+    private bool _isAddressSelection;
+    private int? _selectedAddressId;
+    private int? _userId;
     private long Subtotal => _lines.Sum(l => l.LineTotal);
+
+    [CascadingParameter]
+    private HttpContext? HttpContext { get; set; }
+
+    [Inject]
+    private NavigationManager? Navigator { get; set; }
 
     protected override async Task OnInitializedAsync()
     {
         CartService.Changed += OnChanged;
+        ExtractUserId();
         await Refresh();
+    }
+
+    private void ExtractUserId()
+    {
+        var userIdClaim = HttpContext?.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        if (int.TryParse(userIdClaim, out var userId))
+            _userId = userId;
     }
 
     private void OnChanged() => InvokeAsync(async () =>
@@ -92,14 +154,49 @@
     private void Close()
     {
         _orderNumber = null;
+        _isAddressSelection = false;
         CartService.CloseDrawer();
     }
 
     private async Task Checkout()
     {
-        var number = await OrderService.CheckoutAsync();
-        if (number is not null)
-            _orderNumber = number.ToFa();
+        if (_userId is null)
+            Navigator?.NavigateTo($"/account/login?returnUrl={Uri.EscapeDataString("/account")}");
+        else
+        {
+            _addresses = await AddressService.GetUserAddressesAsync(_userId.Value);
+            _selectedAddressId = _addresses.FirstOrDefault()?.Id;
+            _isAddressSelection = true;
+        }
+    }
+
+    private void SelectAddress(int addressId)
+    {
+        _selectedAddressId = addressId;
+    }
+
+    private async Task ConfirmCheckout()
+    {
+        if (_selectedAddressId.HasValue)
+        {
+            var number = await OrderService.CheckoutAsync(_userId, _selectedAddressId.Value);
+            if (number is not null)
+            {
+                _orderNumber = number.ToFa();
+                _isAddressSelection = false;
+            }
+        }
+    }
+
+    private void CancelAddressSelection()
+    {
+        _isAddressSelection = false;
+        _selectedAddressId = null;
+    }
+
+    private void GoToAddAddress()
+    {
+        Navigator?.NavigateTo("/account/address/new");
     }
 
     private static string SwatchStyle(string swatch)
