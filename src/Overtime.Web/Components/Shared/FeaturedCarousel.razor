@@ -17,8 +17,31 @@
                 {
                     var product = _products[i];
                     <CarouselItem Active="@(i == 0)" Interval="5000">
-                        <div class="carousel-slide">
-                            <ProductCard Product="product" />
+                        <div class="fc-slide">
+                            <div class="fc-content">
+                                <p class="eyebrow">@CategoryLine(product)</p>
+                                <h3>@product.Name</h3>
+                                <div class="pdp-rating">
+                                    <span class="stars">
+                                        <Icon Name="star" /><Icon Name="star" /><Icon Name="star" /><Icon Name="star" /><Icon Name="star" />
+                                    </span>
+                                    <span>@product.Rating.ToFa(1)</span>
+                                    <span>(@product.ReviewCount.ToFa() نظر)</span>
+                                </div>
+                                <p class="fc-desc">@product.Description</p>
+                                <div class="fc-actions">
+                                    <span class="fc-price">@product.Price.ToFa()<small>تومان</small></span>
+                                    <a class="btn btn-primary" href="@($"/product/{product.Id}")">مشاهده محصول</a>
+                                </div>
+                            </div>
+                            <div class="fc-art" style="background: radial-gradient(120% 100% at 70% 20%, color-mix(in srgb, var(@SwatchVar(product)) 22%, transparent), transparent 60%), var(--surface-2);">
+                                @if (!string.IsNullOrEmpty(product.Badge))
+                                {
+                                    <span class="fc-badge">@product.Badge</span>
+                                }
+                                <div class="fc-ground"></div>
+                                <img class="fc-shoe" src="@MainImage(product)" alt="@product.Name">
+                            </div>
                         </div>
                     </CarouselItem>
                 }
@@ -34,4 +57,16 @@
     {
         _products = await ProductService.GetTopAsync(8);
     }
+
+    private static string MainImage(Product product) => product.Images.Count > 0 ? product.Images[0].Url : "";
+
+    private static string CategoryLine(Product product) => string.Join(" · ",
+        new[] { product.Brand, product.Category, product.Usage }.Where(s => !string.IsNullOrEmpty(s)));
+
+    private static string SwatchVar(Product product) => product.Swatch switch
+    {
+        "accent-2" => "--accent-2",
+        "ink" => "--ink",
+        _ => "--accent",
+    };
 }
