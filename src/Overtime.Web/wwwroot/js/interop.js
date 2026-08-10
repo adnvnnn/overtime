@@ -54,3 +54,15 @@ window.overtimeGallery = {
     };
   }
 };
+
+// Scrolls the home page product carousel to a given item. Uses
+// scrollIntoView's logical "inline" alignment instead of a transform, so it
+// scrolls the correct physical direction under both LTR and RTL without any
+// manual sign math.
+window.overtimeCarousel = {
+  scrollToIndex: function (trackEl, index) {
+    if (!trackEl) return;
+    var item = trackEl.children[index];
+    if (item) item.scrollIntoView({ behavior: "smooth", inline: "start", block: "nearest" });
+  }
+};
