@@ -17,6 +17,8 @@
 
 <section class="account-section">
     <div class="wrap">
+        <AccountTabs />
+
         <div class="account-header">
             <h1>آدرس‌های ارسال</h1>
             <button class="btn btn-primary" @onclick="GoToAddAddress">افزودن آدرس جدید</button>
@@ -49,10 +51,23 @@
                             <p class="postal">کد پستی: @address.PostalCode</p>
                             <p class="phone">تلفن: @address.PhoneNumber</p>
                         </div>
-                        <div class="address-actions">
-                            <button class="btn btn-ghost btn-sm" @onclick="() => GoToEditAddress(address.Id)">ویرایش</button>
-                            <button class="btn btn-ghost btn-sm" @onclick="() => DeleteAddress(address.Id)">حذف</button>
-                        </div>
+                        @if (_pendingDeleteId == address.Id)
+                        {
+                            <div class="address-confirm">
+                                <span>این آدرس حذف شود؟</span>
+                                <div class="address-actions">
+                                    <button class="btn btn-primary btn-sm" @onclick="() => ConfirmDeleteAddress(address.Id)">بله، حذف کن</button>
+                                    <button class="btn btn-ghost btn-sm" @onclick="CancelDelete">انصراف</button>
+                                </div>
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="address-actions">
+                                <button class="btn btn-ghost btn-sm" @onclick="() => GoToEditAddress(address.Id)">ویرایش</button>
+                                <button class="btn btn-ghost btn-sm" @onclick="() => RequestDelete(address.Id)">حذف</button>
+                            </div>
+                        }
                     </div>
                 }
             </div>
@@ -66,6 +81,7 @@
 
     private List<AddressLine> _addresses = [];
     private int _userId;
+    private int? _pendingDeleteId;
 
     protected override async Task OnInitializedAsync()
     {
@@ -85,15 +101,14 @@
 
     private void GoToEditAddress(int addressId) => NavigationManager.NavigateTo($"/account/address/{addressId}");
 
-    private async Task DeleteAddress(int addressId)
-    {
-        if (await ConfirmDelete())
-        {
-            await AddressService.DeleteAddressAsync(addressId, _userId);
-            await LoadAddresses();
-        }
-    }
+    private void RequestDelete(int addressId) => _pendingDeleteId = addressId;
 
-    private static Task<bool> ConfirmDelete() =>
-        Task.FromResult(true); // In a real app, show a confirmation dialog
+    private void CancelDelete() => _pendingDeleteId = null;
+
+    private async Task ConfirmDeleteAddress(int addressId)
+    {
+        _pendingDeleteId = null;
+        await AddressService.DeleteAddressAsync(addressId, _userId);
+        await LoadAddresses();
+    }
 }

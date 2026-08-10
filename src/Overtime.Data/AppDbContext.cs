@@ -17,6 +17,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
     public DbSet<Address> Addresses => Set<Address>();
     public DbSet<OtpCode> OtpCodes => Set<OtpCode>();
     public DbSet<AdminUser> AdminUsers => Set<AdminUser>();
+    public DbSet<Review> Reviews => Set<Review>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -64,6 +65,13 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
 
         modelBuilder.Entity<OtpCode>()
             .HasIndex(o => new { o.PhoneNumber, o.CreatedAt });
+
+        modelBuilder.Entity<Review>(e =>
+        {
+            e.HasIndex(r => new { r.ProductId, r.UserId }).IsUnique();
+            e.HasOne(r => r.Product).WithMany().HasForeignKey(r => r.ProductId).OnDelete(DeleteBehavior.Cascade);
+            e.HasOne(r => r.User).WithMany().HasForeignKey(r => r.UserId).OnDelete(DeleteBehavior.NoAction);
+        });
 
         modelBuilder.Entity<AdminUser>(e =>
         {
