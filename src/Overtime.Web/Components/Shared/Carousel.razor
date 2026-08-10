@@ -1,4 +1,6 @@
 @inject ProductService ProductService
+@inject IJSRuntime JS
+@implements IAsyncDisposable
 
 <section id="carousel" class="carousel-section">
     <div class="wrap">
@@ -10,7 +12,7 @@
             <p class="lede">بهترین انتخاب‌های ما برای شما؛ محصولات پرطرفدار و جدید اورتایم.</p>
         </div>
         <div class="carousel-container">
-            <div class="carousel-track" style="@CarouselStyle">
+            <div class="carousel-track" @ref="_trackRef">
                 @foreach (var product in _products)
                 {
                     <div class="carousel-item">
@@ -18,12 +20,12 @@
                     </div>
                 }
             </div>
-            <button class="carousel-btn carousel-prev" @onclick="PrevSlide" aria-label="محصول قبلی">
+            <button type="button" class="carousel-btn carousel-prev" @onclick="PrevSlide" aria-label="محصول قبلی">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <polyline points="15 18 9 12 15 6"></polyline>
                 </svg>
             </button>
-            <button class="carousel-btn carousel-next" @onclick="NextSlide" aria-label="محصول بعدی">
+            <button type="button" class="carousel-btn carousel-next" @onclick="NextSlide" aria-label="محصول بعدی">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <polyline points="9 18 15 12 9 6"></polyline>
                 </svg>
@@ -33,7 +35,7 @@
             @for (int i = 0; i < _products.Count; i++)
             {
                 var index = i;
-                <button class="dot @(_currentIndex == index ? "active" : "")"
+                <button type="button" class="dot @(_currentIndex == index ? "active" : "")"
                         @onclick="() => GoToSlide(index)"
                         aria-label="رفتن به محصول @(index + 1)">
                 </button>
@@ -45,44 +47,67 @@
 @code {
     private List<Product> _products = [];
     private int _currentIndex = 0;
+    private ElementReference _trackRef;
+    private CancellationTokenSource? _autoScrollCts;
 
     protected override async Task OnInitializedAsync()
     {
         _products = await ProductService.GetTopAsync(8);
-        StartAutoScroll();
     }
 
-    private string CarouselStyle
+    protected override void OnAfterRender(bool firstRender)
     {
-        get
+        if (firstRender && _products.Count > 0)
         {
-            var offset = _currentIndex * 100;
-            return $"transform: translateX({offset}%);";
+            _autoScrollCts = new CancellationTokenSource();
+            _ = RunAutoScrollAsync(_autoScrollCts.Token);
         }
     }
 
-    private void NextSlide()
+    private Task NextSlide()
     {
         _currentIndex = (_currentIndex + 1) % _products.Count;
+        return ScrollToCurrentAsync();
     }
 
-    private void PrevSlide()
+    private Task PrevSlide()
     {
         _currentIndex = (_currentIndex - 1 + _products.Count) % _products.Count;
+        return ScrollToCurrentAsync();
     }
 
-    private void GoToSlide(int index)
+    private Task GoToSlide(int index)
     {
         _currentIndex = index;
+        return ScrollToCurrentAsync();
     }
 
-    private async void StartAutoScroll()
+    private async Task ScrollToCurrentAsync()
     {
-        while (true)
+        await JS.InvokeVoidAsync("overtimeCarousel.scrollToIndex", _trackRef, _currentIndex);
+    }
+
+    private async Task RunAutoScrollAsync(CancellationToken token)
+    {
+        try
         {
-            await Task.Delay(5000);
-            _currentIndex = (_currentIndex + 1) % _products.Count;
-            StateHasChanged();
+            while (!token.IsCancellationRequested)
+            {
+                await Task.Delay(5000, token);
+                _currentIndex = (_currentIndex + 1) % _products.Count;
+                await InvokeAsync(StateHasChanged);
+                await ScrollToCurrentAsync();
+            }
         }
+        catch (TaskCanceledException)
+        {
+        }
+    }
+
+    public ValueTask DisposeAsync()
+    {
+        _autoScrollCts?.Cancel();
+        _autoScrollCts?.Dispose();
+        return ValueTask.CompletedTask;
     }
 }
