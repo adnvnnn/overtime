@@ -12,7 +12,7 @@ using Overtime.Data;
 namespace Overtime.Data.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20260810182432_Init")]
+    [Migration("20260810182835_Init")]
     partial class Init
     {
         /// <inheritdoc />
@@ -1134,7 +1134,7 @@ namespace Overtime.Data.Migrations
                     b.HasOne("Overtime.Data.Entities.User", "User")
                         .WithMany()
                         .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.SetNull);
+                        .OnDelete(DeleteBehavior.NoAction);
 
                     b.Navigation("Address");
 
