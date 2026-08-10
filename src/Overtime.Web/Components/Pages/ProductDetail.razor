@@ -157,6 +157,7 @@
     private ElementReference _sliderRef;
     private DotNetObjectReference<ProductDetail>? _dotNetRef;
     private IJSObjectReference? _galleryHandle;
+    private string? _galleryAttachedId;
 
     private string CategoryLine => Product is null ? "" : string.Join(" · ",
         new[] { Product.Brand, Product.Category, Product.Usage }.Where(s => !string.IsNullOrEmpty(s)));
@@ -186,11 +187,19 @@
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        if (firstRender)
+        if (Product is null || _galleryAttachedId == Product.Id)
+            return;
+
+        if (_galleryHandle is not null)
         {
-            _dotNetRef = DotNetObjectReference.Create(this);
-            _galleryHandle = await JS.InvokeAsync<IJSObjectReference>("overtimeGallery.attach", _sliderRef, _dotNetRef);
+            await _galleryHandle.InvokeVoidAsync("dispose");
+            await _galleryHandle.DisposeAsync();
+            _galleryHandle = null;
         }
+
+        _dotNetRef ??= DotNetObjectReference.Create(this);
+        _galleryHandle = await JS.InvokeAsync<IJSObjectReference>("overtimeGallery.attach", _sliderRef, _dotNetRef);
+        _galleryAttachedId = Product.Id;
     }
 
     private void GoTo(int index)
