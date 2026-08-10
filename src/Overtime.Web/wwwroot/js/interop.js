@@ -55,11 +55,42 @@ window.overtimeGallery = {
   }
 };
 
-// Scrolls the home page product carousel to a given item. Uses
-// scrollIntoView's logical "inline" alignment instead of a transform, so it
-// scrolls the correct physical direction under both LTR and RTL without any
-// manual sign math.
+// Drives the home page product carousel. Scrolling uses scrollIntoView's
+// logical "inline" alignment instead of a transform, so it scrolls the
+// correct physical direction under both LTR and RTL without any manual sign
+// math. Since the number of items visible at once changes at each
+// responsive breakpoint, the reachable dot count is measured from the real
+// layout instead of assumed, so the dots always match how many distinct
+// positions the carousel can actually scroll to.
 window.overtimeCarousel = {
+  attach: function (trackEl, dotNetRef) {
+    if (!trackEl || trackEl.nodeType !== 1) return null;
+
+    function computeMaxIndex() {
+      var items = trackEl.children;
+      if (items.length < 2) return 0;
+      var r0 = items[0].getBoundingClientRect();
+      var r1 = items[1].getBoundingClientRect();
+      var step = Math.abs(r1.left - r0.left);
+      if (step <= 0) return items.length - 1;
+      var visibleCount = Math.max(1, Math.floor(trackEl.clientWidth / step));
+      return Math.max(0, items.length - visibleCount);
+    }
+
+    function reportMaxIndex() {
+      dotNetRef.invokeMethodAsync("OnMaxIndexChanged", computeMaxIndex());
+    }
+
+    reportMaxIndex();
+    var resizeObserver = new ResizeObserver(reportMaxIndex);
+    resizeObserver.observe(trackEl);
+
+    return {
+      dispose: function () {
+        resizeObserver.disconnect();
+      }
+    };
+  },
   scrollToIndex: function (trackEl, index) {
     if (!trackEl) return;
     var item = trackEl.children[index];
