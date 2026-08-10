@@ -67,7 +67,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
 
         modelBuilder.Entity<AdminUser>(e =>
         {
-            e.Property(a => a.Username).UseCollation("NOCASE");
+            e.Property(a => a.Username).UseCollation("SQL_Latin1_General_CP1_CI_AS");
             e.HasIndex(a => a.Username).IsUnique();
         });
     }
