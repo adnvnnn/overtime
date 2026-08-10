@@ -4,6 +4,7 @@
 @inject CartService CartService
 @inject ToastService ToastService
 @inject IJSRuntime JS
+@inject NavigationManager Navigator
 
 <PageTitle>Overtime | @(Product?.Name ?? "جزئیات محصول")</PageTitle>
 
@@ -143,8 +144,6 @@
     [Parameter]
     public string Id { get; set; } = "";
 
-    private const string FallbackId = "air-pulse";
-
     private string? _loadedId;
     private Product? Product;
     private List<ProductImage> _images = [];
@@ -175,14 +174,20 @@
             return;
         _loadedId = Id;
 
-        var product = await ProductService.GetByIdAsync(Id) ?? await ProductService.GetByIdAsync(FallbackId);
+        var product = await ProductService.GetByIdAsync(Id);
+        if (product is null)
+        {
+            Navigator.NavigateTo("/not-found");
+            return;
+        }
+
         Product = product;
-        _images = product?.Images.ToList() ?? [];
+        _images = product.Images.ToList();
         _activeIndex = 0;
         _selectedSize = null;
         _qty = 1;
         _shake = false;
-        _related = product is not null ? await ProductService.GetRelatedAsync(product.Id, 3) : [];
+        _related = await ProductService.GetRelatedAsync(product.Id, 3);
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)

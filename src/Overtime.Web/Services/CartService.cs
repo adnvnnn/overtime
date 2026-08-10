@@ -57,7 +57,7 @@ public class CartService(IDbContextFactory<AppDbContext> dbFactory, CartContext 
     }
 
     // Used by the one-click "add" button on product cards (no size picker there):
-    // picks the cheapest still-in-stock size automatically.
+    // picks the smallest still-in-stock size automatically.
     public async Task<bool> QuickAddAsync(string productId)
     {
         await using var db = await dbFactory.CreateDbContextAsync();
