@@ -14,15 +14,18 @@
     <link rel="stylesheet" href="@Assets["assets/css/products.css"]" />
     <link rel="stylesheet" href="@Assets["assets/css/product.css"]" />
     <link rel="stylesheet" href="@Assets["assets/css/account.css"]" />
+    <link rel="stylesheet" href="_content/MudBlazor/MudBlazor.min.css" />
     <link rel="stylesheet" href="@Assets["Overtime.Web.styles.css"]" />
     <ImportMap />
     <HeadOutlet @rendermode="PageRenderMode" />
 </head>
 
 <body>
+    <MudThemeProvider @rendermode="PageRenderMode" />
     <Routes @rendermode="PageRenderMode" />
     <ReconnectModal />
     <script src="@Assets["_framework/blazor.web.js"]"></script>
+    <script src="_content/MudBlazor/MudBlazor.min.js"></script>
     <script src="js/interop.js"></script>
 </body>
 
