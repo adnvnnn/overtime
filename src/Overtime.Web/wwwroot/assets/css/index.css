@@ -470,16 +470,44 @@
   .cart-success .ordno{ font-size:12.5px; color: var(--accent); font-weight:700; font-variant-numeric: tabular-nums; }
 
   /* ---------- Carousel ---------- */
-  .carousel-mud{
-    margin-bottom: 30px; height: 400px;
+  .carousel-section{ }
+  .carousel-container{
+    position: relative; margin-bottom: 30px;
   }
-  .carousel-mud .mud-carousel-item{ display:flex; align-items:flex-start; }
-  .carousel-grid{
-    display:grid; grid-template-columns: repeat(4, 1fr); gap: 24px; width:100%; align-self:flex-start;
+  .carousel-track{
+    display: flex; gap: 24px;
+    overflow-x: auto; overscroll-behavior-x: contain;
+    scroll-snap-type: x mandatory; scroll-behavior: smooth;
+    scrollbar-width: none; -ms-overflow-style: none;
   }
-  /* Bound each card's title to one line so every slide's height is predictable
-     — MudCarousel fixes its container to an explicit height and clips overflow. */
-  .carousel-grid .card h3{ overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .carousel-track::-webkit-scrollbar{ display: none; }
+  .carousel-item{
+    flex: 0 0 calc(25% - 18px); min-width: 0;
+    scroll-snap-align: start;
+  }
+  .carousel-btn{
+    position: absolute; top: 50%; transform: translateY(-50%);
+    width: 44px; height: 44px; border-radius: 999px; border: 1px solid var(--line);
+    background: var(--surface); color: var(--ink); cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    transition: border-color .15s ease, background .15s ease;
+    box-shadow: var(--shadow); z-index: 10;
+  }
+  .carousel-btn:hover{
+    border-color: var(--accent); background: var(--accent); color: var(--accent-ink);
+  }
+  .carousel-btn svg{ width: 20px; height: 20px; }
+  .carousel-prev{ inset-inline-end: auto; inset-inline-start: -22px; }
+  .carousel-next{ inset-inline-start: auto; inset-inline-end: -22px; }
+  .carousel-dots{
+    display: flex; gap: 8px; justify-content: center;
+  }
+  .carousel-dots .dot{
+    width: 10px; height: 10px; border-radius: 50%; border: none;
+    background: var(--line); cursor: pointer; transition: background .15s ease;
+  }
+  .carousel-dots .dot.active{ background: var(--accent); }
+  .carousel-dots .dot:hover{ background: var(--accent); }
 
   /* ---------- Toast ---------- */
   .toast{
@@ -498,8 +526,7 @@
     .features{ grid-template-columns: repeat(2,1fr); }
     .insta{ grid-template-columns: 1fr; padding: 32px; }
     .location{ grid-template-columns: 1fr; }
-    .carousel-mud{ height: 780px; }
-    .carousel-grid{ grid-template-columns: repeat(3, 1fr); }
+    .carousel-item{ flex: 0 0 calc(33.333% - 16px); }
 
     .nav-cta > a.btn{ display:none; }
     .menu-btn{ display:inline-flex; }
@@ -527,8 +554,7 @@
     .cats{ grid-template-columns: 1fr 1fr; }
     section{ padding: 56px 0; }
     .hero-stats{ gap: 20px; }
-    .carousel-mud{ height: 760px; }
-    .carousel-grid{ grid-template-columns: repeat(2, 1fr); gap: 16px; }
+    .carousel-item{ flex: 0 0 calc(50% - 12px); }
   }
   @media (max-width: 480px){
     .cart-drawer{ width: 100vw; }
