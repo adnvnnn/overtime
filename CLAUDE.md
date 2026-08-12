@@ -62,6 +62,18 @@ Neither app references a Blazor component library (MudBlazor was tried for a car
 
 `Overtime.Web`'s `wwwroot/assets/css/` has one stylesheet per page area (`index.css`, `products.css`, `product.css`, `account.css`), but **all of them are linked on every page**, not scoped per-route. Several of these files contain near-duplicate copies of shared chrome rules (header/nav/mega-menu), which have drifted from each other before (e.g. `product.css` once shadowed `index.css`'s mobile nav-accordion height because it loads later in `<head>` and had an equal-specificity selector with a different value). When editing shared header/nav/footer CSS, grep across all four files for the selector you're touching, not just the one that looks most relevant.
 
+### Visual design language — "Soft Modern Commerce"
+
+This is the established look of the storefront (`index.css` `:root`) and should be followed for any new UI rather than improvised per-component:
+
+- **Color**: a single purple accent (`--accent: #6c2fd6` light / `#8355f2` dark) used sparingly — CTAs, active/hover states, highlights — against neutral `--bg`/`--surface`/`--surface-2` and `--ink`/`--ink-soft`/`--muted` text tones. Every color is a CSS custom property; never hardcode a hex value in a rule, redefine the token instead (see the three `:root` blocks in `index.css` for the light/dark/explicit-toggle pattern).
+- **Shape**: `--radius: 18px` for panels/cards/dropdowns; fully pill-shaped (`border-radius: 999px`) for buttons and badges. Sharp corners don't appear anywhere in the existing UI.
+- **Elevation**: `--shadow` (soft, diffused, large blur/low-opacity) is reserved for things that float above content — dropdowns, drawers, the hero art, floating cart — not applied to plain in-flow cards, which use a 1px `--line` border instead.
+- **Motion**: purposeful, not decorative — a hover effect should exist because it clarifies something is interactive or floating, not by default on every element. Use `cubic-bezier(0.16, 1, 0.3, 1)` ("ease-out-expo") for anything entering/settling (panels, drawers, dropdowns) instead of linear `ease` — it decelerates hard at the end, which reads as deliberate rather than mechanical. Scale duration to distance/size: ~120ms for color/opacity-only changes, ~200ms for small transforms, ~300–360ms for full panels (mega-menu, drawer). Reserve `translateY` lift for primary, emphasis-worthy cards (product cards, not every link or logo); for smaller elements prefer a subtler cue (border/background color shift, or a small `scale(0.97)` on `:active` for tactile press feedback) instead of reaching for the same lift everywhere. Every animation still needs a `@media (prefers-reduced-motion: reduce)` fallback that disables it.
+- **Typography**: Vazirmatn (variable font, weights 100–900), bold (700–900) for headings/CTAs, `--muted` for de-emphasized text, 1.7 body line-height.
+- **Rhythm**: `.wrap` caps content at 1180px with 24px side gutters; sections use 88px vertical padding (56px at the ≤560px breakpoint).
+- **Chrome**: the sticky header's frosted-glass treatment (`backdrop-filter: blur(10px)` over a translucent `--bg`) is the site's recurring "floating over content" motif — reuse it for any new overlay that should feel anchored to the chrome rather than opaque.
+
 ### Solution/project layout
 
 - `Overtime.slnx` (the new XML-based slnx format, not `.sln`) lists the three projects under a `/src/` folder.
