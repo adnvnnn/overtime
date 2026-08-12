@@ -10,7 +10,7 @@ public record ReviewLine(int Id, int UserId, string ReviewerName, int Rating, st
 
 public class ReviewService(IDbContextFactory<AppDbContext> dbFactory, IStringLocalizer<AppStrings> localizer)
 {
-    public async Task<List<ReviewLine>> GetProductReviewsAsync(string productId)
+    public async Task<List<ReviewLine>> GetProductReviewsAsync(int productId)
     {
         await using var db = await dbFactory.CreateDbContextAsync();
         var reviews = await db.Reviews
@@ -22,14 +22,14 @@ public class ReviewService(IDbContextFactory<AppDbContext> dbFactory, IStringLoc
         return reviews.Select(ToLine).ToList();
     }
 
-    public async Task<(double Average, int Count)> GetRatingSummaryAsync(string productId)
+    public async Task<(double Average, int Count)> GetRatingSummaryAsync(int productId)
     {
         await using var db = await dbFactory.CreateDbContextAsync();
         var ratings = await db.Reviews.Where(r => r.ProductId == productId).Select(r => r.Rating).ToListAsync();
         return ratings.Count == 0 ? (0, 0) : (ratings.Average(), ratings.Count);
     }
 
-    public async Task<ReviewLine?> GetUserReviewAsync(string productId, int userId)
+    public async Task<ReviewLine?> GetUserReviewAsync(int productId, int userId)
     {
         await using var db = await dbFactory.CreateDbContextAsync();
         var review = await db.Reviews.Include(r => r.User)
@@ -37,7 +37,7 @@ public class ReviewService(IDbContextFactory<AppDbContext> dbFactory, IStringLoc
         return review is null ? null : ToLine(review);
     }
 
-    public async Task SubmitReviewAsync(string productId, int userId, int rating, string? comment)
+    public async Task SubmitReviewAsync(int productId, int userId, int rating, string? comment)
     {
         rating = Math.Clamp(rating, 1, 5);
 

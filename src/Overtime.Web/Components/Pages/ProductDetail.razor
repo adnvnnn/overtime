@@ -1,4 +1,4 @@
-@page "/product/{Id}"
+@page "/product/{Slug}"
 @implements IAsyncDisposable
 @using System.Security.Claims
 @inject ProductService ProductService
@@ -217,9 +217,9 @@
 
 @code {
     [Parameter]
-    public string Id { get; set; } = "";
+    public string Slug { get; set; } = "";
 
-    private string? _loadedId;
+    private string? _loadedSlug;
     private Product? Product;
     private List<ProductImage> _images = [];
     private List<Product> _related = [];
@@ -231,7 +231,7 @@
     private ElementReference _sliderRef;
     private DotNetObjectReference<ProductDetail>? _dotNetRef;
     private IJSObjectReference? _galleryHandle;
-    private string? _galleryAttachedId;
+    private int? _galleryAttachedId;
 
     private List<ReviewLine> _reviews = [];
     private double _avgRating;
@@ -245,7 +245,7 @@
     [CascadingParameter]
     private HttpContext? HttpContext { get; set; }
 
-    private string LoginUrl => $"/account/login?returnUrl={Uri.EscapeDataString($"/product/{Id}")}";
+    private string LoginUrl => $"/account/login?returnUrl={Uri.EscapeDataString($"/product/{Slug}")}";
 
     private string CategoryLine => Product is null ? "" : string.Join(" · ",
         new[] { Product.Brand?.Name, string.Join("، ", Product.Categories.Select(c => c.Name)), string.Join("، ", Product.Usages.Select(u => u.Name)) }
@@ -260,11 +260,11 @@
 
     protected override async Task OnParametersSetAsync()
     {
-        if (_loadedId == Id)
+        if (_loadedSlug == Slug)
             return;
-        _loadedId = Id;
+        _loadedSlug = Slug;
 
-        var product = await ProductService.GetByIdAsync(Id);
+        var product = await ProductService.GetBySlugAsync(Slug);
         if (product is null)
         {
             Navigator.NavigateTo("/not-found");

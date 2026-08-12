@@ -5,7 +5,7 @@ namespace Overtime.Data;
 public static class SeedData
 {
     private sealed record ProductSeed(
-        string Id, string Name, string Category, string Usage, long Price, string Swatch, string? Badge,
+        string Slug, string Name, string Category, string Usage, long Price, string Swatch, string? Badge,
         double Rating, int ReviewCount, string Description, string Image,
         (string Key, string Value)[] Specs, int[] Sizes);
 
@@ -78,10 +78,18 @@ public static class SeedData
         new() { Id = 26, Name = "Vico", Slug = "vico", LogoUrl = "assets/images/brands/vico-logo.svg", DisplayOrder = 25 },
     ];
 
+    // Product.Id is a DB-assigned int (auto-increment), but HasData needs explicit values,
+    // so seed rows get sequential ids matching this array's order (1-based). ProductIds maps
+    // each product's readable Slug back to that id, so the rest of this file — order seed data,
+    // category/usage links — can keep referring to products by slug instead of a bare number.
+    private static readonly Dictionary<string, int> ProductIds =
+        Products.Select((p, i) => (p.Slug, Id: i + 1)).ToDictionary(x => x.Slug, x => x.Id);
+
     public static Product[] GetProducts() =>
         Products.Select((p, i) => new Product
         {
-            Id = p.Id,
+            Id = i + 1,
+            Slug = p.Slug,
             Name = p.Name,
             BrandId = 1,
             Price = p.Price,
@@ -99,17 +107,20 @@ public static class SeedData
     private static readonly string[] CategoryNames = [.. Products.Select(p => p.Category).Distinct()];
     private static readonly string[] UsageNames = [.. Products.Select(p => p.Usage).Distinct()];
 
+    // English slugs for the Persian category names above, same order, for SEO-friendly URLs.
+    private static readonly string[] CategorySlugs = ["men", "unisex", "women", "kids", "limited-edition"];
+
     public static Category[] GetCategories() =>
-        CategoryNames.Select((name, i) => new Category { Id = i + 1, Name = name, DisplayOrder = i }).ToArray();
+        CategoryNames.Select((name, i) => new Category { Id = i + 1, Name = name, Slug = CategorySlugs[i], DisplayOrder = i }).ToArray();
 
     public static Usage[] GetUsages() =>
         UsageNames.Select((name, i) => new Usage { Id = i + 1, Name = name, DisplayOrder = i }).ToArray();
 
     public static ProductCategory[] GetProductCategoryLinks() =>
-        Products.Select(p => new ProductCategory { ProductId = p.Id, CategoryId = Array.IndexOf(CategoryNames, p.Category) + 1 }).ToArray();
+        Products.Select(p => new ProductCategory { ProductId = ProductIds[p.Slug], CategoryId = Array.IndexOf(CategoryNames, p.Category) + 1 }).ToArray();
 
     public static ProductUsage[] GetProductUsageLinks() =>
-        Products.Select(p => new ProductUsage { ProductId = p.Id, UsageId = Array.IndexOf(UsageNames, p.Usage) + 1 }).ToArray();
+        Products.Select(p => new ProductUsage { ProductId = ProductIds[p.Slug], UsageId = Array.IndexOf(UsageNames, p.Usage) + 1 }).ToArray();
 
     public static ProductImage[] GetImages()
     {
@@ -117,7 +128,7 @@ public static class SeedData
         return Products.SelectMany(p => Enumerable.Range(0, 3).Select(i => new ProductImage
         {
             Id = id++,
-            ProductId = p.Id,
+            ProductId = ProductIds[p.Slug],
             Url = p.Image,
             SortOrder = i,
         })).ToArray();
@@ -129,7 +140,7 @@ public static class SeedData
         return Products.SelectMany(p => p.Specs.Select((s, i) => new ProductSpec
         {
             Id = id++,
-            ProductId = p.Id,
+            ProductId = ProductIds[p.Slug],
             Key = s.Key,
             Value = s.Value,
             SortOrder = i,
@@ -144,9 +155,9 @@ public static class SeedData
         return Products.SelectMany(p => p.Sizes.Select(size => new ProductSize
         {
             Id = id++,
-            ProductId = p.Id,
+            ProductId = ProductIds[p.Slug],
             Size = size,
-            StockQty = p.Id == "air-pulse" && size == 42 ? 0 : 4 + (size % 6) * 2,
+            StockQty = p.Slug == "air-pulse" && size == 42 ? 0 : 4 + (size % 6) * 2,
         })).ToArray();
     }
 
@@ -170,7 +181,7 @@ public static class SeedData
             CreatedAt = u.CreatedAt,
         }).ToArray();
 
-    private sealed record OrderItemSeed(string ProductId, int Size, int Qty);
+    private sealed record OrderItemSeed(string ProductSlug, int Size, int Qty);
 
     private sealed record OrderSeed(
         string OrderNumber, Guid CartId, DateTime CreatedAt, OrderStatus Status, OrderItemSeed[] Items);
@@ -208,8 +219,8 @@ public static class SeedData
             OrderStatus.Pending, [new("air-pulse", 43, 2), new("street-low", 42, 1)]),
     ];
 
-    private static long PriceOf(string productId) => Products.First(p => p.Id == productId).Price;
-    private static string NameOf(string productId) => Products.First(p => p.Id == productId).Name;
+    private static long PriceOf(string productSlug) => Products.First(p => p.Slug == productSlug).Price;
+    private static string NameOf(string productSlug) => Products.First(p => p.Slug == productSlug).Name;
 
     public static Order[] GetDemoOrders() =>
         Orders.Select(o => new Order
@@ -218,14 +229,14 @@ public static class SeedData
             CartId = o.CartId,
             CreatedAt = o.CreatedAt,
             Status = o.Status,
-            Total = o.Items.Sum(it => it.Qty * PriceOf(it.ProductId)),
+            Total = o.Items.Sum(it => it.Qty * PriceOf(it.ProductSlug)),
             Items = o.Items.Select(it => new OrderItem
             {
-                ProductId = it.ProductId,
-                ProductName = NameOf(it.ProductId),
+                ProductId = ProductIds[it.ProductSlug],
+                ProductName = NameOf(it.ProductSlug),
                 Size = it.Size,
                 Qty = it.Qty,
-                UnitPrice = PriceOf(it.ProductId),
+                UnitPrice = PriceOf(it.ProductSlug),
             }).ToList(),
         }).ToArray();
 }
