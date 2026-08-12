@@ -7,18 +7,21 @@ namespace Overtime.Web.Services;
 public class ProductService(IDbContextFactory<AppDbContext> dbFactory)
 {
     public async Task<List<Product>> GetCatalogAsync(string category = "all", string? query = null, string sort = "default",
-        long? minPrice = null, long? maxPrice = null, bool inStockOnly = false)
+        long? minPrice = null, long? maxPrice = null, bool inStockOnly = false, string? brandSlug = null)
     {
         await using var db = await dbFactory.CreateDbContextAsync();
-        IQueryable<Product> q = db.Products.Include(p => p.Images.OrderBy(i => i.SortOrder));
+        IQueryable<Product> q = db.Products.Include(p => p.Images.OrderBy(i => i.SortOrder)).Include(p => p.Brand);
 
         if (category != "all")
             q = q.Where(p => p.Category.Contains(category));
 
+        if (!string.IsNullOrWhiteSpace(brandSlug))
+            q = q.Where(p => p.Brand!.Slug == brandSlug);
+
         if (!string.IsNullOrWhiteSpace(query))
         {
             var pattern = $"%{query.Trim()}%";
-            q = q.Where(p => EF.Functions.Like(p.Name, pattern) || EF.Functions.Like(p.Category, pattern));
+            q = q.Where(p => EF.Functions.Like(p.Name, pattern) || EF.Functions.Like(p.Category, pattern) || EF.Functions.Like(p.Brand!.Name, pattern));
         }
 
         if (minPrice is not null)
@@ -63,6 +66,7 @@ public class ProductService(IDbContextFactory<AppDbContext> dbFactory)
             .Include(p => p.Images.OrderBy(i => i.SortOrder))
             .Include(p => p.Specs.OrderBy(s => s.SortOrder))
             .Include(p => p.Sizes.OrderBy(s => s.Size))
+            .Include(p => p.Brand)
             .FirstOrDefaultAsync(p => p.Id == id);
     }
 
@@ -71,6 +75,7 @@ public class ProductService(IDbContextFactory<AppDbContext> dbFactory)
         await using var db = await dbFactory.CreateDbContextAsync();
         return await db.Products
             .Include(p => p.Images.OrderBy(i => i.SortOrder))
+            .Include(p => p.Brand)
             .OrderBy(p => p.DisplayOrder)
             .Take(count)
             .ToListAsync();
@@ -81,6 +86,7 @@ public class ProductService(IDbContextFactory<AppDbContext> dbFactory)
         await using var db = await dbFactory.CreateDbContextAsync();
         return await db.Products
             .Include(p => p.Images.OrderBy(i => i.SortOrder))
+            .Include(p => p.Brand)
             .Where(p => p.Id != excludeId)
             .OrderBy(p => p.DisplayOrder)
             .Take(count)

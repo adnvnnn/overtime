@@ -1,5 +1,6 @@
 @implements IDisposable
 @inject CartService CartService
+@inject BrandService BrandService
 @inject IJSRuntime JS
 
 <header>
@@ -12,7 +13,56 @@
         </a>
         <nav class="links @(_menuOpen ? "open" : "")" id="navLinks">
             <a href="/" @onclick="CloseMenu">خانه</a>
-            <a href="/products" @onclick="CloseMenu">محصولات</a>
+            <div class="nav-item">
+                <a href="/products" @onclick="CloseMenu">محصولات</a>
+                <div class="mega-menu">
+                    <div class="mega-menu-inner">
+                        <div class="mega-col mega-col-links">
+                            <p class="mega-heading">دسته‌بندی‌ها</p>
+                            <a href="/products?cat=مردانه" @onclick="CloseMenu">مردانه</a>
+                            <a href="/products?cat=زنانه" @onclick="CloseMenu">زنانه</a>
+                            <a href="/products?cat=بچگانه" @onclick="CloseMenu">بچگانه</a>
+                            <a href="/products?cat=یونیسکس" @onclick="CloseMenu">یونیسکس</a>
+                            <a href="/products?cat=لیمیتد" @onclick="CloseMenu">لیمیتد ادیشن</a>
+                            <a class="mega-view-all" href="/products" @onclick="CloseMenu">
+                                مشاهده همه محصولات
+                                <Icon Name="chevron-left" Class="ic" />
+                            </a>
+                        </div>
+                        <div class="mega-col mega-col-brands">
+                            <p class="mega-heading">برندها</p>
+                            <div class="mega-brand-grid">
+                                @foreach (var brand in _brands)
+                                {
+                                    <a class="mega-brand" href="@($"/products?brand={brand.Slug}")" @onclick="CloseMenu">
+                                        <span class="mega-brand-logo">
+                                            @if (!string.IsNullOrEmpty(brand.LogoUrl))
+                                            {
+                                                <img src="@brand.LogoUrl" alt="@brand.Name" loading="lazy" />
+                                            }
+                                            else
+                                            {
+                                                <span class="mega-brand-monogram">OT</span>
+                                            }
+                                        </span>
+                                        <span>@brand.Name</span>
+                                    </a>
+                                }
+                            </div>
+                        </div>
+                        <a class="mega-promo" href="/products?cat=لیمیتد" @onclick="CloseMenu">
+                            <img src="assets/images/products/product-6.jpg" alt="کالکشن لیمیتد اورتایم" loading="lazy" />
+                            <span class="mega-promo-overlay">
+                                <span class="mega-promo-tag">لیمیتد ادیشن</span>
+                                <span class="mega-promo-text">
+                                    کالکشن اختصاصی اورتایم
+                                    <Icon Name="chevron-left" Class="ic" />
+                                </span>
+                            </span>
+                        </a>
+                    </div>
+                </div>
+            </div>
             <a href="/#categories" @onclick="CloseMenu">دسته‌بندی‌ها</a>
             <a href="/#why" @onclick="CloseMenu">چرا اورتایم</a>
             <a href="/#location" @onclick="CloseMenu">موقعیت فروشگاه</a>
@@ -62,11 +112,13 @@
     private bool _menuOpen;
     private int _count;
     private string _theme = "light";
+    private List<Brand> _brands = [];
 
     protected override async Task OnInitializedAsync()
     {
         CartService.Changed += OnCartChanged;
         _count = await CartService.GetCountAsync();
+        _brands = await BrandService.GetAllAsync();
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)

@@ -46,7 +46,7 @@
                     {
                         <tr>
                             <td class="cell-title">@product.Name</td>
-                            <td>@product.Brand</td>
+                            <td>@product.Brand?.Name</td>
                             <td>@product.Category@(string.IsNullOrEmpty(product.Usage) ? "" : $" · {product.Usage}")</td>
                             <td class="num">@product.Price.FormatToman()</td>
                             <td class="num">@product.Sizes.Sum(s => s.StockQty).ToFa()</td>
