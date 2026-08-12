@@ -160,6 +160,7 @@
   <data name="Home_StatReturnValue" xml:space="preserve"><value>۷ روز</value></data>
   <data name="Home_StatReturnLabel" xml:space="preserve"><value>مهلت مرجوعی</value></data>
   <data name="Home_HeroBadgeBrand" xml:space="preserve"><value>اورتایم</value></data>
+  <data name="Home_HeroGoToSlideAria" xml:space="preserve"><value>رفتن به تصویر {0}</value></data>
   <data name="Home_TickerShipping" xml:space="preserve"><value>ارسال به سراسر ایران</value></data>
   <data name="Home_TickerGuarantee" xml:space="preserve"><value>ضمانت اصالت کالا</value></data>
   <data name="Home_TickerNewModels" xml:space="preserve"><value>جدیدترین مدل‌های ۲۰۲۶</value></data>
@@ -169,6 +170,9 @@
   <data name="Home_CategoriesLede" xml:space="preserve"><value>از پیاده‌روی سبک تا زمین بازی؛ کالکشن اورتایم برای هر قدم یک مدل دارد.</value></data>
   <data name="Home_ProductsHeading" xml:space="preserve"><value>پرفروش‌های اورتایم</value></data>
   <data name="Home_ViewFullCollectionInsta" xml:space="preserve"><value>مشاهده کالکشن کامل در اینستاگرام</value></data>
+  <data name="Home_BannersEyebrow" xml:space="preserve"><value>پیشنهاد ما</value></data>
+  <data name="Home_BannersHeading" xml:space="preserve"><value>چند مدل که نباید از دست بدهید</value></data>
+  <data name="Home_BannerCta" xml:space="preserve"><value>مشاهده محصول</value></data>
   <data name="Home_SocialEyebrow" xml:space="preserve"><value>شبکه‌های اجتماعی</value></data>
   <data name="Home_InstaHeading" xml:space="preserve"><value>جدیدترین مدل‌ها را در اینستاگرام ببینید</value></data>
   <data name="Home_InstaLede" xml:space="preserve"><value>پست‌های جدید، آنباکسینگ و موجودی لحظه‌ای فروشگاه را در صفحه‌ی اینستاگرام دنبال کنید.</value></data>
