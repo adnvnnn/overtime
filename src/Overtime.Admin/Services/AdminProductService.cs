@@ -22,7 +22,7 @@ public partial class AdminProductService(IDbContextFactory<AppDbContext> dbFacto
         return await q.OrderBy(p => p.DisplayOrder).ToListAsync();
     }
 
-    public async Task<Product?> GetByIdAsync(string id)
+    public async Task<Product?> GetByIdAsync(int id)
     {
         await using var db = await dbFactory.CreateDbContextAsync();
         return await db.Products
@@ -39,15 +39,12 @@ public partial class AdminProductService(IDbContextFactory<AppDbContext> dbFacto
     {
         await using var db = await dbFactory.CreateDbContextAsync();
 
-        var baseId = Slugify(product.Name);
-        var id = baseId;
+        var baseSlug = Slugify(product.Name);
+        var slug = baseSlug;
         var suffix = 2;
-        while (await db.Products.AnyAsync(p => p.Id == id))
-            id = $"{baseId}-{suffix++}";
-        product.Id = id;
-
-        foreach (var size in product.Sizes)
-            size.ProductId = id;
+        while (await db.Products.AnyAsync(p => p.Slug == slug))
+            slug = $"{baseSlug}-{suffix++}";
+        product.Slug = slug;
 
         product.Categories = await db.Categories.Where(c => categoryIds.Contains(c.Id)).ToListAsync();
         product.Usages = await db.Usages.Where(u => usageIds.Contains(u.Id)).ToListAsync();
@@ -80,13 +77,13 @@ public partial class AdminProductService(IDbContextFactory<AppDbContext> dbFacto
         await db.SaveChangesAsync();
     }
 
-    public async Task DeleteAsync(string id)
+    public async Task DeleteAsync(int id)
     {
         await using var db = await dbFactory.CreateDbContextAsync();
         await db.Products.Where(p => p.Id == id).ExecuteDeleteAsync();
     }
 
-    public async Task UpdateSizesAsync(string productId, List<ProductSize> sizes)
+    public async Task UpdateSizesAsync(int productId, List<ProductSize> sizes)
     {
         await using var db = await dbFactory.CreateDbContextAsync();
         var existing = await db.ProductSizes.Where(s => s.ProductId == productId).ToListAsync();

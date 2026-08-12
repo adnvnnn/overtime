@@ -6,7 +6,7 @@ namespace Overtime.Web.Services;
 
 public class ProductService(IDbContextFactory<AppDbContext> dbFactory)
 {
-    public async Task<List<Product>> GetCatalogAsync(string category = "all", string? query = null, string sort = "default",
+    public async Task<List<Product>> GetCatalogAsync(string categorySlug = "all", string? query = null, string sort = "default",
         long? minPrice = null, long? maxPrice = null, bool inStockOnly = false, string? brandSlug = null)
     {
         await using var db = await dbFactory.CreateDbContextAsync();
@@ -16,8 +16,8 @@ public class ProductService(IDbContextFactory<AppDbContext> dbFactory)
             .Include(p => p.Categories)
             .Include(p => p.Usages);
 
-        if (category != "all")
-            q = q.Where(p => p.Categories.Any(c => c.Name == category));
+        if (categorySlug != "all")
+            q = q.Where(p => p.Categories.Any(c => c.Slug == categorySlug));
 
         if (!string.IsNullOrWhiteSpace(brandSlug))
             q = q.Where(p => p.Brand!.Slug == brandSlug);
@@ -63,7 +63,7 @@ public class ProductService(IDbContextFactory<AppDbContext> dbFactory)
         return (await db.Products.MinAsync(p => p.Price), await db.Products.MaxAsync(p => p.Price));
     }
 
-    public async Task<Product?> GetByIdAsync(string id)
+    public async Task<Product?> GetBySlugAsync(string slug)
     {
         await using var db = await dbFactory.CreateDbContextAsync();
         return await db.Products
@@ -73,7 +73,7 @@ public class ProductService(IDbContextFactory<AppDbContext> dbFactory)
             .Include(p => p.Brand)
             .Include(p => p.Categories)
             .Include(p => p.Usages)
-            .FirstOrDefaultAsync(p => p.Id == id);
+            .FirstOrDefaultAsync(p => p.Slug == slug);
     }
 
     public async Task<List<Product>> GetTopAsync(int count)
@@ -89,7 +89,7 @@ public class ProductService(IDbContextFactory<AppDbContext> dbFactory)
             .ToListAsync();
     }
 
-    public async Task<List<Product>> GetRelatedAsync(string excludeId, int count)
+    public async Task<List<Product>> GetRelatedAsync(int excludeId, int count)
     {
         await using var db = await dbFactory.CreateDbContextAsync();
         return await db.Products

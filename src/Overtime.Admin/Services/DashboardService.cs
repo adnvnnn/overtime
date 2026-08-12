@@ -8,7 +8,7 @@ public record DashboardSummary(long TotalRevenue, int OrderCount, int ProductCou
 
 public record RevenuePoint(DateOnly Date, long Total);
 
-public record TopProduct(string ProductId, string ProductName, int QtySold, long Revenue);
+public record TopProduct(int ProductId, string ProductName, int QtySold, long Revenue);
 
 public class DashboardService(IDbContextFactory<AppDbContext> dbFactory)
 {

@@ -1,13 +1,10 @@
-using System.ComponentModel.DataAnnotations;
-
 namespace Overtime.Data.Entities;
 
 public class CartItem
 {
     public int Id { get; set; }
     public Guid CartId { get; set; }
-    [MaxLength(50)]
-    public string ProductId { get; set; } = "";
+    public int ProductId { get; set; }
     public int Size { get; set; }
     public int Qty { get; set; }
 

@@ -127,7 +127,7 @@
     protected override async Task OnInitializedAsync()
     {
         var categories = await CategoryService.GetAllAsync();
-        _tabs = [("all", Localizer["Products_TabAll"].Value), .. categories.Select(c => (c.Name, c.Name))];
+        _tabs = [("all", Localizer["Products_TabAll"].Value), .. categories.Select(c => (c.Slug, c.Name))];
 
         _totalCount = await ProductService.CountAllAsync();
         _priceBounds = await ProductService.GetPriceBoundsAsync();

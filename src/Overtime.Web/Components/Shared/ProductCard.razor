@@ -3,7 +3,7 @@
 @inject IStringLocalizer<AppStrings> Localizer
 
 <article class="card">
-    <a class="card-link" href="@($"/product/{Product.Id}")" aria-label="@Localizer["ProductCard_ViewDetailsAria", Product.Name]">
+    <a class="card-link" href="@($"/product/{Product.Slug}")" aria-label="@Localizer["ProductCard_ViewDetailsAria", Product.Name]">
         <div class="plate" style="background: color-mix(in srgb, var(@SwatchVar) 14%, var(--surface-2));">
             @if (!string.IsNullOrEmpty(Product.Badge))
             {
@@ -14,7 +14,7 @@
     </a>
     <div class="body">
         <span class="cat-line">@CategoryLine</span>
-        <h3><a href="@($"/product/{Product.Id}")">@Product.Name</a></h3>
+        <h3><a href="@($"/product/{Product.Slug}")">@Product.Name</a></h3>
         <div class="row">
             <span class="price">@Product.Price.ToFa()<small>@Localizer["Common_Toman"]</small></span>
             <button class="add" type="button" disabled="@_added" @onclick="Add">@(_added ? Localizer["ProductCard_Added"] : Localizer["ProductCard_AddToCart"])</button>

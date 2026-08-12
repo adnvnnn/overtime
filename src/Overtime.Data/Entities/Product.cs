@@ -4,8 +4,9 @@ namespace Overtime.Data.Entities;
 
 public class Product
 {
-    [MaxLength(50)]
-    public string Id { get; set; } = "";
+    public int Id { get; set; }
+    [MaxLength(80)]
+    public string Slug { get; set; } = "";
     public string Name { get; set; } = "";
     public int BrandId { get; set; }
     public Brand? Brand { get; set; }

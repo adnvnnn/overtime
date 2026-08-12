@@ -74,7 +74,7 @@ namespace Overtime.Data.Migrations
 
                     b.HasIndex("UserId", "IsDefault");
 
-                    b.ToTable("Addresses");
+                    b.ToTable("Addresses", (string)null);
                 });
 
             modelBuilder.Entity("Overtime.Data.Entities.AdminUser", b =>
@@ -106,7 +106,7 @@ namespace Overtime.Data.Migrations
                     b.HasIndex("Username")
                         .IsUnique();
 
-                    b.ToTable("AdminUsers");
+                    b.ToTable("AdminUsers", (string)null);
                 });
 
             modelBuilder.Entity("Overtime.Data.Entities.Brand", b =>
@@ -136,7 +136,7 @@ namespace Overtime.Data.Migrations
                     b.HasIndex("Slug")
                         .IsUnique();
 
-                    b.ToTable("Brands");
+                    b.ToTable("Brands", (string)null);
 
                     b.HasData(
                         new
@@ -359,7 +359,7 @@ namespace Overtime.Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Carts");
+                    b.ToTable("Carts", (string)null);
                 });
 
             modelBuilder.Entity("Overtime.Data.Entities.CartItem", b =>
@@ -373,10 +373,8 @@ namespace Overtime.Data.Migrations
                     b.Property<Guid>("CartId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<string>("ProductId")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
+                    b.Property<int>("ProductId")
+                        .HasColumnType("int");
 
                     b.Property<int>("Qty")
                         .HasColumnType("int");
@@ -391,7 +389,7 @@ namespace Overtime.Data.Migrations
                     b.HasIndex("CartId", "ProductId", "Size")
                         .IsUnique();
 
-                    b.ToTable("CartItems");
+                    b.ToTable("CartItems", (string)null);
                 });
 
             modelBuilder.Entity("Overtime.Data.Entities.Category", b =>
@@ -409,40 +407,52 @@ namespace Overtime.Data.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("Slug")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
                     b.HasKey("Id");
 
-                    b.ToTable("Categories");
+                    b.HasIndex("Slug")
+                        .IsUnique();
+
+                    b.ToTable("Categories", (string)null);
 
                     b.HasData(
                         new
                         {
                             Id = 1,
                             DisplayOrder = 0,
-                            Name = "مردانه"
+                            Name = "مردانه",
+                            Slug = "men"
                         },
                         new
                         {
                             Id = 2,
                             DisplayOrder = 1,
-                            Name = "یونیسکس"
+                            Name = "یونیسکس",
+                            Slug = "unisex"
                         },
                         new
                         {
                             Id = 3,
                             DisplayOrder = 2,
-                            Name = "زنانه"
+                            Name = "زنانه",
+                            Slug = "women"
                         },
                         new
                         {
                             Id = 4,
                             DisplayOrder = 3,
-                            Name = "بچگانه"
+                            Name = "بچگانه",
+                            Slug = "kids"
                         },
                         new
                         {
                             Id = 5,
                             DisplayOrder = 4,
-                            Name = "لیمیتد ادیشن"
+                            Name = "لیمیتد ادیشن",
+                            Slug = "limited-edition"
                         });
                 });
 
@@ -482,7 +492,7 @@ namespace Overtime.Data.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Orders");
+                    b.ToTable("Orders", (string)null);
                 });
 
             modelBuilder.Entity("Overtime.Data.Entities.OrderItem", b =>
@@ -496,9 +506,8 @@ namespace Overtime.Data.Migrations
                     b.Property<int>("OrderId")
                         .HasColumnType("int");
 
-                    b.Property<string>("ProductId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<int>("ProductId")
+                        .HasColumnType("int");
 
                     b.Property<string>("ProductName")
                         .IsRequired()
@@ -517,7 +526,7 @@ namespace Overtime.Data.Migrations
 
                     b.HasIndex("OrderId");
 
-                    b.ToTable("OrderItems");
+                    b.ToTable("OrderItems", (string)null);
                 });
 
             modelBuilder.Entity("Overtime.Data.Entities.OtpCode", b =>
@@ -553,14 +562,16 @@ namespace Overtime.Data.Migrations
 
                     b.HasIndex("PhoneNumber", "CreatedAt");
 
-                    b.ToTable("OtpCodes");
+                    b.ToTable("OtpCodes", (string)null);
                 });
 
             modelBuilder.Entity("Overtime.Data.Entities.Product", b =>
                 {
-                    b.Property<string>("Id")
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<string>("Badge")
                         .HasColumnType("nvarchar(max)");
@@ -588,6 +599,11 @@ namespace Overtime.Data.Migrations
                     b.Property<int>("ReviewCount")
                         .HasColumnType("int");
 
+                    b.Property<string>("Slug")
+                        .IsRequired()
+                        .HasMaxLength(80)
+                        .HasColumnType("nvarchar(80)");
+
                     b.Property<string>("Swatch")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -596,12 +612,15 @@ namespace Overtime.Data.Migrations
 
                     b.HasIndex("BrandId");
 
-                    b.ToTable("Products");
+                    b.HasIndex("Slug")
+                        .IsUnique();
+
+                    b.ToTable("Products", (string)null);
 
                     b.HasData(
                         new
                         {
-                            Id = "air-pulse",
+                            Id = 1,
                             Badge = "پرفروش",
                             BrandId = 1,
                             Description = "کتانی رانینگ Air Pulse برای دویدن‌های روزمره و تمرین‌های سبک طراحی شده است. رویه‌ی مش تنفس‌پذیر همراه با میان‌کفش سبک، احساس راحتی را در هر قدم حفظ می‌کند.",
@@ -610,11 +629,12 @@ namespace Overtime.Data.Migrations
                             Price = 2950000L,
                             Rating = 4.7999999999999998,
                             ReviewCount = 124,
+                            Slug = "air-pulse",
                             Swatch = "accent"
                         },
                         new
                         {
-                            Id = "highjump-x",
+                            Id = 2,
                             Badge = "جدید",
                             BrandId = 1,
                             Description = "Highjump X با میان‌کفش ضربه‌گیر و ساق بلندتر، برای حرکات ناگهانی در زمین بسکتبال طراحی شده و پایداری مچ پا را در فرودها افزایش می‌دهد.",
@@ -623,11 +643,12 @@ namespace Overtime.Data.Migrations
                             Price = 3800000L,
                             Rating = 4.7000000000000002,
                             ReviewCount = 98,
+                            Slug = "highjump-x",
                             Swatch = "accent-2"
                         },
                         new
                         {
-                            Id = "street-low",
+                            Id = 3,
                             BrandId = 1,
                             Description = "یک کتانی روزمره‌ی ساده و همه‌کاره؛ Street Low با طراحی مینیمال و رنگ خنثی، با هر پوششی هم‌نشین می‌شود.",
                             DisplayOrder = 2,
@@ -635,11 +656,12 @@ namespace Overtime.Data.Migrations
                             Price = 2200000L,
                             Rating = 4.5999999999999996,
                             ReviewCount = 156,
+                            Slug = "street-low",
                             Swatch = "ink"
                         },
                         new
                         {
-                            Id = "aria-knit",
+                            Id = 4,
                             Badge = "تخفیف",
                             BrandId = 1,
                             Description = "Aria Knit با رویه‌ی نیت کشباف، فرمی نزدیک به فرم پا دارد و برای پوشیدن طولانی‌مدت در طول روز بسیار راحت است.",
@@ -648,11 +670,12 @@ namespace Overtime.Data.Migrations
                             Price = 2650000L,
                             Rating = 4.7999999999999998,
                             ReviewCount = 142,
+                            Slug = "aria-knit",
                             Swatch = "accent-2"
                         },
                         new
                         {
-                            Id = "mini-dash",
+                            Id = 5,
                             BrandId = 1,
                             Description = "Mini Dash مدلی سبک و بادوام برای کودکان است؛ زیره‌ی ضدلغزش و بست چسبی، پوشیدن و درآوردن را برای کودکان آسان می‌کند.",
                             DisplayOrder = 4,
@@ -660,11 +683,12 @@ namespace Overtime.Data.Migrations
                             Price = 1850000L,
                             Rating = 4.9000000000000004,
                             ReviewCount = 86,
+                            Slug = "mini-dash",
                             Swatch = "accent"
                         },
                         new
                         {
-                            Id = "overtime-06",
+                            Id = 6,
                             Badge = "لیمیتد",
                             BrandId = 1,
                             Description = "Overtime №06 نسخه‌ی محدود امضای برند اورتایم است؛ تیراژ کم، جزئیات ویژه و جعبه‌ی اختصاصی این مدل را به یک قطعه‌ی کالکشنی تبدیل می‌کند.",
@@ -673,14 +697,15 @@ namespace Overtime.Data.Migrations
                             Price = 4500000L,
                             Rating = 5.0,
                             ReviewCount = 41,
+                            Slug = "overtime-06",
                             Swatch = "ink"
                         });
                 });
 
             modelBuilder.Entity("Overtime.Data.Entities.ProductCategory", b =>
                 {
-                    b.Property<string>("ProductId")
-                        .HasColumnType("nvarchar(50)");
+                    b.Property<int>("ProductId")
+                        .HasColumnType("int");
 
                     b.Property<int>("CategoryId")
                         .HasColumnType("int");
@@ -689,37 +714,37 @@ namespace Overtime.Data.Migrations
 
                     b.HasIndex("CategoryId");
 
-                    b.ToTable("ProductCategory");
+                    b.ToTable("ProductCategory", (string)null);
 
                     b.HasData(
                         new
                         {
-                            ProductId = "air-pulse",
+                            ProductId = 1,
                             CategoryId = 1
                         },
                         new
                         {
-                            ProductId = "highjump-x",
+                            ProductId = 2,
                             CategoryId = 1
                         },
                         new
                         {
-                            ProductId = "street-low",
+                            ProductId = 3,
                             CategoryId = 2
                         },
                         new
                         {
-                            ProductId = "aria-knit",
+                            ProductId = 4,
                             CategoryId = 3
                         },
                         new
                         {
-                            ProductId = "mini-dash",
+                            ProductId = 5,
                             CategoryId = 4
                         },
                         new
                         {
-                            ProductId = "overtime-06",
+                            ProductId = 6,
                             CategoryId = 5
                         });
                 });
@@ -732,10 +757,8 @@ namespace Overtime.Data.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<string>("ProductId")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
+                    b.Property<int>("ProductId")
+                        .HasColumnType("int");
 
                     b.Property<int>("SortOrder")
                         .HasColumnType("int");
@@ -748,132 +771,132 @@ namespace Overtime.Data.Migrations
 
                     b.HasIndex("ProductId");
 
-                    b.ToTable("ProductImages");
+                    b.ToTable("ProductImages", (string)null);
 
                     b.HasData(
                         new
                         {
                             Id = 1,
-                            ProductId = "air-pulse",
+                            ProductId = 1,
                             SortOrder = 0,
                             Url = "assets/images/products/product-1.jpg"
                         },
                         new
                         {
                             Id = 2,
-                            ProductId = "air-pulse",
+                            ProductId = 1,
                             SortOrder = 1,
                             Url = "assets/images/products/product-1.jpg"
                         },
                         new
                         {
                             Id = 3,
-                            ProductId = "air-pulse",
+                            ProductId = 1,
                             SortOrder = 2,
                             Url = "assets/images/products/product-1.jpg"
                         },
                         new
                         {
                             Id = 4,
-                            ProductId = "highjump-x",
+                            ProductId = 2,
                             SortOrder = 0,
                             Url = "assets/images/products/product-2.jpg"
                         },
                         new
                         {
                             Id = 5,
-                            ProductId = "highjump-x",
+                            ProductId = 2,
                             SortOrder = 1,
                             Url = "assets/images/products/product-2.jpg"
                         },
                         new
                         {
                             Id = 6,
-                            ProductId = "highjump-x",
+                            ProductId = 2,
                             SortOrder = 2,
                             Url = "assets/images/products/product-2.jpg"
                         },
                         new
                         {
                             Id = 7,
-                            ProductId = "street-low",
+                            ProductId = 3,
                             SortOrder = 0,
                             Url = "assets/images/products/product-3.jpg"
                         },
                         new
                         {
                             Id = 8,
-                            ProductId = "street-low",
+                            ProductId = 3,
                             SortOrder = 1,
                             Url = "assets/images/products/product-3.jpg"
                         },
                         new
                         {
                             Id = 9,
-                            ProductId = "street-low",
+                            ProductId = 3,
                             SortOrder = 2,
                             Url = "assets/images/products/product-3.jpg"
                         },
                         new
                         {
                             Id = 10,
-                            ProductId = "aria-knit",
+                            ProductId = 4,
                             SortOrder = 0,
                             Url = "assets/images/products/product-4.jpg"
                         },
                         new
                         {
                             Id = 11,
-                            ProductId = "aria-knit",
+                            ProductId = 4,
                             SortOrder = 1,
                             Url = "assets/images/products/product-4.jpg"
                         },
                         new
                         {
                             Id = 12,
-                            ProductId = "aria-knit",
+                            ProductId = 4,
                             SortOrder = 2,
                             Url = "assets/images/products/product-4.jpg"
                         },
                         new
                         {
                             Id = 13,
-                            ProductId = "mini-dash",
+                            ProductId = 5,
                             SortOrder = 0,
                             Url = "assets/images/products/product-5.jpg"
                         },
                         new
                         {
                             Id = 14,
-                            ProductId = "mini-dash",
+                            ProductId = 5,
                             SortOrder = 1,
                             Url = "assets/images/products/product-5.jpg"
                         },
                         new
                         {
                             Id = 15,
-                            ProductId = "mini-dash",
+                            ProductId = 5,
                             SortOrder = 2,
                             Url = "assets/images/products/product-5.jpg"
                         },
                         new
                         {
                             Id = 16,
-                            ProductId = "overtime-06",
+                            ProductId = 6,
                             SortOrder = 0,
                             Url = "assets/images/products/product-6.jpg"
                         },
                         new
                         {
                             Id = 17,
-                            ProductId = "overtime-06",
+                            ProductId = 6,
                             SortOrder = 1,
                             Url = "assets/images/products/product-6.jpg"
                         },
                         new
                         {
                             Id = 18,
-                            ProductId = "overtime-06",
+                            ProductId = 6,
                             SortOrder = 2,
                             Url = "assets/images/products/product-6.jpg"
                         });
@@ -887,10 +910,8 @@ namespace Overtime.Data.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<string>("ProductId")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
+                    b.Property<int>("ProductId")
+                        .HasColumnType("int");
 
                     b.Property<int>("Size")
                         .HasColumnType("int");
@@ -903,258 +924,258 @@ namespace Overtime.Data.Migrations
                     b.HasIndex("ProductId", "Size")
                         .IsUnique();
 
-                    b.ToTable("ProductSizes");
+                    b.ToTable("ProductSizes", (string)null);
 
                     b.HasData(
                         new
                         {
                             Id = 1,
-                            ProductId = "air-pulse",
+                            ProductId = 1,
                             Size = 40,
                             StockQty = 12
                         },
                         new
                         {
                             Id = 2,
-                            ProductId = "air-pulse",
+                            ProductId = 1,
                             Size = 41,
                             StockQty = 14
                         },
                         new
                         {
                             Id = 3,
-                            ProductId = "air-pulse",
+                            ProductId = 1,
                             Size = 42,
                             StockQty = 0
                         },
                         new
                         {
                             Id = 4,
-                            ProductId = "air-pulse",
+                            ProductId = 1,
                             Size = 43,
                             StockQty = 6
                         },
                         new
                         {
                             Id = 5,
-                            ProductId = "air-pulse",
+                            ProductId = 1,
                             Size = 44,
                             StockQty = 8
                         },
                         new
                         {
                             Id = 6,
-                            ProductId = "air-pulse",
+                            ProductId = 1,
                             Size = 45,
                             StockQty = 10
                         },
                         new
                         {
                             Id = 7,
-                            ProductId = "highjump-x",
+                            ProductId = 2,
                             Size = 41,
                             StockQty = 14
                         },
                         new
                         {
                             Id = 8,
-                            ProductId = "highjump-x",
+                            ProductId = 2,
                             Size = 42,
                             StockQty = 4
                         },
                         new
                         {
                             Id = 9,
-                            ProductId = "highjump-x",
+                            ProductId = 2,
                             Size = 43,
                             StockQty = 6
                         },
                         new
                         {
                             Id = 10,
-                            ProductId = "highjump-x",
+                            ProductId = 2,
                             Size = 44,
                             StockQty = 8
                         },
                         new
                         {
                             Id = 11,
-                            ProductId = "highjump-x",
+                            ProductId = 2,
                             Size = 45,
                             StockQty = 10
                         },
                         new
                         {
                             Id = 12,
-                            ProductId = "highjump-x",
+                            ProductId = 2,
                             Size = 46,
                             StockQty = 12
                         },
                         new
                         {
                             Id = 13,
-                            ProductId = "street-low",
+                            ProductId = 3,
                             Size = 38,
                             StockQty = 8
                         },
                         new
                         {
                             Id = 14,
-                            ProductId = "street-low",
+                            ProductId = 3,
                             Size = 39,
                             StockQty = 10
                         },
                         new
                         {
                             Id = 15,
-                            ProductId = "street-low",
+                            ProductId = 3,
                             Size = 40,
                             StockQty = 12
                         },
                         new
                         {
                             Id = 16,
-                            ProductId = "street-low",
+                            ProductId = 3,
                             Size = 41,
                             StockQty = 14
                         },
                         new
                         {
                             Id = 17,
-                            ProductId = "street-low",
+                            ProductId = 3,
                             Size = 42,
                             StockQty = 4
                         },
                         new
                         {
                             Id = 18,
-                            ProductId = "street-low",
+                            ProductId = 3,
                             Size = 43,
                             StockQty = 6
                         },
                         new
                         {
                             Id = 19,
-                            ProductId = "street-low",
+                            ProductId = 3,
                             Size = 44,
                             StockQty = 8
                         },
                         new
                         {
                             Id = 20,
-                            ProductId = "aria-knit",
+                            ProductId = 4,
                             Size = 36,
                             StockQty = 4
                         },
                         new
                         {
                             Id = 21,
-                            ProductId = "aria-knit",
+                            ProductId = 4,
                             Size = 37,
                             StockQty = 6
                         },
                         new
                         {
                             Id = 22,
-                            ProductId = "aria-knit",
+                            ProductId = 4,
                             Size = 38,
                             StockQty = 8
                         },
                         new
                         {
                             Id = 23,
-                            ProductId = "aria-knit",
+                            ProductId = 4,
                             Size = 39,
                             StockQty = 10
                         },
                         new
                         {
                             Id = 24,
-                            ProductId = "aria-knit",
+                            ProductId = 4,
                             Size = 40,
                             StockQty = 12
                         },
                         new
                         {
                             Id = 25,
-                            ProductId = "mini-dash",
+                            ProductId = 5,
                             Size = 28,
                             StockQty = 12
                         },
                         new
                         {
                             Id = 26,
-                            ProductId = "mini-dash",
+                            ProductId = 5,
                             Size = 29,
                             StockQty = 14
                         },
                         new
                         {
                             Id = 27,
-                            ProductId = "mini-dash",
+                            ProductId = 5,
                             Size = 30,
                             StockQty = 4
                         },
                         new
                         {
                             Id = 28,
-                            ProductId = "mini-dash",
+                            ProductId = 5,
                             Size = 31,
                             StockQty = 6
                         },
                         new
                         {
                             Id = 29,
-                            ProductId = "mini-dash",
+                            ProductId = 5,
                             Size = 32,
                             StockQty = 8
                         },
                         new
                         {
                             Id = 30,
-                            ProductId = "mini-dash",
+                            ProductId = 5,
                             Size = 33,
                             StockQty = 10
                         },
                         new
                         {
                             Id = 31,
-                            ProductId = "mini-dash",
+                            ProductId = 5,
                             Size = 34,
                             StockQty = 12
                         },
                         new
                         {
                             Id = 32,
-                            ProductId = "overtime-06",
+                            ProductId = 6,
                             Size = 40,
                             StockQty = 12
                         },
                         new
                         {
                             Id = 33,
-                            ProductId = "overtime-06",
+                            ProductId = 6,
                             Size = 41,
                             StockQty = 14
                         },
                         new
                         {
                             Id = 34,
-                            ProductId = "overtime-06",
+                            ProductId = 6,
                             Size = 42,
                             StockQty = 4
                         },
                         new
                         {
                             Id = 35,
-                            ProductId = "overtime-06",
+                            ProductId = 6,
                             Size = 43,
                             StockQty = 6
                         },
                         new
                         {
                             Id = 36,
-                            ProductId = "overtime-06",
+                            ProductId = 6,
                             Size = 44,
                             StockQty = 8
                         });
@@ -1172,10 +1193,8 @@ namespace Overtime.Data.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("ProductId")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
+                    b.Property<int>("ProductId")
+                        .HasColumnType("int");
 
                     b.Property<int>("SortOrder")
                         .HasColumnType("int");
@@ -1188,14 +1207,14 @@ namespace Overtime.Data.Migrations
 
                     b.HasIndex("ProductId");
 
-                    b.ToTable("ProductSpecs");
+                    b.ToTable("ProductSpecs", (string)null);
 
                     b.HasData(
                         new
                         {
                             Id = 1,
                             Key = "جنس رویه",
-                            ProductId = "air-pulse",
+                            ProductId = 1,
                             SortOrder = 0,
                             Value = "مش تنفس‌پذیر"
                         },
@@ -1203,7 +1222,7 @@ namespace Overtime.Data.Migrations
                         {
                             Id = 2,
                             Key = "نوع بند",
-                            ProductId = "air-pulse",
+                            ProductId = 1,
                             SortOrder = 1,
                             Value = "بندی معمولی"
                         },
@@ -1211,7 +1230,7 @@ namespace Overtime.Data.Migrations
                         {
                             Id = 3,
                             Key = "کاربرد",
-                            ProductId = "air-pulse",
+                            ProductId = 1,
                             SortOrder = 2,
                             Value = "دویدن و پیاده‌روی"
                         },
@@ -1219,7 +1238,7 @@ namespace Overtime.Data.Migrations
                         {
                             Id = 4,
                             Key = "رنگ اصلی",
-                            ProductId = "air-pulse",
+                            ProductId = 1,
                             SortOrder = 3,
                             Value = "بنفش"
                         },
@@ -1227,7 +1246,7 @@ namespace Overtime.Data.Migrations
                         {
                             Id = 5,
                             Key = "جنس رویه",
-                            ProductId = "highjump-x",
+                            ProductId = 2,
                             SortOrder = 0,
                             Value = "سینتتیک و مش"
                         },
@@ -1235,7 +1254,7 @@ namespace Overtime.Data.Migrations
                         {
                             Id = 6,
                             Key = "نوع بند",
-                            ProductId = "highjump-x",
+                            ProductId = 2,
                             SortOrder = 1,
                             Value = "بندی بلند"
                         },
@@ -1243,7 +1262,7 @@ namespace Overtime.Data.Migrations
                         {
                             Id = 7,
                             Key = "کاربرد",
-                            ProductId = "highjump-x",
+                            ProductId = 2,
                             SortOrder = 2,
                             Value = "بسکتبال"
                         },
@@ -1251,7 +1270,7 @@ namespace Overtime.Data.Migrations
                         {
                             Id = 8,
                             Key = "رنگ اصلی",
-                            ProductId = "highjump-x",
+                            ProductId = 2,
                             SortOrder = 3,
                             Value = "بنفش تیره"
                         },
@@ -1259,7 +1278,7 @@ namespace Overtime.Data.Migrations
                         {
                             Id = 9,
                             Key = "جنس رویه",
-                            ProductId = "street-low",
+                            ProductId = 3,
                             SortOrder = 0,
                             Value = "چرم مصنوعی"
                         },
@@ -1267,7 +1286,7 @@ namespace Overtime.Data.Migrations
                         {
                             Id = 10,
                             Key = "نوع بند",
-                            ProductId = "street-low",
+                            ProductId = 3,
                             SortOrder = 1,
                             Value = "بندی معمولی"
                         },
@@ -1275,7 +1294,7 @@ namespace Overtime.Data.Migrations
                         {
                             Id = 11,
                             Key = "کاربرد",
-                            ProductId = "street-low",
+                            ProductId = 3,
                             SortOrder = 2,
                             Value = "استفاده روزمره"
                         },
@@ -1283,7 +1302,7 @@ namespace Overtime.Data.Migrations
                         {
                             Id = 12,
                             Key = "رنگ اصلی",
-                            ProductId = "street-low",
+                            ProductId = 3,
                             SortOrder = 3,
                             Value = "مشکی"
                         },
@@ -1291,7 +1310,7 @@ namespace Overtime.Data.Migrations
                         {
                             Id = 13,
                             Key = "جنس رویه",
-                            ProductId = "aria-knit",
+                            ProductId = 4,
                             SortOrder = 0,
                             Value = "نیت کشباف"
                         },
@@ -1299,7 +1318,7 @@ namespace Overtime.Data.Migrations
                         {
                             Id = 14,
                             Key = "نوع بند",
-                            ProductId = "aria-knit",
+                            ProductId = 4,
                             SortOrder = 1,
                             Value = "بندی کشی"
                         },
@@ -1307,7 +1326,7 @@ namespace Overtime.Data.Migrations
                         {
                             Id = 15,
                             Key = "کاربرد",
-                            ProductId = "aria-knit",
+                            ProductId = 4,
                             SortOrder = 2,
                             Value = "استفاده روزمره"
                         },
@@ -1315,7 +1334,7 @@ namespace Overtime.Data.Migrations
                         {
                             Id = 16,
                             Key = "رنگ اصلی",
-                            ProductId = "aria-knit",
+                            ProductId = 4,
                             SortOrder = 3,
                             Value = "بنفش تیره"
                         },
@@ -1323,7 +1342,7 @@ namespace Overtime.Data.Migrations
                         {
                             Id = 17,
                             Key = "جنس رویه",
-                            ProductId = "mini-dash",
+                            ProductId = 5,
                             SortOrder = 0,
                             Value = "مش نرم"
                         },
@@ -1331,7 +1350,7 @@ namespace Overtime.Data.Migrations
                         {
                             Id = 18,
                             Key = "نوع بند",
-                            ProductId = "mini-dash",
+                            ProductId = 5,
                             SortOrder = 1,
                             Value = "بست چسبی"
                         },
@@ -1339,7 +1358,7 @@ namespace Overtime.Data.Migrations
                         {
                             Id = 19,
                             Key = "کاربرد",
-                            ProductId = "mini-dash",
+                            ProductId = 5,
                             SortOrder = 2,
                             Value = "استفاده روزمره"
                         },
@@ -1347,7 +1366,7 @@ namespace Overtime.Data.Migrations
                         {
                             Id = 20,
                             Key = "رنگ اصلی",
-                            ProductId = "mini-dash",
+                            ProductId = 5,
                             SortOrder = 3,
                             Value = "بنفش"
                         },
@@ -1355,7 +1374,7 @@ namespace Overtime.Data.Migrations
                         {
                             Id = 21,
                             Key = "جنس رویه",
-                            ProductId = "overtime-06",
+                            ProductId = 6,
                             SortOrder = 0,
                             Value = "چرم و سوئد"
                         },
@@ -1363,7 +1382,7 @@ namespace Overtime.Data.Migrations
                         {
                             Id = 22,
                             Key = "نوع بند",
-                            ProductId = "overtime-06",
+                            ProductId = 6,
                             SortOrder = 1,
                             Value = "بندی معمولی"
                         },
@@ -1371,7 +1390,7 @@ namespace Overtime.Data.Migrations
                         {
                             Id = 23,
                             Key = "کاربرد",
-                            ProductId = "overtime-06",
+                            ProductId = 6,
                             SortOrder = 2,
                             Value = "کالکشنی و روزمره"
                         },
@@ -1379,7 +1398,7 @@ namespace Overtime.Data.Migrations
                         {
                             Id = 24,
                             Key = "رنگ اصلی",
-                            ProductId = "overtime-06",
+                            ProductId = 6,
                             SortOrder = 3,
                             Value = "مشکی و بنفش"
                         });
@@ -1387,8 +1406,8 @@ namespace Overtime.Data.Migrations
 
             modelBuilder.Entity("Overtime.Data.Entities.ProductUsage", b =>
                 {
-                    b.Property<string>("ProductId")
-                        .HasColumnType("nvarchar(50)");
+                    b.Property<int>("ProductId")
+                        .HasColumnType("int");
 
                     b.Property<int>("UsageId")
                         .HasColumnType("int");
@@ -1397,37 +1416,37 @@ namespace Overtime.Data.Migrations
 
                     b.HasIndex("UsageId");
 
-                    b.ToTable("ProductUsage");
+                    b.ToTable("ProductUsage", (string)null);
 
                     b.HasData(
                         new
                         {
-                            ProductId = "air-pulse",
+                            ProductId = 1,
                             UsageId = 1
                         },
                         new
                         {
-                            ProductId = "highjump-x",
+                            ProductId = 2,
                             UsageId = 2
                         },
                         new
                         {
-                            ProductId = "street-low",
+                            ProductId = 3,
                             UsageId = 3
                         },
                         new
                         {
-                            ProductId = "aria-knit",
+                            ProductId = 4,
                             UsageId = 4
                         },
                         new
                         {
-                            ProductId = "mini-dash",
+                            ProductId = 5,
                             UsageId = 3
                         },
                         new
                         {
-                            ProductId = "overtime-06",
+                            ProductId = 6,
                             UsageId = 5
                         });
                 });
@@ -1446,10 +1465,8 @@ namespace Overtime.Data.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
-                    b.Property<string>("ProductId")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
+                    b.Property<int>("ProductId")
+                        .HasColumnType("int");
 
                     b.Property<int>("Rating")
                         .HasColumnType("int");
@@ -1464,7 +1481,7 @@ namespace Overtime.Data.Migrations
                     b.HasIndex("ProductId", "UserId")
                         .IsUnique();
 
-                    b.ToTable("Reviews");
+                    b.ToTable("Reviews", (string)null);
                 });
 
             modelBuilder.Entity("Overtime.Data.Entities.Usage", b =>
@@ -1484,7 +1501,7 @@ namespace Overtime.Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Usages");
+                    b.ToTable("Usages", (string)null);
 
                     b.HasData(
                         new
@@ -1543,7 +1560,7 @@ namespace Overtime.Data.Migrations
                     b.HasIndex("PhoneNumber")
                         .IsUnique();
 
-                    b.ToTable("Users");
+                    b.ToTable("Users", (string)null);
                 });
 
             modelBuilder.Entity("Overtime.Data.Entities.Address", b =>

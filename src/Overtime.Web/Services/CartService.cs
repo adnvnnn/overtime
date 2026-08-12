@@ -4,7 +4,7 @@ using Overtime.Data.Entities;
 
 namespace Overtime.Web.Services;
 
-public record CartLine(int CartItemId, string ProductId, string Name, string Category, long Price, string Swatch, string? Image, int Size, int Qty)
+public record CartLine(int CartItemId, int ProductId, string Name, string Category, long Price, string Swatch, string? Image, int Size, int Qty)
 {
     public long LineTotal => Price * Qty;
 }
@@ -60,7 +60,7 @@ public class CartService(IDbContextFactory<AppDbContext> dbFactory, CartContext 
 
     // Used by the one-click "add" button on product cards (no size picker there):
     // picks the smallest still-in-stock size automatically.
-    public async Task<bool> QuickAddAsync(string productId)
+    public async Task<bool> QuickAddAsync(int productId)
     {
         await using var db = await dbFactory.CreateDbContextAsync();
         var size = await db.ProductSizes
@@ -76,7 +76,7 @@ public class CartService(IDbContextFactory<AppDbContext> dbFactory, CartContext 
 
     // Returns how many units were actually added — may be less than requested (or zero)
     // when the cart already holds all the available stock for that size.
-    public async Task<int> AddItemAsync(string productId, int size, int qty)
+    public async Task<int> AddItemAsync(int productId, int size, int qty)
     {
         await using var db = await dbFactory.CreateDbContextAsync();
         var stock = await db.ProductSizes
@@ -89,7 +89,7 @@ public class CartService(IDbContextFactory<AppDbContext> dbFactory, CartContext 
         return added;
     }
 
-    private async Task<int> AddItemAsync(AppDbContext db, string productId, int size, int qty, int stock)
+    private async Task<int> AddItemAsync(AppDbContext db, int productId, int size, int qty, int stock)
     {
         await EnsureCartAsync(db);
         var existing = await db.CartItems.FirstOrDefaultAsync(i =>
