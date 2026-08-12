@@ -11,6 +11,7 @@
                 <span class="fa">فروشگاه کفش کتانی</span>
             </span>
         </a>
+        <div class="nav-backdrop @(_menuOpen ? "show" : "")" @onclick="CloseMenu"></div>
         <nav class="links @(_menuOpen ? "open" : "")" id="navLinks">
             <a href="/" @onclick="CloseMenu">خانه</a>
             <div class="nav-item">
@@ -136,9 +137,16 @@
         StateHasChanged();
     });
 
-    private void ToggleMenu() => _menuOpen = !_menuOpen;
-    private void CloseMenu() => _menuOpen = false;
+    private Task ToggleMenu() => SetMenuOpen(!_menuOpen);
+    private Task CloseMenu() => SetMenuOpen(false);
     private void ToggleCart() => CartService.ToggleDrawer();
+
+    private async Task SetMenuOpen(bool open)
+    {
+        if (_menuOpen == open) return;
+        _menuOpen = open;
+        await JS.InvokeVoidAsync("overtimeNav.setBodyScrollLock", open);
+    }
 
     private async Task ToggleTheme() => _theme = await JS.InvokeAsync<string>("overtimeTheme.toggle");
 
