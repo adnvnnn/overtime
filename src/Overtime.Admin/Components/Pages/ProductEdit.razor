@@ -199,10 +199,22 @@
             row.StockQty = Math.Max(0, qty);
     }
 
+    private void ToggleCategory(int categoryId, ChangeEventArgs e)
+    {
+        if (e.Value is true) _selectedCategoryIds.Add(categoryId);
+        else _selectedCategoryIds.Remove(categoryId);
+    }
+
+    private void ToggleUsage(int usageId, ChangeEventArgs e)
+    {
+        if (e.Value is true) _selectedUsageIds.Add(usageId);
+        else _selectedUsageIds.Remove(usageId);
+    }
+
     private async Task SaveAsync()
     {
         if (string.IsNullOrWhiteSpace(_model.Name) || _model.BrandId <= 0 ||
-            string.IsNullOrWhiteSpace(_model.Category) || _model.Price <= 0)
+            _selectedCategoryIds.Count == 0 || _model.Price <= 0)
         {
             _error = "نام، برند، دسته‌بندی و قیمت محصول را به‌درستی وارد کنید.";
             return;
@@ -226,14 +238,17 @@
             .Select(r => new ProductSize { Size = r.Size, StockQty = r.StockQty })
             .ToList();
 
+        var categoryIds = _selectedCategoryIds.ToList();
+        var usageIds = _selectedUsageIds.ToList();
+
         if (IsNew)
         {
             _model.Sizes = chosenSizes;
-            await ProductService.CreateAsync(_model);
+            await ProductService.CreateAsync(_model, categoryIds, usageIds);
         }
         else
         {
-            await ProductService.UpdateAsync(_model);
+            await ProductService.UpdateAsync(_model, categoryIds, usageIds);
             await ProductService.UpdateSizesAsync(_model.Id, chosenSizes);
         }
         NavigationManager.NavigateTo("/products");

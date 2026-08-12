@@ -47,7 +47,7 @@
                         <tr>
                             <td class="cell-title">@product.Name</td>
                             <td>@product.Brand?.Name</td>
-                            <td>@product.Category@(string.IsNullOrEmpty(product.Usage) ? "" : $" · {product.Usage}")</td>
+                            <td>@CategoryLine(product)</td>
                             <td class="num">@product.Price.FormatToman()</td>
                             <td class="num">@product.Sizes.Sum(s => s.StockQty).ToFa()</td>
                             <td>
@@ -98,5 +98,12 @@
         await ProductService.DeleteAsync(id);
         _confirmDeleteId = null;
         await Refresh();
+    }
+
+    private static string CategoryLine(Product product)
+    {
+        var categories = string.Join("، ", product.Categories.Select(c => c.Name));
+        var usages = string.Join("، ", product.Usages.Select(u => u.Name));
+        return usages.Length == 0 ? categories : $"{categories} · {usages}";
     }
 }
