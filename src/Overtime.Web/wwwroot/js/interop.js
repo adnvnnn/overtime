@@ -10,6 +10,14 @@ window.overtimeTheme = {
   }
 };
 
+// Locks background scroll while the mobile off-canvas nav drawer is open, so the
+// page behind the fixed-position drawer/backdrop can't be dragged underneath it.
+window.overtimeNav = {
+  setBodyScrollLock: function (locked) {
+    document.body.classList.toggle("nav-locked", !!locked);
+  }
+};
+
 // Swipe/drag support for the product-detail image gallery. Ported from the
 // original assets/js/product.js drag-threshold logic; reports a direction
 // (-1/+1) back to the Blazor component instead of mutating the DOM directly.
