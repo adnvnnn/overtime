@@ -5,6 +5,6 @@ namespace Overtime.Data.Entities;
 // names are declared, not inferred by convention.
 public class ProductCategory
 {
-    public string ProductId { get; set; } = "";
+    public int ProductId { get; set; }
     public int CategoryId { get; set; }
 }

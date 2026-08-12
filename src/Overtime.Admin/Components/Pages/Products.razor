@@ -81,7 +81,7 @@
 @code {
     private List<Product> _products = [];
     private string _query = "";
-    private string? _confirmDeleteId;
+    private int? _confirmDeleteId;
 
     protected override async Task OnInitializedAsync() => await Refresh();
 
@@ -93,7 +93,7 @@
         await Refresh();
     }
 
-    private async Task DeleteAsync(string id)
+    private async Task DeleteAsync(int id)
     {
         await ProductService.DeleteAsync(id);
         _confirmDeleteId = null;

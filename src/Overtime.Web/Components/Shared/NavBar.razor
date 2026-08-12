@@ -33,7 +33,7 @@
                             <p class="mega-heading">@Localizer["Common_Categories"]</p>
                             @foreach (var category in _categories)
                             {
-                                <a href="@($"/products?cat={category.Name}")" @onclick="CloseMenu">@category.Name</a>
+                                <a href="@($"/products?cat={category.Slug}")" @onclick="CloseMenu">@category.Name</a>
                             }
                             <a class="mega-view-all" href="/products" @onclick="CloseMenu">
                                 @Localizer["Nav_ViewAllProducts"]
@@ -61,7 +61,7 @@
                                 }
                             </div>
                         </div>
-                        <a class="mega-promo" href="/products?cat=لیمیتد ادیشن" @onclick="CloseMenu">
+                        <a class="mega-promo" href="/products?cat=limited-edition" @onclick="CloseMenu">
                             <img src="assets/images/products/product-6.jpg" alt="@Localizer["Nav_LimitedCollectionAlt"]" loading="lazy" />
                             <span class="mega-promo-overlay">
                                 <span class="mega-promo-tag">@Localizer["Common_CategoryLimited"]</span>
