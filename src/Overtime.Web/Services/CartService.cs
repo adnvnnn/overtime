@@ -40,12 +40,14 @@ public class CartService(IDbContextFactory<AppDbContext> dbFactory, CartContext 
             .Where(i => i.CartId == cartContext.CartId)
             .Include(i => i.Product)
             .ThenInclude(p => p!.Images.OrderBy(img => img.SortOrder))
+            .Include(i => i.Product)
+            .ThenInclude(p => p!.Categories)
             .ToListAsync();
 
         return items
             .Where(i => i.Product is not null)
             .Select(i => new CartLine(
-                i.Id, i.ProductId, i.Product!.Name, i.Product.Category, i.Product.Price,
+                i.Id, i.ProductId, i.Product!.Name, string.Join("، ", i.Product.Categories.Select(c => c.Name)), i.Product.Price,
                 i.Product.Swatch, i.Product.Images.FirstOrDefault()?.Url, i.Size, i.Qty))
             .ToList();
     }

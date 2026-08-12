@@ -18,6 +18,8 @@ builder.Services.AddDbContextFactory<AppDbContext>(options =>
 builder.Services.AddScoped<DashboardService>();
 builder.Services.AddScoped<AdminProductService>();
 builder.Services.AddScoped<AdminBrandService>();
+builder.Services.AddScoped<AdminCategoryService>();
+builder.Services.AddScoped<AdminUsageService>();
 builder.Services.AddScoped<AdminOrderService>();
 builder.Services.AddScoped<AdminCustomerService>();
 builder.Services.AddScoped<AdminAccountService>();

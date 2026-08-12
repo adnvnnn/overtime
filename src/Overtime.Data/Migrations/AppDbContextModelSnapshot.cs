@@ -394,6 +394,58 @@ namespace Overtime.Data.Migrations
                     b.ToTable("CartItems");
                 });
 
+            modelBuilder.Entity("Overtime.Data.Entities.Category", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("DisplayOrder")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Categories");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            DisplayOrder = 0,
+                            Name = "مردانه"
+                        },
+                        new
+                        {
+                            Id = 2,
+                            DisplayOrder = 1,
+                            Name = "یونیسکس"
+                        },
+                        new
+                        {
+                            Id = 3,
+                            DisplayOrder = 2,
+                            Name = "زنانه"
+                        },
+                        new
+                        {
+                            Id = 4,
+                            DisplayOrder = 3,
+                            Name = "بچگانه"
+                        },
+                        new
+                        {
+                            Id = 5,
+                            DisplayOrder = 4,
+                            Name = "لیمیتد ادیشن"
+                        });
+                });
+
             modelBuilder.Entity("Overtime.Data.Entities.Order", b =>
                 {
                     b.Property<int>("Id")
@@ -516,10 +568,6 @@ namespace Overtime.Data.Migrations
                     b.Property<int>("BrandId")
                         .HasColumnType("int");
 
-                    b.Property<string>("Category")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<string>("Description")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -544,10 +592,6 @@ namespace Overtime.Data.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("Usage")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
                     b.HasKey("Id");
 
                     b.HasIndex("BrandId");
@@ -560,88 +604,123 @@ namespace Overtime.Data.Migrations
                             Id = "air-pulse",
                             Badge = "پرفروش",
                             BrandId = 1,
-                            Category = "مردانه",
                             Description = "کتانی رانینگ Air Pulse برای دویدن‌های روزمره و تمرین‌های سبک طراحی شده است. رویه‌ی مش تنفس‌پذیر همراه با میان‌کفش سبک، احساس راحتی را در هر قدم حفظ می‌کند.",
                             DisplayOrder = 0,
                             Name = "Air Pulse",
                             Price = 2950000L,
                             Rating = 4.7999999999999998,
                             ReviewCount = 124,
-                            Swatch = "accent",
-                            Usage = "رانینگ"
+                            Swatch = "accent"
                         },
                         new
                         {
                             Id = "highjump-x",
                             Badge = "جدید",
                             BrandId = 1,
-                            Category = "مردانه",
                             Description = "Highjump X با میان‌کفش ضربه‌گیر و ساق بلندتر، برای حرکات ناگهانی در زمین بسکتبال طراحی شده و پایداری مچ پا را در فرودها افزایش می‌دهد.",
                             DisplayOrder = 1,
                             Name = "Highjump X",
                             Price = 3800000L,
                             Rating = 4.7000000000000002,
                             ReviewCount = 98,
-                            Swatch = "accent-2",
-                            Usage = "بسکتبال"
+                            Swatch = "accent-2"
                         },
                         new
                         {
                             Id = "street-low",
                             BrandId = 1,
-                            Category = "یونیسکس",
                             Description = "یک کتانی روزمره‌ی ساده و همه‌کاره؛ Street Low با طراحی مینیمال و رنگ خنثی، با هر پوششی هم‌نشین می‌شود.",
                             DisplayOrder = 2,
                             Name = "Street Low",
                             Price = 2200000L,
                             Rating = 4.5999999999999996,
                             ReviewCount = 156,
-                            Swatch = "ink",
-                            Usage = "روزمره"
+                            Swatch = "ink"
                         },
                         new
                         {
                             Id = "aria-knit",
                             Badge = "تخفیف",
                             BrandId = 1,
-                            Category = "زنانه",
                             Description = "Aria Knit با رویه‌ی نیت کشباف، فرمی نزدیک به فرم پا دارد و برای پوشیدن طولانی‌مدت در طول روز بسیار راحت است.",
                             DisplayOrder = 3,
                             Name = "Aria Knit",
                             Price = 2650000L,
                             Rating = 4.7999999999999998,
                             ReviewCount = 142,
-                            Swatch = "accent-2",
-                            Usage = "نیت"
+                            Swatch = "accent-2"
                         },
                         new
                         {
                             Id = "mini-dash",
                             BrandId = 1,
-                            Category = "بچگانه",
                             Description = "Mini Dash مدلی سبک و بادوام برای کودکان است؛ زیره‌ی ضدلغزش و بست چسبی، پوشیدن و درآوردن را برای کودکان آسان می‌کند.",
                             DisplayOrder = 4,
                             Name = "Mini Dash",
                             Price = 1850000L,
                             Rating = 4.9000000000000004,
                             ReviewCount = 86,
-                            Swatch = "accent",
-                            Usage = "روزمره"
+                            Swatch = "accent"
                         },
                         new
                         {
                             Id = "overtime-06",
                             Badge = "لیمیتد",
                             BrandId = 1,
-                            Category = "لیمیتد ادیشن",
                             Description = "Overtime №06 نسخه‌ی محدود امضای برند اورتایم است؛ تیراژ کم، جزئیات ویژه و جعبه‌ی اختصاصی این مدل را به یک قطعه‌ی کالکشنی تبدیل می‌کند.",
                             DisplayOrder = 5,
                             Name = "Overtime №06",
                             Price = 4500000L,
                             Rating = 5.0,
                             ReviewCount = 41,
-                            Swatch = "ink",
-                            Usage = "کالکشنی"
+                            Swatch = "ink"
+                        });
+                });
+
+            modelBuilder.Entity("Overtime.Data.Entities.ProductCategory", b =>
+                {
+                    b.Property<string>("ProductId")
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<int>("CategoryId")
+                        .HasColumnType("int");
+
+                    b.HasKey("ProductId", "CategoryId");
+
+                    b.HasIndex("CategoryId");
+
+                    b.ToTable("ProductCategory");
+
+                    b.HasData(
+                        new
+                        {
+                            ProductId = "air-pulse",
+                            CategoryId = 1
+                        },
+                        new
+                        {
+                            ProductId = "highjump-x",
+                            CategoryId = 1
+                        },
+                        new
+                        {
+                            ProductId = "street-low",
+                            CategoryId = 2
+                        },
+                        new
+                        {
+                            ProductId = "aria-knit",
+                            CategoryId = 3
+                        },
+                        new
+                        {
+                            ProductId = "mini-dash",
+                            CategoryId = 4
+                        },
+                        new
+                        {
+                            ProductId = "overtime-06",
+                            CategoryId = 5
                         });
                 });
 
@@ -1306,6 +1385,53 @@ namespace Overtime.Data.Migrations
                         });
                 });
 
+            modelBuilder.Entity("Overtime.Data.Entities.ProductUsage", b =>
+                {
+                    b.Property<string>("ProductId")
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<int>("UsageId")
+                        .HasColumnType("int");
+
+                    b.HasKey("ProductId", "UsageId");
+
+                    b.HasIndex("UsageId");
+
+                    b.ToTable("ProductUsage");
+
+                    b.HasData(
+                        new
+                        {
+                            ProductId = "air-pulse",
+                            UsageId = 1
+                        },
+                        new
+                        {
+                            ProductId = "highjump-x",
+                            UsageId = 2
+                        },
+                        new
+                        {
+                            ProductId = "street-low",
+                            UsageId = 3
+                        },
+                        new
+                        {
+                            ProductId = "aria-knit",
+                            UsageId = 4
+                        },
+                        new
+                        {
+                            ProductId = "mini-dash",
+                            UsageId = 3
+                        },
+                        new
+                        {
+                            ProductId = "overtime-06",
+                            UsageId = 5
+                        });
+                });
+
             modelBuilder.Entity("Overtime.Data.Entities.Review", b =>
                 {
                     b.Property<int>("Id")
@@ -1339,6 +1465,58 @@ namespace Overtime.Data.Migrations
                         .IsUnique();
 
                     b.ToTable("Reviews");
+                });
+
+            modelBuilder.Entity("Overtime.Data.Entities.Usage", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("DisplayOrder")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Usages");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            DisplayOrder = 0,
+                            Name = "رانینگ"
+                        },
+                        new
+                        {
+                            Id = 2,
+                            DisplayOrder = 1,
+                            Name = "بسکتبال"
+                        },
+                        new
+                        {
+                            Id = 3,
+                            DisplayOrder = 2,
+                            Name = "روزمره"
+                        },
+                        new
+                        {
+                            Id = 4,
+                            DisplayOrder = 3,
+                            Name = "نیت"
+                        },
+                        new
+                        {
+                            Id = 5,
+                            DisplayOrder = 4,
+                            Name = "کالکشنی"
+                        });
                 });
 
             modelBuilder.Entity("Overtime.Data.Entities.User", b =>
@@ -1433,6 +1611,21 @@ namespace Overtime.Data.Migrations
                     b.Navigation("Brand");
                 });
 
+            modelBuilder.Entity("Overtime.Data.Entities.ProductCategory", b =>
+                {
+                    b.HasOne("Overtime.Data.Entities.Category", null)
+                        .WithMany()
+                        .HasForeignKey("CategoryId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Overtime.Data.Entities.Product", null)
+                        .WithMany()
+                        .HasForeignKey("ProductId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
             modelBuilder.Entity("Overtime.Data.Entities.ProductImage", b =>
                 {
                     b.HasOne("Overtime.Data.Entities.Product", null)
@@ -1456,6 +1649,21 @@ namespace Overtime.Data.Migrations
                     b.HasOne("Overtime.Data.Entities.Product", null)
                         .WithMany("Specs")
                         .HasForeignKey("ProductId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Overtime.Data.Entities.ProductUsage", b =>
+                {
+                    b.HasOne("Overtime.Data.Entities.Product", null)
+                        .WithMany()
+                        .HasForeignKey("ProductId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Overtime.Data.Entities.Usage", null)
+                        .WithMany()
+                        .HasForeignKey("UsageId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
