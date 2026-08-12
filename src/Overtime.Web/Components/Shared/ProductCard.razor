@@ -31,7 +31,8 @@
     private string MainImage => Product.Images.Count > 0 ? Product.Images[0].Url : "";
 
     private string CategoryLine => string.Join(" · ",
-        new[] { Product.Brand?.Name, Product.Category, Product.Usage }.Where(s => !string.IsNullOrEmpty(s)));
+        new[] { Product.Brand?.Name, string.Join("، ", Product.Categories.Select(c => c.Name)), string.Join("، ", Product.Usages.Select(u => u.Name)) }
+            .Where(s => !string.IsNullOrEmpty(s)));
 
     private string SwatchVar => Product.Swatch switch
     {

@@ -10,12 +10,13 @@ public partial class AdminProductService(IDbContextFactory<AppDbContext> dbFacto
     public async Task<List<Product>> GetAllAsync(string? query = null)
     {
         await using var db = await dbFactory.CreateDbContextAsync();
-        IQueryable<Product> q = db.Products.Include(p => p.Sizes).Include(p => p.Brand);
+        IQueryable<Product> q = db.Products.Include(p => p.Sizes).Include(p => p.Brand)
+            .Include(p => p.Categories).Include(p => p.Usages);
 
         if (!string.IsNullOrWhiteSpace(query))
         {
             var pattern = $"%{query.Trim()}%";
-            q = q.Where(p => EF.Functions.Like(p.Name, pattern) || EF.Functions.Like(p.Brand!.Name, pattern) || EF.Functions.Like(p.Category, pattern));
+            q = q.Where(p => EF.Functions.Like(p.Name, pattern) || EF.Functions.Like(p.Brand!.Name, pattern) || p.Categories.Any(c => EF.Functions.Like(c.Name, pattern)));
         }
 
         return await q.OrderBy(p => p.DisplayOrder).ToListAsync();
@@ -29,10 +30,12 @@ public partial class AdminProductService(IDbContextFactory<AppDbContext> dbFacto
             .Include(p => p.Specs.OrderBy(s => s.SortOrder))
             .Include(p => p.Sizes.OrderBy(s => s.Size))
             .Include(p => p.Brand)
+            .Include(p => p.Categories)
+            .Include(p => p.Usages)
             .FirstOrDefaultAsync(p => p.Id == id);
     }
 
-    public async Task<Product> CreateAsync(Product product)
+    public async Task<Product> CreateAsync(Product product, List<int> categoryIds, List<int> usageIds)
     {
         await using var db = await dbFactory.CreateDbContextAsync();
 
@@ -46,26 +49,33 @@ public partial class AdminProductService(IDbContextFactory<AppDbContext> dbFacto
         foreach (var size in product.Sizes)
             size.ProductId = id;
 
+        product.Categories = await db.Categories.Where(c => categoryIds.Contains(c.Id)).ToListAsync();
+        product.Usages = await db.Usages.Where(u => usageIds.Contains(u.Id)).ToListAsync();
+
         db.Products.Add(product);
         await db.SaveChangesAsync();
         return product;
     }
 
-    public async Task UpdateAsync(Product product)
+    public async Task UpdateAsync(Product product, List<int> categoryIds, List<int> usageIds)
     {
         await using var db = await dbFactory.CreateDbContextAsync();
-        var existing = await db.Products.FirstOrDefaultAsync(p => p.Id == product.Id);
+        var existing = await db.Products
+            .Include(p => p.Categories)
+            .Include(p => p.Usages)
+            .FirstOrDefaultAsync(p => p.Id == product.Id);
         if (existing is null)
             return;
 
         existing.Name = product.Name;
         existing.BrandId = product.BrandId;
-        existing.Category = product.Category;
-        existing.Usage = product.Usage;
         existing.Price = product.Price;
         existing.Description = product.Description;
         existing.Badge = product.Badge;
         existing.DisplayOrder = product.DisplayOrder;
+
+        existing.Categories = await db.Categories.Where(c => categoryIds.Contains(c.Id)).ToListAsync();
+        existing.Usages = await db.Usages.Where(u => usageIds.Contains(u.Id)).ToListAsync();
 
         await db.SaveChangesAsync();
     }
