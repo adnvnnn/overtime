@@ -7,16 +7,17 @@
 @inject ToastService ToastService
 @inject IJSRuntime JS
 @inject NavigationManager Navigator
+@inject IStringLocalizer<AppStrings> Localizer
 
-<PageTitle>Overtime | @(Product?.Name ?? "جزئیات محصول")</PageTitle>
+<PageTitle>Overtime | @(Product?.Name ?? Localizer["PDP_DefaultTitle"].Value)</PageTitle>
 
 @if (Product is not null)
 {
     <div class="wrap">
-        <nav class="breadcrumb" aria-label="مسیر صفحه">
-            <a href="/">خانه</a>
+        <nav class="breadcrumb" aria-label="@Localizer["Products_BreadcrumbAria"]">
+            <a href="/">@Localizer["Common_Home"]</a>
             <span>/</span>
-            <a href="/products">محصولات</a>
+            <a href="/products">@Localizer["Common_Products"]</a>
             <span>/</span>
             <span class="cur">@Product.Name</span>
         </nav>
@@ -41,28 +42,28 @@
                         </div>
                         @if (_images.Count > 1)
                         {
-                            <button type="button" class="pdp-arrow prev" aria-label="تصویر قبلی" @onclick="() => GoTo(_activeIndex - 1)">
+                            <button type="button" class="pdp-arrow prev" aria-label="@Localizer["PDP_PrevImage"]" @onclick="() => GoTo(_activeIndex - 1)">
                                 <Icon Name="chevron-left" />
                             </button>
-                            <button type="button" class="pdp-arrow next" aria-label="تصویر بعدی" @onclick="() => GoTo(_activeIndex + 1)">
+                            <button type="button" class="pdp-arrow next" aria-label="@Localizer["PDP_NextImage"]" @onclick="() => GoTo(_activeIndex + 1)">
                                 <Icon Name="chevron-right" />
                             </button>
                             <div class="pdp-dots">
                                 @for (var i = 0; i < _images.Count; i++)
                                 {
                                     var idx = i;
-                                    <button type="button" class="pdp-dot @(idx == _activeIndex ? "active" : "")" aria-label="تصویر @((idx + 1).ToFa())" @onclick="() => GoTo(idx)"></button>
+                                    <button type="button" class="pdp-dot @(idx == _activeIndex ? "active" : "")" aria-label="@Localizer["PDP_ImageNumber", (idx + 1).ToFa()]" @onclick="() => GoTo(idx)"></button>
                                 }
                             </div>
                         }
                     </div>
                     @if (_images.Count > 1)
                     {
-                        <div class="pdp-thumbs" role="group" aria-label="تصاویر محصول">
+                        <div class="pdp-thumbs" role="group" aria-label="@Localizer["PDP_ProductImagesAria"]">
                             @for (var i = 0; i < _images.Count; i++)
                             {
                                 var idx = i;
-                                <button type="button" class="pdp-thumb @(idx == _activeIndex ? "active" : "")" aria-label="تصویر @((idx + 1).ToFa())" @onclick="() => GoTo(idx)">
+                                <button type="button" class="pdp-thumb @(idx == _activeIndex ? "active" : "")" aria-label="@Localizer["PDP_ImageNumber", (idx + 1).ToFa()]" @onclick="() => GoTo(idx)">
                                     <img src="@_images[idx].Url" alt="@Product.Name">
                                 </button>
                             }
@@ -78,14 +79,14 @@
                             <Icon Name="star" /><Icon Name="star" /><Icon Name="star" /><Icon Name="star" /><Icon Name="star" />
                         </span>
                         <span>@Product.Rating.ToFa(1)</span>
-                        <span>(@Product.ReviewCount.ToFa() نظر)</span>
+                        <span>@Localizer["PDP_ReviewCountSuffix", Product.ReviewCount.ToFa()]</span>
                     </div>
-                    <div class="pdp-price">@Product.Price.ToFa()<small>تومان</small></div>
+                    <div class="pdp-price">@Product.Price.ToFa()<small>@Localizer["Common_Toman"]</small></div>
 
                     <div class="pdp-divider"></div>
 
                     <div class="pdp-block">
-                        <label>سایز (اروپایی)</label>
+                        <label>@Localizer["PDP_SizeLabel"]</label>
                         <div class="size-grid @(_shake ? "shake" : "")">
                             @foreach (var size in Product.Sizes)
                             {
@@ -98,24 +99,24 @@
                     </div>
 
                     <div class="pdp-block">
-                        <label>تعداد</label>
+                        <label>@Localizer["PDP_QtyLabel"]</label>
                         <div class="pdp-qty-row">
                             <div class="qty-stepper">
-                                <button type="button" aria-label="کاهش تعداد" @onclick="QtyDec">−</button>
+                                <button type="button" aria-label="@Localizer["PDP_QtyDecreaseAria"]" @onclick="QtyDec">−</button>
                                 <span>@_qty.ToFa()</span>
-                                <button type="button" aria-label="افزایش تعداد" @onclick="QtyInc">+</button>
+                                <button type="button" aria-label="@Localizer["PDP_QtyIncreaseAria"]" @onclick="QtyInc">+</button>
                             </div>
                         </div>
                     </div>
 
                     <div class="pdp-actions">
-                        <button class="btn btn-primary" type="button" @onclick="AddToCart">افزودن به سبد خرید</button>
+                        <button class="btn btn-primary" type="button" @onclick="AddToCart">@Localizer["PDP_AddToCartBtn"]</button>
                     </div>
 
                     <div class="pdp-badges">
-                        <span class="pdp-badge"><Icon Name="truck" />ارسال سریع به سراسر کشور</span>
-                        <span class="pdp-badge"><Icon Name="shield-check" />ضمانت اصالت کالا</span>
-                        <span class="pdp-badge"><Icon Name="refresh-cw" />۷ روز مهلت مرجوعی</span>
+                        <span class="pdp-badge"><Icon Name="truck" />@Localizer["PDP_BadgeShipping"]</span>
+                        <span class="pdp-badge"><Icon Name="shield-check" />@Localizer["Home_TickerGuarantee"]</span>
+                        <span class="pdp-badge"><Icon Name="refresh-cw" />@Localizer["PDP_BadgeReturn"]</span>
                     </div>
 
                     <p class="pdp-desc">@Product.Description</p>
@@ -130,7 +131,7 @@
 
             <div class="pdp-reviews">
                 <div class="reviews-head">
-                    <h2>نظرات کاربران</h2>
+                    <h2>@Localizer["PDP_ReviewsHeading"]</h2>
                     @if (_reviewCount > 0)
                     {
                         <div class="reviews-summary">
@@ -141,38 +142,38 @@
                                     <Icon Name="star" Class="@(i <= Math.Round(_avgRating) ? "filled" : "")" />
                                 }
                             </span>
-                            <span class="count">(@_reviewCount.ToFa() نظر)</span>
+                            <span class="count">@Localizer["PDP_ReviewCountSuffix", _reviewCount.ToFa()]</span>
                         </div>
                     }
                 </div>
 
                 @if (_userId is null)
                 {
-                    <p class="reviews-login-cta">برای ثبت نظر ابتدا <a href="@LoginUrl">وارد حساب کاربری</a> شوید.</p>
+                    <p class="reviews-login-cta">@Localizer["PDP_LoginPromptPrefix"] <a href="@LoginUrl">@Localizer["PDP_LoginPromptLink"]</a> @Localizer["PDP_LoginPromptSuffix"]</p>
                 }
                 else
                 {
                     <div class="review-form">
-                        <label>امتیاز شما</label>
-                        <div class="star-picker" role="radiogroup" aria-label="امتیاز شما">
+                        <label>@Localizer["PDP_YourRatingLabel"]</label>
+                        <div class="star-picker" role="radiogroup" aria-label="@Localizer["PDP_YourRatingLabel"]">
                             @for (var i = 1; i <= 5; i++)
                             {
                                 var value = i;
-                                <button type="button" class="star-btn @(value <= _formRating ? "on" : "")" aria-label="@value.ToFa() ستاره" @onclick="() => SetFormRating(value)">
+                                <button type="button" class="star-btn @(value <= _formRating ? "on" : "")" aria-label="@Localizer["PDP_StarAriaLabel", value.ToFa()]" @onclick="() => SetFormRating(value)">
                                     <Icon Name="star" />
                                 </button>
                             }
                         </div>
-                        <textarea class="review-comment" rows="3" placeholder="نظر شما درباره این محصول (اختیاری)" @bind="_formComment"></textarea>
+                        <textarea class="review-comment" rows="3" placeholder="@Localizer["PDP_CommentPlaceholder"]" @bind="_formComment"></textarea>
                         <button class="btn btn-primary btn-sm" type="button" disabled="@(_formRating < 1 || _reviewSubmitting)" @onclick="SubmitReview">
-                            @(_myReview is null ? "ثبت نظر" : "ویرایش نظر")
+                            @(_myReview is null ? Localizer["PDP_SubmitReview"] : Localizer["PDP_EditReview"])
                         </button>
                     </div>
                 }
 
                 @if (_reviews.Count == 0)
                 {
-                    <p class="reviews-empty">هنوز نظری برای این محصول ثبت نشده است. اولین نفر باشید!</p>
+                    <p class="reviews-empty">@Localizer["PDP_NoReviewsYet"]</p>
                 }
                 else
                 {
@@ -201,8 +202,8 @@
             </div>
 
             <div class="related-head">
-                <p class="eyebrow">محصولات مشابه</p>
-                <h2>شاید این مدل‌ها را هم بپسندید</h2>
+                <p class="eyebrow">@Localizer["PDP_RelatedEyebrow"]</p>
+                <h2>@Localizer["PDP_RelatedHeading"]</h2>
             </div>
             <div class="products">
                 @foreach (var related in _related)
@@ -331,7 +332,7 @@
         {
             _shake = true;
             StateHasChanged();
-            ToastService.ShowMessage("لطفاً ابتدا سایز را انتخاب کنید");
+            ToastService.ShowMessage(Localizer["PDP_SelectSizeFirst"].Value);
             await Task.Delay(400);
             _shake = false;
             StateHasChanged();
@@ -341,13 +342,13 @@
         var added = await CartService.AddItemAsync(Product.Id, _selectedSize.Value, _qty);
         if (added == 0)
         {
-            ToastService.ShowMessage("موجودی این سایز کافی نیست");
+            ToastService.ShowMessage(Localizer["PDP_InsufficientStock"].Value);
             return;
         }
 
         ToastService.ShowMessage(added < _qty
-            ? $"تنها {added.ToFa()} عدد از {Product.Name} به دلیل محدودیت موجودی اضافه شد"
-            : $"{Product.Name} به سبد اضافه شد");
+            ? Localizer["PDP_PartialAdd", added.ToFa(), Product.Name].Value
+            : Localizer["ProductCard_AddedToCart", Product.Name].Value);
         CartService.OpenDrawer();
     }
 
@@ -385,7 +386,7 @@
             string.IsNullOrWhiteSpace(_formComment) ? null : _formComment.Trim());
         await LoadReviews();
         _reviewSubmitting = false;
-        ToastService.ShowMessage("نظر شما ثبت شد");
+        ToastService.ShowMessage(Localizer["PDP_ReviewSubmitted"].Value);
     }
 
     public async ValueTask DisposeAsync()

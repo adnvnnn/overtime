@@ -7,12 +7,15 @@ using Overtime.Web.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 
 builder.Services.AddDbContextFactory<AppDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("Default")));
+
+builder.Services.Configure<FooterOptions>(builder.Configuration.GetSection("Footer"));
+
+builder.Services.AddLocalization();
 
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<CartContext>();
@@ -45,11 +48,11 @@ using (var scope = app.Services.CreateScope())
     await DemoDataSeeder.SeedIfEmptyAsync(db);
 }
 
-// Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Error", createScopeForErrors: true);
 }
+
 app.UseStatusCodePagesWithReExecute("/not-found", createScopeForStatusCodePages: true);
 
 app.UseAuthentication();

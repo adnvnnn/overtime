@@ -1,13 +1,15 @@
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Localization;
 using Overtime.Data;
 using Overtime.Data.Entities;
+using Overtime.Web.Resources;
 
 namespace Overtime.Web.Services;
 
 public record OrderLineItem(string ProductName, int Size, int Qty, long UnitPrice);
 public record OrderSummary(int Id, string OrderNumber, DateTime CreatedAt, long Total, OrderStatus Status, List<OrderLineItem> Items, string? AddressSummary);
 
-public class OrderService(IDbContextFactory<AppDbContext> dbFactory, CartContext cartContext, CartService cartService)
+public class OrderService(IDbContextFactory<AppDbContext> dbFactory, CartContext cartContext, CartService cartService, IStringLocalizer<AppStrings> localizer)
 {
     public async Task<List<OrderSummary>> GetUserOrdersAsync(int userId)
     {
@@ -39,7 +41,7 @@ public class OrderService(IDbContextFactory<AppDbContext> dbFactory, CartContext
             .ToListAsync();
 
         if (items.Count == 0)
-            return (null, "سبد خرید شما خالی است.");
+            return (null, localizer["Order_EmptyCartError"]);
 
         var sizes = await db.ProductSizes
             .Where(s => items.Select(i => i.ProductId).Contains(s.ProductId))
@@ -49,7 +51,7 @@ public class OrderService(IDbContextFactory<AppDbContext> dbFactory, CartContext
         {
             var size = sizes.FirstOrDefault(s => s.ProductId == item.ProductId && s.Size == item.Size);
             if (size is null || size.StockQty < item.Qty)
-                return (null, $"موجودی «{item.Product?.Name}» برای تکمیل این سفارش کافی نیست.");
+                return (null, localizer["Order_InsufficientStockFormat", item.Product?.Name ?? ""]);
         }
 
         var orderNumber = $"OT-{Random.Shared.Next(10000, 99999)}";

@@ -1,0 +1,64 @@
+@page "/about"
+@inject IStringLocalizer<AppStrings> Localizer
+
+<PageTitle>@Localizer["About_PageTitle"]</PageTitle>
+
+<section id="why">
+    <div class="wrap">
+        <div class="sec-head">
+            <div>
+                <p class="eyebrow">@Localizer["About_WhyEyebrow"]</p>
+                <h2>@Localizer["About_WhyHeading"]</h2>
+            </div>
+        </div>
+        <div class="features">
+            <div class="feature">
+                <Icon Name="truck" Class="ic" />
+                <b>@Localizer["About_ShippingTitle"]</b>
+                <p>@Localizer["About_ShippingText"]</p>
+            </div>
+            <div class="feature">
+                <Icon Name="shield-check" Class="ic" />
+                <b>@Localizer["About_GuaranteeTitle"]</b>
+                <p>@Localizer["About_GuaranteeText"]</p>
+            </div>
+            <div class="feature">
+                <Icon Name="refresh-cw" Class="ic" />
+                <b>@Localizer["About_ReturnTitle"]</b>
+                <p>@Localizer["About_ReturnText"]</p>
+            </div>
+            <div class="feature">
+                <Icon Name="credit-card" Class="ic" />
+                <b>@Localizer["About_PaymentTitle"]</b>
+                <p>@Localizer["About_PaymentText"]</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section id="location">
+    <div class="wrap">
+        <div class="sec-head">
+            <div>
+                <p class="eyebrow">@Localizer["About_LocationEyebrow"]</p>
+                <h2>@Localizer["About_LocationHeading"]</h2>
+            </div>
+        </div>
+        <div class="location">
+            <div class="loc-card">
+                <h3>@Localizer["About_BranchName"]</h3>
+                <p class="addr">
+                    <b>@Localizer["About_AddressLabel"]</b>
+                    @Localizer["About_AddressText"]
+                </p>
+                <a class="btn btn-primary" href="https://nshn.ir/f4rbCkHYN5lISF" target="_blank" rel="noopener">
+                    @Localizer["About_NeshanCta"]
+                </a>
+            </div>
+            <a class="map-art" href="https://nshn.ir/f4rbCkHYN5lISF" target="_blank" rel="noopener" aria-label="@Localizer["About_MapAriaLabel"]">
+                <div class="ring"></div>
+                <Icon Name="map-pin" Class="pin" />
+            </a>
+        </div>
+    </div>
+</section>

@@ -1,21 +1,40 @@
+@using Microsoft.Extensions.Options
+@inject IOptions<FooterOptions> FooterOptionsAccessor
+
 <footer>
-    <div class="wrap">
-        <div class="col" style="max-width:280px">
+    <div class="wrap footer-cols">
+        <div class="footer-brand">
             <span class="wordmark" style="font-size:20px">OVER<span class="t2">TIME</span></span>
-            <p style="color:var(--muted); font-size:13.5px; margin-top:10px;">فروشگاه کفش کتانی اورتایم — شعبه ۲ (کتونی)، اردبیل.</p>
+            <p class="footer-tagline">@_options.Tagline</p>
         </div>
         <div class="col">
-            <b>دسترسی سریع</b>
-            <a href="/products">محصولات</a>
-            <a href="/#categories">دسته‌بندی‌ها</a>
-            <a href="/#why">چرا اورتایم</a>
-            <a href="/#location">موقعیت فروشگاه</a>
+            <b>@_options.QuickLinksTitle</b>
+            @foreach (var link in _options.QuickLinks)
+            {
+                <a href="@link.Href">@link.Label</a>
+            }
         </div>
         <div class="col">
-            <b>ارتباط با ما</b>
-            <a href="https://www.instagram.com/overtime_sneaker/" target="_blank" rel="noopener">اینستاگرام overtime_sneaker@@</a>
-            <a href="https://nshn.ir/f4rbCkHYN5lISF" target="_blank" rel="noopener">موقعیت روی نقشه نشان</a>
+            <b>@_options.ContactTitle</b>
+            @foreach (var link in _options.ContactLinks)
+            {
+                <a href="@link.Href" target="@(link.External ? "_blank" : null)" rel="@(link.External ? "noopener" : null)">
+                    @if (!string.IsNullOrEmpty(link.Icon))
+                    {
+                        <Icon Name="@link.Icon" Class="ic" />
+                    }
+                    @link.Label
+                </a>
+            }
         </div>
     </div>
-    <p class="fine">این صفحه یک نسخه‌ی نمایشی (دمو) از فروشگاه اورتایم است · طراحی شده برای معرفی به تیم فروشگاه</p>
+    <div class="footer-bottom-bar">
+        <div class="wrap">
+            <p class="fine">@_options.FinePrint</p>
+        </div>
+    </div>
 </footer>
+
+@code {
+    private FooterOptions _options => FooterOptionsAccessor.Value;
+}

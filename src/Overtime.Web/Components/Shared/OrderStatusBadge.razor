@@ -1,4 +1,5 @@
 @using Overtime.Data.Entities
+@inject IStringLocalizer<AppStrings> Localizer
 
 <span class="order-status-badge @CssClass">@Label</span>
 
@@ -18,11 +19,11 @@
 
     private string Label => Status switch
     {
-        OrderStatus.Pending => "در انتظار",
-        OrderStatus.Processing => "در حال پردازش",
-        OrderStatus.Shipped => "ارسال شده",
-        OrderStatus.Delivered => "تحویل شده",
-        OrderStatus.Cancelled => "لغو شده",
+        OrderStatus.Pending => Localizer["Order_StatusPending"],
+        OrderStatus.Processing => Localizer["Order_StatusProcessing"],
+        OrderStatus.Shipped => Localizer["Order_StatusShipped"],
+        OrderStatus.Delivered => Localizer["Order_StatusDelivered"],
+        OrderStatus.Cancelled => Localizer["Order_StatusCancelled"],
         _ => Status.ToString(),
     };
 }

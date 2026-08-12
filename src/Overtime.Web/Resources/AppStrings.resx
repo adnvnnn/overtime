@@ -1,0 +1,423 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <!--
+    Microsoft ResX Schema
+
+    Version 2.0
+
+    The primary goals of this format is to allow a simple XML format
+    that is mostly human readable. The generation and parsing of the
+    various data types are done through the TypeConverter classes
+    associated with the data types.
+
+    Example:
+
+    ... ado.net/XML headers & schema ...
+    <resheader name="resmimetype">text/microsoft-resx</resheader>
+    <resheader name="version">2.0</resheader>
+    <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
+    <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
+    <data name="Name1"><value>this is my long string</value><comment>this is a comment</comment></data>
+    <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
+    <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
+        <value>[base64 mime encoded serialized .NET Framework object]</value>
+    </data>
+    <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+        <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
+        <comment>This is a comment</comment>
+    </data>
+
+    There are any number of "resheader" rows that contain simple
+    name/value pairs.
+
+    Each data row contains a name, and value. The row also contains a
+    type or mimetype. Type corresponds to a .NET class that support
+    text/value conversion through the TypeConverter architecture.
+    Classes that don't support this are serialized and stored with the
+    mimetype set.
+
+    The mimetype is used for serialized objects, and tells the
+    ResXResourceReader how to depersist the object. This is currently not
+    extensible. For a given mimetype the value must be set accordingly:
+
+    Note - application/x-microsoft.net.object.binary.base64 is the format
+    that the ResXResourceWriter will generate, however the reader can
+    read any of the formats listed below.
+
+    mimetype: application/x-microsoft.net.object.binary.base64
+    value   : The object must be serialized with
+            : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
+            : and then encoded with base64 encoding.
+
+    mimetype: application/x-microsoft.net.object.soap.base64
+    value   : The object must be serialized with
+            : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
+            : and then encoded with base64 encoding.
+
+    mimetype: application/x-microsoft.net.object.bytearray.base64
+    value   : The object must be serialized into a byte array
+            : using a System.ComponentModel.TypeConverter
+            : and then encoded with base64 encoding.
+    -->
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+
+  <!-- Common: reused across multiple components -->
+  <data name="Common_Products" xml:space="preserve"><value>محصولات</value></data>
+  <data name="Common_Categories" xml:space="preserve"><value>دسته‌بندی‌ها</value></data>
+  <data name="Common_CategoryMen" xml:space="preserve"><value>مردانه</value></data>
+  <data name="Common_CategoryWomen" xml:space="preserve"><value>زنانه</value></data>
+  <data name="Common_CategoryKids" xml:space="preserve"><value>بچگانه</value></data>
+  <data name="Common_CategoryUnisex" xml:space="preserve"><value>یونیسکس</value></data>
+  <data name="Common_CategoryLimited" xml:space="preserve"><value>لیمیتد ادیشن</value></data>
+  <data name="Common_Brands" xml:space="preserve"><value>برندها</value></data>
+  <data name="Common_About" xml:space="preserve"><value>درباره ما</value></data>
+  <data name="Common_Instagram" xml:space="preserve"><value>اینستاگرام</value></data>
+  <data name="Common_Cart" xml:space="preserve"><value>سبد خرید</value></data>
+  <data name="Common_Account" xml:space="preserve"><value>حساب کاربری</value></data>
+  <data name="Common_Logout" xml:space="preserve"><value>خروج</value></data>
+  <data name="Common_LoginRegister" xml:space="preserve"><value>ورود / ثبت‌نام</value></data>
+  <data name="Common_OpenMenu" xml:space="preserve"><value>باز کردن منو</value></data>
+  <data name="Common_CloseMenu" xml:space="preserve"><value>بستن منو</value></data>
+  <data name="Common_Home" xml:space="preserve"><value>خانه</value></data>
+
+  <!-- NavBar -->
+  <data name="Nav_Tagline" xml:space="preserve"><value>فروشگاه کفش کتانی</value></data>
+  <data name="Nav_ShowProductsSubmenu" xml:space="preserve"><value>نمایش زیرمنوی محصولات</value></data>
+  <data name="Nav_ViewAllProducts" xml:space="preserve"><value>مشاهده همه محصولات</value></data>
+  <data name="Nav_LimitedCollectionAlt" xml:space="preserve"><value>کالکشن لیمیتد اورتایم</value></data>
+  <data name="Nav_ExclusiveCollection" xml:space="preserve"><value>کالکشن اختصاصی اورتایم</value></data>
+  <data name="Nav_ViewProducts" xml:space="preserve"><value>مشاهده محصولات</value></data>
+  <data name="Nav_ToggleTheme" xml:space="preserve"><value>تغییر حالت روشن/تیره</value></data>
+  <data name="Nav_LogoutAria" xml:space="preserve"><value>خروج از حساب کاربری</value></data>
+
+  <!-- Home -->
+  <data name="Home_PageTitle" xml:space="preserve"><value>Overtime | فروشگاه اینترنتی کفش کتانی</value></data>
+  <data name="Home_HeroEyebrow" xml:space="preserve"><value>فروشگاه اینترنتی اورتایم — اردبیل</value></data>
+  <data name="Home_HeroTitle" xml:space="preserve"><value>وقت اضافه‌ای که&lt;br&gt;برای هر &lt;span&gt;قدم&lt;/span&gt; می‌گذاریم.</value></data>
+  <data name="Home_HeroLede" xml:space="preserve"><value>کلکسیون کفش‌های کتانی اورتایم؛ از دویدن‌های روزمره تا زمین بازی و خیابان. کیفیت اصل، ارسال به سراسر کشور و پشتیبانی واقعی از شعبه اردبیل.</value></data>
+  <data name="Home_BranchAddressCta" xml:space="preserve"><value>آدرس شعبه ۲ (کتونی)</value></data>
+  <data name="Home_StatModelsCount" xml:space="preserve"><value>+۲۵۰</value></data>
+  <data name="Home_StatModelsLabel" xml:space="preserve"><value>مدل در انبار</value></data>
+  <data name="Home_StatGuaranteeValue" xml:space="preserve"><value>۱۰۰٪</value></data>
+  <data name="Home_StatGuaranteeLabel" xml:space="preserve"><value>ضمانت اصالت</value></data>
+  <data name="Home_StatReturnValue" xml:space="preserve"><value>۷ روز</value></data>
+  <data name="Home_StatReturnLabel" xml:space="preserve"><value>مهلت مرجوعی</value></data>
+  <data name="Home_HeroBadgeBrand" xml:space="preserve"><value>اورتایم</value></data>
+  <data name="Home_TickerShipping" xml:space="preserve"><value>ارسال به سراسر ایران</value></data>
+  <data name="Home_TickerGuarantee" xml:space="preserve"><value>ضمانت اصالت کالا</value></data>
+  <data name="Home_TickerNewModels" xml:space="preserve"><value>جدیدترین مدل‌های ۲۰۲۶</value></data>
+  <data name="Home_TickerReturns" xml:space="preserve"><value>امکان تعویض و مرجوعی</value></data>
+  <data name="Home_TickerCod" xml:space="preserve"><value>پرداخت در محل (اردبیل)</value></data>
+  <data name="Home_CategoriesHeading" xml:space="preserve"><value>هر سبک، مدل خودش را دارد</value></data>
+  <data name="Home_CategoriesLede" xml:space="preserve"><value>از پیاده‌روی سبک تا زمین بازی؛ کالکشن اورتایم برای هر قدم یک مدل دارد.</value></data>
+  <data name="Home_ProductsHeading" xml:space="preserve"><value>پرفروش‌های اورتایم</value></data>
+  <data name="Home_ViewFullCollectionInsta" xml:space="preserve"><value>مشاهده کالکشن کامل در اینستاگرام</value></data>
+  <data name="Home_SocialEyebrow" xml:space="preserve"><value>شبکه‌های اجتماعی</value></data>
+  <data name="Home_InstaHeading" xml:space="preserve"><value>جدیدترین مدل‌ها را در اینستاگرام ببینید</value></data>
+  <data name="Home_InstaLede" xml:space="preserve"><value>پست‌های جدید، آنباکسینگ و موجودی لحظه‌ای فروشگاه را در صفحه‌ی اینستاگرام دنبال کنید.</value></data>
+  <data name="Home_InstaCta" xml:space="preserve"><value>دنبال کردن در اینستاگرام</value></data>
+
+  <!-- About -->
+  <data name="About_PageTitle" xml:space="preserve"><value>درباره ما | Overtime</value></data>
+  <data name="About_WhyEyebrow" xml:space="preserve"><value>چرا اورتایم</value></data>
+  <data name="About_WhyHeading" xml:space="preserve"><value>خرید بی‌دغدغه، از اردبیل تا در خانه‌ی شما</value></data>
+  <data name="About_ShippingTitle" xml:space="preserve"><value>ارسال سریع</value></data>
+  <data name="About_ShippingText" xml:space="preserve"><value>ارسال به سراسر کشور از طریق پست و باربری معتبر.</value></data>
+  <data name="About_GuaranteeTitle" xml:space="preserve"><value>ضمانت اصالت</value></data>
+  <data name="About_GuaranteeText" xml:space="preserve"><value>تمامی محصولات دارای ضمانت اصل بودن کالا هستند.</value></data>
+  <data name="About_ReturnTitle" xml:space="preserve"><value>۷ روز مرجوعی</value></data>
+  <data name="About_ReturnText" xml:space="preserve"><value>در صورت نارضایتی، امکان تعویض یا مرجوعی کالا.</value></data>
+  <data name="About_PaymentTitle" xml:space="preserve"><value>پرداخت امن</value></data>
+  <data name="About_PaymentText" xml:space="preserve"><value>پرداخت آنلاین امن یا پرداخت در محل (اردبیل).</value></data>
+  <data name="About_LocationEyebrow" xml:space="preserve"><value>موقعیت فروشگاه</value></data>
+  <data name="About_LocationHeading" xml:space="preserve"><value>از نزدیک از ما بازدید کنید</value></data>
+  <data name="About_BranchName" xml:space="preserve"><value>شعبه ۲ (کتونی)</value></data>
+  <data name="About_AddressLabel" xml:space="preserve"><value>آدرس:</value></data>
+  <data name="About_AddressText" xml:space="preserve"><value>اردبیل، ایستگاه سرعین، به سمت شریعتی، اطلس مال، پلاک G۹</value></data>
+  <data name="About_NeshanCta" xml:space="preserve"><value>مسیریابی در نشان</value></data>
+  <data name="About_MapAriaLabel" xml:space="preserve"><value>مشاهده موقعیت روی نقشه نشان</value></data>
+
+  <!-- Common: price/currency -->
+  <data name="Common_Toman" xml:space="preserve"><value>تومان</value></data>
+
+  <!-- ProductCard -->
+  <data name="ProductCard_ViewDetailsAria" xml:space="preserve"><value>مشاهده جزئیات {0}</value></data>
+  <data name="ProductCard_Added" xml:space="preserve"><value>افزوده شد ✓</value></data>
+  <data name="ProductCard_AddToCart" xml:space="preserve"><value>افزودن به سبد</value></data>
+  <data name="ProductCard_OutOfStock" xml:space="preserve"><value>این محصول در حال حاضر ناموجود است</value></data>
+  <data name="ProductCard_AddedToCart" xml:space="preserve"><value>{0} به سبد اضافه شد</value></data>
+
+  <!-- Products (catalog page) -->
+  <data name="Products_PageTitle" xml:space="preserve"><value>Overtime | محصولات</value></data>
+  <data name="Products_BreadcrumbAria" xml:space="preserve"><value>مسیر صفحه</value></data>
+  <data name="Products_Eyebrow" xml:space="preserve"><value>فروشگاه</value></data>
+  <data name="Products_Heading" xml:space="preserve"><value>همه محصولات</value></data>
+  <data name="Products_CountText" xml:space="preserve"><value>{0} از {1} محصول</value></data>
+  <data name="Products_SearchPlaceholder" xml:space="preserve"><value>جستجوی محصول…</value></data>
+  <data name="Products_SearchAria" xml:space="preserve"><value>جستجوی محصول</value></data>
+  <data name="Products_CategoryFilterAria" xml:space="preserve"><value>فیلتر دسته‌بندی</value></data>
+  <data name="Products_TabAll" xml:space="preserve"><value>همه</value></data>
+  <data name="Products_AllBrandsOption" xml:space="preserve"><value>همه برندها</value></data>
+  <data name="Products_BrandFilterAria" xml:space="preserve"><value>فیلتر برند</value></data>
+  <data name="Products_SortAria" xml:space="preserve"><value>مرتب‌سازی محصولات</value></data>
+  <data name="Products_SortDefault" xml:space="preserve"><value>مرتب‌سازی: پیش‌فرض</value></data>
+  <data name="Products_SortPriceAsc" xml:space="preserve"><value>ارزان‌ترین</value></data>
+  <data name="Products_SortPriceDesc" xml:space="preserve"><value>گران‌ترین</value></data>
+  <data name="Products_SortName" xml:space="preserve"><value>نام (الفبا)</value></data>
+  <data name="Products_PriceRangeSep" xml:space="preserve"><value>تا</value></data>
+  <data name="Products_MinPriceAria" xml:space="preserve"><value>حداقل قیمت</value></data>
+  <data name="Products_MaxPriceAria" xml:space="preserve"><value>حداکثر قیمت</value></data>
+  <data name="Products_InStockOnlyLabel" xml:space="preserve"><value>فقط کالای موجود</value></data>
+  <data name="Products_EmptyMessage" xml:space="preserve"><value>محصولی با این مشخصات پیدا نشد.</value></data>
+  <data name="Products_ClearFilters" xml:space="preserve"><value>پاک کردن فیلترها</value></data>
+
+  <!-- ProductDetail (PDP) -->
+  <data name="PDP_DefaultTitle" xml:space="preserve"><value>جزئیات محصول</value></data>
+  <data name="PDP_PrevImage" xml:space="preserve"><value>تصویر قبلی</value></data>
+  <data name="PDP_NextImage" xml:space="preserve"><value>تصویر بعدی</value></data>
+  <data name="PDP_ImageNumber" xml:space="preserve"><value>تصویر {0}</value></data>
+  <data name="PDP_ProductImagesAria" xml:space="preserve"><value>تصاویر محصول</value></data>
+  <data name="PDP_ReviewCountSuffix" xml:space="preserve"><value>({0} نظر)</value></data>
+  <data name="PDP_SizeLabel" xml:space="preserve"><value>سایز (اروپایی)</value></data>
+  <data name="PDP_QtyLabel" xml:space="preserve"><value>تعداد</value></data>
+  <data name="PDP_QtyDecreaseAria" xml:space="preserve"><value>کاهش تعداد</value></data>
+  <data name="PDP_QtyIncreaseAria" xml:space="preserve"><value>افزایش تعداد</value></data>
+  <data name="PDP_AddToCartBtn" xml:space="preserve"><value>افزودن به سبد خرید</value></data>
+  <data name="PDP_BadgeShipping" xml:space="preserve"><value>ارسال سریع به سراسر کشور</value></data>
+  <data name="PDP_BadgeReturn" xml:space="preserve"><value>۷ روز مهلت مرجوعی</value></data>
+  <data name="PDP_ReviewsHeading" xml:space="preserve"><value>نظرات کاربران</value></data>
+  <data name="PDP_LoginPromptPrefix" xml:space="preserve"><value>برای ثبت نظر ابتدا</value></data>
+  <data name="PDP_LoginPromptLink" xml:space="preserve"><value>وارد حساب کاربری</value></data>
+  <data name="PDP_LoginPromptSuffix" xml:space="preserve"><value>شوید.</value></data>
+  <data name="PDP_YourRatingLabel" xml:space="preserve"><value>امتیاز شما</value></data>
+  <data name="PDP_StarAriaLabel" xml:space="preserve"><value>{0} ستاره</value></data>
+  <data name="PDP_CommentPlaceholder" xml:space="preserve"><value>نظر شما درباره این محصول (اختیاری)</value></data>
+  <data name="PDP_SubmitReview" xml:space="preserve"><value>ثبت نظر</value></data>
+  <data name="PDP_EditReview" xml:space="preserve"><value>ویرایش نظر</value></data>
+  <data name="PDP_NoReviewsYet" xml:space="preserve"><value>هنوز نظری برای این محصول ثبت نشده است. اولین نفر باشید!</value></data>
+  <data name="PDP_RelatedEyebrow" xml:space="preserve"><value>محصولات مشابه</value></data>
+  <data name="PDP_RelatedHeading" xml:space="preserve"><value>شاید این مدل‌ها را هم بپسندید</value></data>
+  <data name="PDP_SelectSizeFirst" xml:space="preserve"><value>لطفاً ابتدا سایز را انتخاب کنید</value></data>
+  <data name="PDP_InsufficientStock" xml:space="preserve"><value>موجودی این سایز کافی نیست</value></data>
+  <data name="PDP_PartialAdd" xml:space="preserve"><value>تنها {0} عدد از {1} به دلیل محدودیت موجودی اضافه شد</value></data>
+  <data name="PDP_ReviewSubmitted" xml:space="preserve"><value>نظر شما ثبت شد</value></data>
+
+  <!-- Carousel -->
+  <data name="Carousel_Eyebrow" xml:space="preserve"><value>محصولات برجسته</value></data>
+  <data name="Carousel_Heading" xml:space="preserve"><value>کالکشن برتر این فصل</value></data>
+  <data name="Carousel_Lede" xml:space="preserve"><value>بهترین انتخاب‌های ما برای شما؛ محصولات پرطرفدار و جدید اورتایم.</value></data>
+  <data name="Carousel_PrevAria" xml:space="preserve"><value>محصول قبلی</value></data>
+  <data name="Carousel_NextAria" xml:space="preserve"><value>محصول بعدی</value></data>
+  <data name="Carousel_GoToProductAria" xml:space="preserve"><value>رفتن به محصول {0}</value></data>
+
+  <!-- Common: generic actions -->
+  <data name="Common_Close" xml:space="preserve"><value>بستن</value></data>
+  <data name="Common_Cancel" xml:space="preserve"><value>انصراف</value></data>
+
+  <!-- CartDrawer -->
+  <data name="Cart_CloseAria" xml:space="preserve"><value>بستن سبد خرید</value></data>
+  <data name="Cart_OrderPlaced" xml:space="preserve"><value>سفارش شما ثبت شد</value></data>
+  <data name="Cart_DemoOrderNote" xml:space="preserve"><value>این یک فروشگاه نمایشی است؛ همکاران اورتایم به‌زودی برای هماهنگی ارسال با شما تماس می‌گیرند.</value></data>
+  <data name="Cart_DemoOrderNumber" xml:space="preserve"><value>شماره سفارش دمو: {0}</value></data>
+  <data name="Cart_SelectAddressHeading" xml:space="preserve"><value>انتخاب آدرس ارسال</value></data>
+  <data name="Cart_NoAddresses" xml:space="preserve"><value>هیچ آدرسی ثبت نشده است.</value></data>
+  <data name="Cart_AddNewAddress" xml:space="preserve"><value>افزودن آدرس جدید</value></data>
+  <data name="Cart_DefaultBadge" xml:space="preserve"><value>پیش‌فرض</value></data>
+  <data name="Cart_ConfirmContinue" xml:space="preserve"><value>تایید و ادامه</value></data>
+  <data name="Cart_EmptyCart" xml:space="preserve"><value>سبد خرید شما خالی است</value></data>
+  <data name="Cart_SizeInline" xml:space="preserve"><value>سایز</value></data>
+  <data name="Cart_RemoveAria" xml:space="preserve"><value>حذف از سبد</value></data>
+  <data name="Cart_RemoveBtn" xml:space="preserve"><value>حذف</value></data>
+  <data name="Cart_Subtotal" xml:space="preserve"><value>جمع کل</value></data>
+  <data name="Cart_CheckoutBtn" xml:space="preserve"><value>تکمیل خرید</value></data>
+  <data name="Cart_DemoPaymentNote" xml:space="preserve"><value>این یک فروشگاه نمایشی است؛ پرداخت واقعی انجام نمی‌شود.</value></data>
+  <data name="Cart_InsufficientStockToast" xml:space="preserve"><value>موجودی کافی نیست</value></data>
+
+  <!-- AccountTabs -->
+  <data name="AccountTabs_Aria" xml:space="preserve"><value>بخش‌های حساب کاربری</value></data>
+  <data name="AccountTabs_Addresses" xml:space="preserve"><value>آدرس‌ها</value></data>
+  <data name="AccountTabs_MyOrders" xml:space="preserve"><value>سفارش‌های من</value></data>
+
+  <!-- OrderStatusBadge -->
+  <data name="Order_StatusPending" xml:space="preserve"><value>در انتظار</value></data>
+  <data name="Order_StatusProcessing" xml:space="preserve"><value>در حال پردازش</value></data>
+  <data name="Order_StatusShipped" xml:space="preserve"><value>ارسال شده</value></data>
+  <data name="Order_StatusDelivered" xml:space="preserve"><value>تحویل شده</value></data>
+  <data name="Order_StatusCancelled" xml:space="preserve"><value>لغو شده</value></data>
+
+  <!-- Account/Index -->
+  <data name="Account_PageTitle" xml:space="preserve"><value>Overtime | حساب کاربری</value></data>
+  <data name="Account_AddressesHeading" xml:space="preserve"><value>آدرس‌های ارسال</value></data>
+  <data name="Account_NoAddressesMessage" xml:space="preserve"><value>آدرسی برای ارسال ثبت نشده است.</value></data>
+  <data name="Account_DefaultAddressBadge" xml:space="preserve"><value>آدرس پیش‌فرض</value></data>
+  <data name="Account_PostalCodeLabel" xml:space="preserve"><value>کد پستی:</value></data>
+  <data name="Account_PhoneLabel" xml:space="preserve"><value>تلفن:</value></data>
+  <data name="Account_ConfirmDeleteQuestion" xml:space="preserve"><value>این آدرس حذف شود؟</value></data>
+  <data name="Account_ConfirmDeleteYes" xml:space="preserve"><value>بله، حذف کن</value></data>
+  <data name="Account_EditBtn" xml:space="preserve"><value>ویرایش</value></data>
+
+  <!-- Account/Orders -->
+  <data name="Orders_PageTitle" xml:space="preserve"><value>Overtime | سفارش‌های من</value></data>
+  <data name="Orders_EmptyMessage" xml:space="preserve"><value>هنوز سفارشی ثبت نکرده‌اید.</value></data>
+  <data name="Orders_OrderNumberPrefix" xml:space="preserve"><value>سفارش {0}</value></data>
+  <data name="Orders_ShippingAddressPrefix" xml:space="preserve"><value>آدرس ارسال: {0}</value></data>
+
+  <!-- AddressForm -->
+  <data name="AddressForm_AddTitle" xml:space="preserve"><value>افزودن آدرس</value></data>
+  <data name="AddressForm_EditTitle" xml:space="preserve"><value>ویرایش آدرس</value></data>
+  <data name="AddressForm_NewAddressBreadcrumb" xml:space="preserve"><value>آدرس جدید</value></data>
+  <data name="AddressForm_AddHeading" xml:space="preserve"><value>افزودن آدرس جدید</value></data>
+  <data name="AddressForm_RecipientNameLabel" xml:space="preserve"><value>نام گیرنده *</value></data>
+  <data name="AddressForm_FullNamePlaceholder" xml:space="preserve"><value>نام کامل</value></data>
+  <data name="AddressForm_PhoneLabel" xml:space="preserve"><value>شماره تلفن *</value></data>
+  <data name="AddressForm_PhonePlaceholder" xml:space="preserve"><value>۰۹xxxxxxxxx</value></data>
+  <data name="AddressForm_ProvinceLabel" xml:space="preserve"><value>استان *</value></data>
+  <data name="AddressForm_ProvincePlaceholder" xml:space="preserve"><value>استان</value></data>
+  <data name="AddressForm_CityLabel" xml:space="preserve"><value>شهر *</value></data>
+  <data name="AddressForm_CityPlaceholder" xml:space="preserve"><value>شهر</value></data>
+  <data name="AddressForm_DistrictLabel" xml:space="preserve"><value>منطقه *</value></data>
+  <data name="AddressForm_DistrictPlaceholder" xml:space="preserve"><value>منطقه</value></data>
+  <data name="AddressForm_Address1Label" xml:space="preserve"><value>آدرس *</value></data>
+  <data name="AddressForm_Address1Placeholder" xml:space="preserve"><value>آدرس کامل</value></data>
+  <data name="AddressForm_Address2Label" xml:space="preserve"><value>آدرس دوم (اختیاری)</value></data>
+  <data name="AddressForm_Address2Placeholder" xml:space="preserve"><value>آدرس دوم</value></data>
+  <data name="AddressForm_PostalCodeLabel" xml:space="preserve"><value>کد پستی *</value></data>
+  <data name="AddressForm_PostalCodePlaceholder" xml:space="preserve"><value>کد پستی</value></data>
+  <data name="AddressForm_SetDefaultLabel" xml:space="preserve"><value>این آدرس را به عنوان آدرس پیش‌فرض انتخاب کن</value></data>
+  <data name="AddressForm_AddBtn" xml:space="preserve"><value>افزودن</value></data>
+  <data name="AddressForm_SaveBtn" xml:space="preserve"><value>ذخیره</value></data>
+
+  <!-- Validation messages (used via ErrorMessageResourceType/Name — must have static AppStrings properties too) -->
+  <data name="Validation_RecipientNameRequired" xml:space="preserve"><value>نام گیرنده را وارد کنید</value></data>
+  <data name="Validation_PhoneRequired" xml:space="preserve"><value>شماره تلفن را وارد کنید</value></data>
+  <data name="Validation_ProvinceRequired" xml:space="preserve"><value>استان را وارد کنید</value></data>
+  <data name="Validation_CityRequired" xml:space="preserve"><value>شهر را وارد کنید</value></data>
+  <data name="Validation_DistrictRequired" xml:space="preserve"><value>منطقه را وارد کنید</value></data>
+  <data name="Validation_Address1Required" xml:space="preserve"><value>آدرس را وارد کنید</value></data>
+  <data name="Validation_PostalCodeRequired" xml:space="preserve"><value>کد پستی را وارد کنید</value></data>
+  <data name="Validation_LoginPhoneRequired" xml:space="preserve"><value>شماره موبایل را وارد کنید</value></data>
+  <data name="Validation_OtpCodeRequired" xml:space="preserve"><value>کد تایید را وارد کنید</value></data>
+  <data name="Validation_OtpCodeLength" xml:space="preserve"><value>کد تایید باید ۶ رقم باشد</value></data>
+
+  <!-- Login -->
+  <data name="Login_PageTitle" xml:space="preserve"><value>Overtime | ورود به حساب کاربری</value></data>
+  <data name="Login_VerifyHeading" xml:space="preserve"><value>کد تایید را وارد کنید</value></data>
+  <data name="Login_LoginHeading" xml:space="preserve"><value>ورود یا ثبت‌نام</value></data>
+  <data name="Login_VerifyLedePrefix" xml:space="preserve"><value>کد ۶ رقمی ارسال‌شده به شماره</value></data>
+  <data name="Login_VerifyLedeSuffix" xml:space="preserve"><value>را وارد کنید.</value></data>
+  <data name="Login_LoginLede" xml:space="preserve"><value>شماره موبایل خود را وارد کنید تا کد تایید برایتان ارسال شود. اگر حساب کاربری نداشته باشید، به‌صورت خودکار ساخته می‌شود.</value></data>
+  <data name="Login_DevHintPrefix" xml:space="preserve"><value>حالت توسعه: سامانه پیامک متصل نیست، کد تایید همینجا نمایش داده می‌شود →</value></data>
+  <data name="Login_PhoneFieldLabel" xml:space="preserve"><value>شماره موبایل</value></data>
+  <data name="Login_RequestCodeBtn" xml:space="preserve"><value>دریافت کد تایید</value></data>
+  <data name="Login_CodeFieldLabel" xml:space="preserve"><value>کد تایید</value></data>
+  <data name="Login_VerifyBtn" xml:space="preserve"><value>تایید و ورود</value></data>
+  <data name="Login_ResendBtn" xml:space="preserve"><value>ارسال مجدد کد</value></data>
+  <data name="Login_ChangePhoneLink" xml:space="preserve"><value>تغییر شماره موبایل</value></data>
+  <data name="Login_InvalidPhoneError" xml:space="preserve"><value>شماره موبایل معتبر نیست. مثال: ۰۹۱۲۳۴۵۶۷۸۹</value></data>
+
+  <!-- App shell -->
+  <data name="App_MetaDescription" xml:space="preserve"><value>نسخه نمایشی فروشگاه اینترنتی کفش کتانی Overtime — اردبیل</value></data>
+
+  <!-- ReviewService -->
+  <data name="Service_AnonymousUser" xml:space="preserve"><value>کاربر</value></data>
+  <data name="Service_UserWithPhoneSuffix" xml:space="preserve"><value>کاربر …{0}</value></data>
+
+  <!-- OtpService -->
+  <data name="Otp_TooSoon" xml:space="preserve"><value>لطفاً کمی صبر کنید و دوباره تلاش کنید.</value></data>
+  <data name="Otp_NotRequested" xml:space="preserve"><value>ابتدا کد تایید را درخواست کنید.</value></data>
+  <data name="Otp_Expired" xml:space="preserve"><value>کد تایید منقضی شده است. دوباره درخواست کنید.</value></data>
+  <data name="Otp_MaxAttemptsReached" xml:space="preserve"><value>تعداد تلاش‌های مجاز به پایان رسید. کد جدید درخواست کنید.</value></data>
+  <data name="Otp_IncorrectCode" xml:space="preserve"><value>کد وارد شده صحیح نیست.</value></data>
+
+  <!-- OrderService -->
+  <data name="Order_EmptyCartError" xml:space="preserve"><value>سبد خرید شما خالی است.</value></data>
+  <data name="Order_InsufficientStockFormat" xml:space="preserve"><value>موجودی «{0}» برای تکمیل این سفارش کافی نیست.</value></data>
+
+  <!-- ManualPaymentGateway -->
+  <data name="Payment_OnlineNotEnabled" xml:space="preserve"><value>پرداخت آنلاین هنوز فعال نشده است.</value></data>
+
+  <!-- NotFound -->
+  <data name="NotFound_PageTitle" xml:space="preserve"><value>Overtime | صفحه پیدا نشد</value></data>
+  <data name="NotFound_Eyebrow" xml:space="preserve"><value>خطای ۴۰۴</value></data>
+  <data name="NotFound_Heading" xml:space="preserve"><value>این صفحه رو پیدا نکردیم</value></data>
+  <data name="NotFound_Message" xml:space="preserve"><value>ممکنه لینک اشتباه باشه یا این صفحه جابه‌جا شده باشه. می‌تونید به صفحه اصلی برگردید یا محصولات رو مرور کنید.</value></data>
+  <data name="NotFound_HomeBtn" xml:space="preserve"><value>بازگشت به صفحه اصلی</value></data>
+  <data name="NotFound_ProductsBtn" xml:space="preserve"><value>مشاهده محصولات</value></data>
+
+  <!-- Error -->
+  <data name="Error_PageTitle" xml:space="preserve"><value>Overtime | خطایی پیش آمد</value></data>
+  <data name="Error_Eyebrow" xml:space="preserve"><value>خطای غیرمنتظره</value></data>
+  <data name="Error_Heading" xml:space="preserve"><value>یک مشکلی پیش اومد</value></data>
+  <data name="Error_Message" xml:space="preserve"><value>متاسفانه در پردازش درخواست شما خطایی رخ داد. لطفاً دوباره تلاش کنید یا به صفحه اصلی بازگردید.</value></data>
+  <data name="Error_RequestIdLabel" xml:space="preserve"><value>شناسه پیگیری:</value></data>
+  <data name="Error_HomeBtn" xml:space="preserve"><value>بازگشت به صفحه اصلی</value></data>
+
+  <!-- ReconnectModal -->
+  <data name="Reconnect_Connecting" xml:space="preserve"><value>در حال اتصال مجدد به سرور…</value></data>
+  <data name="Reconnect_RetryingPrefix" xml:space="preserve"><value>اتصال ناموفق بود؛ تلاش بعدی تا</value></data>
+  <data name="Reconnect_RetryingSuffix" xml:space="preserve"><value>ثانیه دیگر.</value></data>
+  <data name="Reconnect_Failed" xml:space="preserve"><value>اتصال به سرور برقرار نشد.</value></data>
+  <data name="Reconnect_FailedHint" xml:space="preserve"><value>لطفاً دوباره تلاش کنید یا صفحه را بازخوانی کنید.</value></data>
+  <data name="Reconnect_RetryBtn" xml:space="preserve"><value>تلاش مجدد</value></data>
+  <data name="Reconnect_Paused" xml:space="preserve"><value>نشست شما موقتاً توسط سرور متوقف شده است.</value></data>
+  <data name="Reconnect_ResumeFailed" xml:space="preserve"><value>از سرگیری نشست ممکن نشد.</value></data>
+  <data name="Reconnect_ResumeFailedHint" xml:space="preserve"><value>لطفاً دوباره تلاش کنید یا صفحه را بازخوانی کنید.</value></data>
+  <data name="Reconnect_ResumeBtn" xml:space="preserve"><value>از سرگیری</value></data>
+</root>

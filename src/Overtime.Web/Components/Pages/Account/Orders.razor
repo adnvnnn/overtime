@@ -4,16 +4,17 @@
 @using Microsoft.AspNetCore.Authorization
 @inject OrderService OrderService
 @inject NavigationManager NavigationManager
+@inject IStringLocalizer<AppStrings> Localizer
 
-<PageTitle>Overtime | سفارش‌های من</PageTitle>
+<PageTitle>@Localizer["Orders_PageTitle"]</PageTitle>
 
 <div class="wrap">
-    <nav class="breadcrumb" aria-label="مسیر صفحه">
-        <a href="/">خانه</a>
+    <nav class="breadcrumb" aria-label="@Localizer["Products_BreadcrumbAria"]">
+        <a href="/">@Localizer["Common_Home"]</a>
         <span>/</span>
-        <a href="/account">حساب کاربری</a>
+        <a href="/account">@Localizer["Common_Account"]</a>
         <span>/</span>
-        <span class="cur">سفارش‌های من</span>
+        <span class="cur">@Localizer["AccountTabs_MyOrders"]</span>
     </nav>
 </div>
 
@@ -22,13 +23,13 @@
         <AccountTabs />
 
         <div class="account-header">
-            <h1>سفارش‌های من</h1>
+            <h1>@Localizer["AccountTabs_MyOrders"]</h1>
         </div>
 
         @if (_orders.Count == 0)
         {
             <div class="account-empty">
-                <p>هنوز سفارشی ثبت نکرده‌اید.</p>
+                <p>@Localizer["Orders_EmptyMessage"]</p>
             </div>
         }
         else
@@ -39,7 +40,7 @@
                     <div class="order-card">
                         <div class="order-card-head">
                             <div>
-                                <b>سفارش @order.OrderNumber</b>
+                                <b>@Localizer["Orders_OrderNumberPrefix", order.OrderNumber]</b>
                                 <span class="order-date">@order.CreatedAt.ToString("yyyy/MM/dd HH:mm")</span>
                             </div>
                             <OrderStatusBadge Status="order.Status" />
@@ -48,17 +49,17 @@
                             @foreach (var item in order.Items)
                             {
                                 <div class="order-item-row">
-                                    <span>@item.ProductName · سایز @item.Size.ToFa()</span>
+                                    <span>@item.ProductName · @Localizer["Cart_SizeInline"] @item.Size.ToFa()</span>
                                     <span>@item.Qty.ToFa() × @item.UnitPrice.FormatToman()</span>
                                 </div>
                             }
                         </div>
                         @if (!string.IsNullOrEmpty(order.AddressSummary))
                         {
-                            <p class="order-address">آدرس ارسال: @order.AddressSummary</p>
+                            <p class="order-address">@Localizer["Orders_ShippingAddressPrefix", order.AddressSummary]</p>
                         }
                         <div class="order-card-foot">
-                            <span>جمع کل</span>
+                            <span>@Localizer["Cart_Subtotal"]</span>
                             <b>@order.Total.FormatToman()</b>
                         </div>
                     </div>

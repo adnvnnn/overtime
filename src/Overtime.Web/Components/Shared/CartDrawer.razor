@@ -4,34 +4,35 @@
 @inject OrderService OrderService
 @inject AddressService AddressService
 @inject ToastService ToastService
+@inject IStringLocalizer<AppStrings> Localizer
 
 <div class="cart-backdrop @(CartService.IsDrawerOpen ? "open" : "")" @onclick="Close"></div>
 <aside class="cart-drawer @(CartService.IsDrawerOpen ? "open" : "")" id="cartDrawer" role="dialog" aria-modal="true"
-       aria-label="سبد خرید" aria-hidden="@((!CartService.IsDrawerOpen).ToString().ToLowerInvariant())">
+       aria-label="@Localizer["Common_Cart"]" aria-hidden="@((!CartService.IsDrawerOpen).ToString().ToLowerInvariant())">
     <div class="cart-head">
-        <h3>سبد خرید</h3>
-        <button class="cart-close" type="button" aria-label="بستن سبد خرید" @onclick="Close">✕</button>
+        <h3>@Localizer["Common_Cart"]</h3>
+        <button class="cart-close" type="button" aria-label="@Localizer["Cart_CloseAria"]" @onclick="Close">✕</button>
     </div>
     <div class="cart-body">
         @if (_orderNumber is not null)
         {
             <div class="cart-success">
                 <div class="ok">✓</div>
-                <h4>سفارش شما ثبت شد</h4>
-                <p>این یک فروشگاه نمایشی است؛ همکاران اورتایم به‌زودی برای هماهنگی ارسال با شما تماس می‌گیرند.</p>
-                <span class="ordno">شماره سفارش دمو: @_orderNumber</span>
-                <button class="btn btn-ghost btn-sm" type="button" @onclick="Close">بستن</button>
+                <h4>@Localizer["Cart_OrderPlaced"]</h4>
+                <p>@Localizer["Cart_DemoOrderNote"]</p>
+                <span class="ordno">@Localizer["Cart_DemoOrderNumber", _orderNumber]</span>
+                <button class="btn btn-ghost btn-sm" type="button" @onclick="Close">@Localizer["Common_Close"]</button>
             </div>
         }
         else if (_isAddressSelection)
         {
             <div class="cart-checkout-step">
-                <h4>انتخاب آدرس ارسال</h4>
+                <h4>@Localizer["Cart_SelectAddressHeading"]</h4>
                 @if (_addresses.Count == 0)
                 {
                     <div class="no-address">
-                        <p>هیچ آدرسی ثبت نشده است.</p>
-                        <button class="btn btn-primary btn-sm" type="button" @onclick="GoToAddAddress">افزودن آدرس جدید</button>
+                        <p>@Localizer["Cart_NoAddresses"]</p>
+                        <button class="btn btn-primary btn-sm" type="button" @onclick="GoToAddAddress">@Localizer["Cart_AddNewAddress"]</button>
                     </div>
                 }
                 else
@@ -52,16 +53,16 @@
                                 </div>
                                 @if (address.IsDefault)
                                 {
-                                    <span class="badge-small">پیش‌فرض</span>
+                                    <span class="badge-small">@Localizer["Cart_DefaultBadge"]</span>
                                 }
                             </div>
                         }
                     </div>
-                    <button class="btn btn-ghost btn-sm" type="button" @onclick="GoToAddAddress">افزودن آدرس جدید</button>
+                    <button class="btn btn-ghost btn-sm" type="button" @onclick="GoToAddAddress">@Localizer["Cart_AddNewAddress"]</button>
                 }
                 <div class="checkout-buttons">
-                    <button class="btn btn-primary" type="button" disabled="@(_selectedAddressId is null)" @onclick="ConfirmCheckout">تایید و ادامه</button>
-                    <button class="btn btn-ghost" type="button" @onclick="CancelAddressSelection">انصراف</button>
+                    <button class="btn btn-primary" type="button" disabled="@(_selectedAddressId is null)" @onclick="ConfirmCheckout">@Localizer["Cart_ConfirmContinue"]</button>
+                    <button class="btn btn-ghost" type="button" @onclick="CancelAddressSelection">@Localizer["Common_Cancel"]</button>
                 </div>
             </div>
         }
@@ -69,7 +70,7 @@
         {
             <div class="cart-empty">
                 <Icon Name="shopping-cart" />
-                <span>سبد خرید شما خالی است</span>
+                <span>@Localizer["Cart_EmptyCart"]</span>
             </div>
         }
         else
@@ -87,15 +88,15 @@
                     }
                     <div class="cart-item-info">
                         <b>@line.Name</b>
-                        <span>@line.Category · سایز @line.Size.ToFa()</span>
+                        <span>@line.Category · @Localizer["Cart_SizeInline"] @line.Size.ToFa()</span>
                         <div class="qty-stepper">
-                            <button type="button" aria-label="کاهش تعداد" @onclick="() => ChangeQty(line.CartItemId, -1)">−</button>
+                            <button type="button" aria-label="@Localizer["PDP_QtyDecreaseAria"]" @onclick="() => ChangeQty(line.CartItemId, -1)">−</button>
                             <span>@line.Qty.ToFa()</span>
-                            <button type="button" aria-label="افزایش تعداد" @onclick="() => ChangeQty(line.CartItemId, 1)">+</button>
+                            <button type="button" aria-label="@Localizer["PDP_QtyIncreaseAria"]" @onclick="() => ChangeQty(line.CartItemId, 1)">+</button>
                         </div>
                     </div>
                     <div class="cart-item-end">
-                        <button class="cart-remove" type="button" aria-label="حذف از سبد" @onclick="() => Remove(line.CartItemId)">حذف</button>
+                        <button class="cart-remove" type="button" aria-label="@Localizer["Cart_RemoveAria"]" @onclick="() => Remove(line.CartItemId)">@Localizer["Cart_RemoveBtn"]</button>
                         <b class="cart-item-price">@line.LineTotal.FormatToman()</b>
                     </div>
                 </div>
@@ -105,9 +106,9 @@
     @if (_orderNumber is null && !_isAddressSelection)
     {
         <div class="cart-foot">
-            <div class="cart-subtotal"><span>جمع کل</span><b>@Subtotal.FormatToman()</b></div>
-            <button class="btn btn-primary cart-checkout" type="button" disabled="@(_lines.Count == 0)" @onclick="Checkout">تکمیل خرید</button>
-            <p class="cart-note">این یک فروشگاه نمایشی است؛ پرداخت واقعی انجام نمی‌شود.</p>
+            <div class="cart-subtotal"><span>@Localizer["Cart_Subtotal"]</span><b>@Subtotal.FormatToman()</b></div>
+            <button class="btn btn-primary cart-checkout" type="button" disabled="@(_lines.Count == 0)" @onclick="Checkout">@Localizer["Cart_CheckoutBtn"]</button>
+            <p class="cart-note">@Localizer["Cart_DemoPaymentNote"]</p>
         </div>
     }
 </aside>
@@ -153,7 +154,7 @@
     {
         var ok = await CartService.ChangeQtyAsync(id, delta);
         if (!ok && delta > 0)
-            ToastService.ShowMessage("موجودی کافی نیست");
+            ToastService.ShowMessage(Localizer["Cart_InsufficientStockToast"].Value);
     }
     private async Task Remove(int id) => await CartService.RemoveItemAsync(id);
 

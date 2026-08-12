@@ -2,45 +2,46 @@
 @inject CartService CartService
 @inject BrandService BrandService
 @inject IJSRuntime JS
+@inject IStringLocalizer<AppStrings> Localizer
 
 <header>
     <div class="nav">
         <a class="brand" href="/">
             <span class="name">
                 <span class="en wordmark">OVER<span class="t2">TIME</span></span>
-                <span class="fa">فروشگاه کفش کتانی</span>
+                <span class="fa">@Localizer["Nav_Tagline"]</span>
             </span>
         </a>
         <div class="nav-backdrop @(_menuOpen ? "show" : "")" @onclick="CloseMenu"></div>
         <nav class="links @(_menuOpen ? "open" : "")" id="navLinks">
             <div class="drawer-head">
                 <span class="drawer-brand en wordmark">OVER<span class="t2">TIME</span></span>
-                <button type="button" class="drawer-close" aria-label="بستن منو" @onclick="CloseMenu">
+                <button type="button" class="drawer-close" aria-label="@Localizer["Common_CloseMenu"]" @onclick="CloseMenu">
                     <Icon Name="x" Class="ic" />
                 </button>
             </div>
-            <a href="/" @onclick="CloseMenu">خانه</a>
+            <a href="/" @onclick="CloseMenu">@Localizer["Common_Home"]</a>
             <div class="nav-item @(_productsExpanded ? "expanded" : "")">
                 <div class="nav-item-row">
-                    <a href="/products" @onclick="CloseMenu">محصولات</a>
-                    <button type="button" class="nav-item-toggle" aria-expanded="@(_productsExpanded ? "true" : "false")" aria-controls="navProductsPanel" aria-label="نمایش زیرمنوی محصولات" @onclick="ToggleProducts"></button>
+                    <a href="/products" @onclick="CloseMenu">@Localizer["Common_Products"]</a>
+                    <button type="button" class="nav-item-toggle" aria-expanded="@(_productsExpanded ? "true" : "false")" aria-controls="navProductsPanel" aria-label="@Localizer["Nav_ShowProductsSubmenu"]" @onclick="ToggleProducts"></button>
                 </div>
                 <div class="mega-menu" id="navProductsPanel">
                     <div class="mega-menu-inner">
                         <div class="mega-col mega-col-links">
-                            <p class="mega-heading">دسته‌بندی‌ها</p>
-                            <a href="/products?cat=مردانه" @onclick="CloseMenu">مردانه</a>
-                            <a href="/products?cat=زنانه" @onclick="CloseMenu">زنانه</a>
-                            <a href="/products?cat=بچگانه" @onclick="CloseMenu">بچگانه</a>
-                            <a href="/products?cat=یونیسکس" @onclick="CloseMenu">یونیسکس</a>
-                            <a href="/products?cat=لیمیتد" @onclick="CloseMenu">لیمیتد ادیشن</a>
+                            <p class="mega-heading">@Localizer["Common_Categories"]</p>
+                            <a href="/products?cat=مردانه" @onclick="CloseMenu">@Localizer["Common_CategoryMen"]</a>
+                            <a href="/products?cat=زنانه" @onclick="CloseMenu">@Localizer["Common_CategoryWomen"]</a>
+                            <a href="/products?cat=بچگانه" @onclick="CloseMenu">@Localizer["Common_CategoryKids"]</a>
+                            <a href="/products?cat=یونیسکس" @onclick="CloseMenu">@Localizer["Common_CategoryUnisex"]</a>
+                            <a href="/products?cat=لیمیتد" @onclick="CloseMenu">@Localizer["Common_CategoryLimited"]</a>
                             <a class="mega-view-all" href="/products" @onclick="CloseMenu">
-                                مشاهده همه محصولات
+                                @Localizer["Nav_ViewAllProducts"]
                                 <Icon Name="chevron-left" Class="ic" />
                             </a>
                         </div>
                         <div class="mega-col mega-col-brands">
-                            <p class="mega-heading">برندها</p>
+                            <p class="mega-heading">@Localizer["Common_Brands"]</p>
                             <div class="mega-brand-grid">
                                 @foreach (var brand in _brands)
                                 {
@@ -61,11 +62,11 @@
                             </div>
                         </div>
                         <a class="mega-promo" href="/products?cat=لیمیتد" @onclick="CloseMenu">
-                            <img src="assets/images/products/product-6.jpg" alt="کالکشن لیمیتد اورتایم" loading="lazy" />
+                            <img src="assets/images/products/product-6.jpg" alt="@Localizer["Nav_LimitedCollectionAlt"]" loading="lazy" />
                             <span class="mega-promo-overlay">
-                                <span class="mega-promo-tag">لیمیتد ادیشن</span>
+                                <span class="mega-promo-tag">@Localizer["Common_CategoryLimited"]</span>
                                 <span class="mega-promo-text">
-                                    کالکشن اختصاصی اورتایم
+                                    @Localizer["Nav_ExclusiveCollection"]
                                     <Icon Name="chevron-left" Class="ic" />
                                 </span>
                             </span>
@@ -73,47 +74,49 @@
                     </div>
                 </div>
             </div>
-            <a href="/#categories" @onclick="CloseMenu">دسته‌بندی‌ها</a>
-            <a href="/#why" @onclick="CloseMenu">چرا اورتایم</a>
-            <a href="/#location" @onclick="CloseMenu">موقعیت فروشگاه</a>
+            <a href="/#categories" @onclick="CloseMenu">@Localizer["Common_Categories"]</a>
+            <a href="/about" @onclick="CloseMenu">@Localizer["Common_About"]</a>
             <div class="nav-mobile-actions">
-                <a class="btn btn-primary btn-sm" href="/products" @onclick="CloseMenu">مشاهده محصولات</a>
+                <a class="btn btn-primary btn-sm" href="/products" @onclick="CloseMenu">@Localizer["Nav_ViewProducts"]</a>
             </div>
         </nav>
         <div class="nav-cta">
-            <a class="btn btn-primary btn-sm" href="/products">مشاهده محصولات</a>
-            <button class="cart-btn theme-btn" type="button" data-current="@_theme" aria-label="تغییر حالت روشن/تیره" @onclick="ToggleTheme">
+            <button class="menu-btn" type="button" aria-expanded="@(_menuOpen ? "true" : "false")" aria-controls="navLinks" aria-label="@Localizer["Common_OpenMenu"]" @onclick="ToggleMenu">
+                <Icon Name="menu" Class="ic ic-menu" />
+                <Icon Name="x" Class="ic ic-close" />
+            </button>
+            <a class="btn btn-primary btn-sm" href="https://www.instagram.com/overtime_sneaker/" target="_blank" rel="noopener">
+                <Icon Name="instagram" Class="ic" />
+                @Localizer["Common_Instagram"]
+            </a>
+            <button class="cart-btn theme-btn" type="button" data-current="@_theme" aria-label="@Localizer["Nav_ToggleTheme"]" @onclick="ToggleTheme">
                 <Icon Name="sun" Class="ic ic-sun" />
                 <Icon Name="moon" Class="ic ic-moon" />
             </button>
-            <button class="cart-btn" type="button" aria-haspopup="dialog" aria-controls="cartDrawer" aria-label="سبد خرید" @onclick="ToggleCart">
+            <button class="cart-btn" type="button" aria-haspopup="dialog" aria-controls="cartDrawer" aria-label="@Localizer["Common_Cart"]" @onclick="ToggleCart">
                 <Icon Name="shopping-cart" Class="ic" />
                 <span class="cart-count" data-empty="@(_count == 0 ? "true" : "false")">@_count.ToFa()</span>
             </button>
             <AuthorizeView>
                 <Authorized>
                     <div class="user-menu">
-                        <a class="cart-btn" href="/account" aria-label="حساب کاربری" title="حساب کاربری">
+                        <a class="cart-btn" href="/account" aria-label="@Localizer["Common_Account"]" title="@Localizer["Common_Account"]">
                             <Icon Name="user" Class="ic" />
                         </a>
                         <form method="post" action="/account/logout">
                             <AntiforgeryToken />
-                            <button class="cart-btn" type="submit" aria-label="خروج از حساب کاربری" title="خروج">
+                            <button class="cart-btn" type="submit" aria-label="@Localizer["Nav_LogoutAria"]" title="@Localizer["Common_Logout"]">
                                 <Icon Name="log-out" Class="ic" />
                             </button>
                         </form>
                     </div>
                 </Authorized>
                 <NotAuthorized>
-                    <a class="cart-btn" href="/account/login" aria-label="ورود / ثبت‌نام" title="ورود / ثبت‌نام">
+                    <a class="cart-btn" href="/account/login" aria-label="@Localizer["Common_LoginRegister"]" title="@Localizer["Common_LoginRegister"]">
                         <Icon Name="user" Class="ic" />
                     </a>
                 </NotAuthorized>
             </AuthorizeView>
-            <button class="menu-btn" type="button" aria-expanded="@(_menuOpen ? "true" : "false")" aria-controls="navLinks" aria-label="باز کردن منو" @onclick="ToggleMenu">
-                <Icon Name="menu" Class="ic ic-menu" />
-                <Icon Name="x" Class="ic ic-close" />
-            </button>
         </div>
     </div>
 </header>
