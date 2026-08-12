@@ -7,6 +7,8 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
 {
     public DbSet<Brand> Brands => Set<Brand>();
     public DbSet<Product> Products => Set<Product>();
+    public DbSet<Category> Categories => Set<Category>();
+    public DbSet<Usage> Usages => Set<Usage>();
     public DbSet<ProductImage> ProductImages => Set<ProductImage>();
     public DbSet<ProductSpec> ProductSpecs => Set<ProductSpec>();
     public DbSet<ProductSize> ProductSizes => Set<ProductSize>();
@@ -28,12 +30,43 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
             e.HasData(SeedData.GetBrands());
         });
 
+        modelBuilder.Entity<Category>(e =>
+        {
+            e.HasData(SeedData.GetCategories());
+        });
+
+        modelBuilder.Entity<Usage>(e =>
+        {
+            e.HasData(SeedData.GetUsages());
+        });
+
         modelBuilder.Entity<Product>(e =>
         {
             e.HasOne(p => p.Brand).WithMany(b => b.Products).HasForeignKey(p => p.BrandId).OnDelete(DeleteBehavior.Restrict);
             e.HasMany(p => p.Images).WithOne().HasForeignKey(i => i.ProductId).OnDelete(DeleteBehavior.Cascade);
             e.HasMany(p => p.Specs).WithOne().HasForeignKey(s => s.ProductId).OnDelete(DeleteBehavior.Cascade);
             e.HasMany(p => p.Sizes).WithOne().HasForeignKey(s => s.ProductId).OnDelete(DeleteBehavior.Cascade);
+
+            e.HasMany(p => p.Categories).WithMany(c => c.Products)
+                .UsingEntity<ProductCategory>(
+                    j => j.HasOne<Category>().WithMany().HasForeignKey(pc => pc.CategoryId).OnDelete(DeleteBehavior.Cascade),
+                    j => j.HasOne<Product>().WithMany().HasForeignKey(pc => pc.ProductId).OnDelete(DeleteBehavior.Cascade),
+                    j =>
+                    {
+                        j.HasKey(pc => new { pc.ProductId, pc.CategoryId });
+                        j.HasData(SeedData.GetProductCategoryLinks());
+                    });
+
+            e.HasMany(p => p.Usages).WithMany(u => u.Products)
+                .UsingEntity<ProductUsage>(
+                    j => j.HasOne<Usage>().WithMany().HasForeignKey(pu => pu.UsageId).OnDelete(DeleteBehavior.Cascade),
+                    j => j.HasOne<Product>().WithMany().HasForeignKey(pu => pu.ProductId).OnDelete(DeleteBehavior.Cascade),
+                    j =>
+                    {
+                        j.HasKey(pu => new { pu.ProductId, pu.UsageId });
+                        j.HasData(SeedData.GetProductUsageLinks());
+                    });
+
             e.HasData(SeedData.GetProducts());
         });
 

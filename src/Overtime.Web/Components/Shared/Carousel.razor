@@ -1,15 +1,16 @@
 @inject ProductService ProductService
 @inject IJSRuntime JS
+@inject IStringLocalizer<AppStrings> Localizer
 @implements IAsyncDisposable
 
 <section id="carousel" class="carousel-section">
     <div class="wrap">
         <div class="sec-head">
             <div>
-                <p class="eyebrow">محصولات برجسته</p>
-                <h2>کالکشن برتر این فصل</h2>
+                <p class="eyebrow">@Localizer["Carousel_Eyebrow"]</p>
+                <h2>@Localizer["Carousel_Heading"]</h2>
             </div>
-            <p class="lede">بهترین انتخاب‌های ما برای شما؛ محصولات پرطرفدار و جدید اورتایم.</p>
+            <p class="lede">@Localizer["Carousel_Lede"]</p>
         </div>
         <div class="carousel-container">
             <div class="carousel-track" @ref="_trackRef">
@@ -20,12 +21,12 @@
                     </div>
                 }
             </div>
-            <button type="button" class="carousel-btn carousel-prev" @onclick="PrevSlide" aria-label="محصول قبلی">
+            <button type="button" class="carousel-btn carousel-prev" @onclick="PrevSlide" aria-label="@Localizer["Carousel_PrevAria"]">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <polyline points="15 18 9 12 15 6"></polyline>
                 </svg>
             </button>
-            <button type="button" class="carousel-btn carousel-next" @onclick="NextSlide" aria-label="محصول بعدی">
+            <button type="button" class="carousel-btn carousel-next" @onclick="NextSlide" aria-label="@Localizer["Carousel_NextAria"]">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <polyline points="9 18 15 12 9 6"></polyline>
                 </svg>
@@ -37,7 +38,7 @@
                 var index = i;
                 <button type="button" class="dot @(_currentIndex == index ? "active" : "")"
                         @onclick="() => GoToSlide(index)"
-                        aria-label="رفتن به محصول @(index + 1)">
+                        aria-label="@Localizer["Carousel_GoToProductAria", index + 1]">
                 </button>
             }
         </div>

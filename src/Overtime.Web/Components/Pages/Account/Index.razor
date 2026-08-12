@@ -4,14 +4,15 @@
 @using Microsoft.AspNetCore.Authorization
 @inject AddressService AddressService
 @inject NavigationManager NavigationManager
+@inject IStringLocalizer<AppStrings> Localizer
 
-<PageTitle>Overtime | حساب کاربری</PageTitle>
+<PageTitle>@Localizer["Account_PageTitle"]</PageTitle>
 
 <div class="wrap">
-    <nav class="breadcrumb" aria-label="مسیر صفحه">
-        <a href="/">خانه</a>
+    <nav class="breadcrumb" aria-label="@Localizer["Products_BreadcrumbAria"]">
+        <a href="/">@Localizer["Common_Home"]</a>
         <span>/</span>
-        <span class="cur">حساب کاربری</span>
+        <span class="cur">@Localizer["Common_Account"]</span>
     </nav>
 </div>
 
@@ -20,14 +21,14 @@
         <AccountTabs />
 
         <div class="account-header">
-            <h1>آدرس‌های ارسال</h1>
-            <button class="btn btn-primary" @onclick="GoToAddAddress">افزودن آدرس جدید</button>
+            <h1>@Localizer["Account_AddressesHeading"]</h1>
+            <button class="btn btn-primary" @onclick="GoToAddAddress">@Localizer["Cart_AddNewAddress"]</button>
         </div>
 
         @if (_addresses.Count == 0)
         {
             <div class="account-empty">
-                <p>آدرسی برای ارسال ثبت نشده است.</p>
+                <p>@Localizer["Account_NoAddressesMessage"]</p>
             </div>
         }
         else
@@ -38,7 +39,7 @@
                     <div class="address-card @(address.IsDefault ? "default" : "")">
                         @if (address.IsDefault)
                         {
-                            <span class="badge">آدرس پیش‌فرض</span>
+                            <span class="badge">@Localizer["Account_DefaultAddressBadge"]</span>
                         }
                         <div class="address-content">
                             <h3>@address.RecipientName</h3>
@@ -48,24 +49,24 @@
                                 <p>@address.Address2</p>
                             }
                             <p>@address.District، @address.City، @address.Province</p>
-                            <p class="postal">کد پستی: @address.PostalCode</p>
-                            <p class="phone">تلفن: @address.PhoneNumber</p>
+                            <p class="postal">@Localizer["Account_PostalCodeLabel"] @address.PostalCode</p>
+                            <p class="phone">@Localizer["Account_PhoneLabel"] @address.PhoneNumber</p>
                         </div>
                         @if (_pendingDeleteId == address.Id)
                         {
                             <div class="address-confirm">
-                                <span>این آدرس حذف شود؟</span>
+                                <span>@Localizer["Account_ConfirmDeleteQuestion"]</span>
                                 <div class="address-actions">
-                                    <button class="btn btn-primary btn-sm" @onclick="() => ConfirmDeleteAddress(address.Id)">بله، حذف کن</button>
-                                    <button class="btn btn-ghost btn-sm" @onclick="CancelDelete">انصراف</button>
+                                    <button class="btn btn-primary btn-sm" @onclick="() => ConfirmDeleteAddress(address.Id)">@Localizer["Account_ConfirmDeleteYes"]</button>
+                                    <button class="btn btn-ghost btn-sm" @onclick="CancelDelete">@Localizer["Common_Cancel"]</button>
                                 </div>
                             </div>
                         }
                         else
                         {
                             <div class="address-actions">
-                                <button class="btn btn-ghost btn-sm" @onclick="() => GoToEditAddress(address.Id)">ویرایش</button>
-                                <button class="btn btn-ghost btn-sm" @onclick="() => RequestDelete(address.Id)">حذف</button>
+                                <button class="btn btn-ghost btn-sm" @onclick="() => GoToEditAddress(address.Id)">@Localizer["Account_EditBtn"]</button>
+                                <button class="btn btn-ghost btn-sm" @onclick="() => RequestDelete(address.Id)">@Localizer["Cart_RemoveBtn"]</button>
                             </div>
                         }
                     </div>

@@ -7,30 +7,31 @@
 @inject OtpService OtpService
 @inject NavigationManager NavigationManager
 @inject IWebHostEnvironment Env
+@inject IStringLocalizer<AppStrings> Localizer
 
-<PageTitle>Overtime | ورود به حساب کاربری</PageTitle>
+<PageTitle>@Localizer["Login_PageTitle"]</PageTitle>
 
 <div class="wrap">
-    <nav class="breadcrumb" aria-label="مسیر صفحه">
-        <a href="/">خانه</a>
+    <nav class="breadcrumb" aria-label="@Localizer["Products_BreadcrumbAria"]">
+        <a href="/">@Localizer["Common_Home"]</a>
         <span>/</span>
-        <span class="cur">ورود / ثبت‌نام</span>
+        <span class="cur">@Localizer["Common_LoginRegister"]</span>
     </nav>
 </div>
 
 <section class="auth-section">
     <div class="wrap">
         <div class="auth-card">
-            <p class="eyebrow">حساب کاربری</p>
-            <h1>@(IsVerifyStep ? "کد تایید را وارد کنید" : "ورود یا ثبت‌نام")</h1>
+            <p class="eyebrow">@Localizer["Common_Account"]</p>
+            <h1>@(IsVerifyStep ? Localizer["Login_VerifyHeading"] : Localizer["Login_LoginHeading"])</h1>
             <p class="lede auth-lede">
                 @if (IsVerifyStep)
                 {
-                    <text>کد ۶ رقمی ارسال‌شده به شماره <b dir="ltr">@Phone</b> را وارد کنید.</text>
+                    <text>@Localizer["Login_VerifyLedePrefix"] <b dir="ltr">@Phone</b> @Localizer["Login_VerifyLedeSuffix"]</text>
                 }
                 else
                 {
-                    <text>شماره موبایل خود را وارد کنید تا کد تایید برایتان ارسال شود. اگر حساب کاربری نداشته باشید، به‌صورت خودکار ساخته می‌شود.</text>
+                    <text>@Localizer["Login_LoginLede"]</text>
                 }
             </p>
 
@@ -41,7 +42,7 @@
             @if (Env.IsDevelopment() && !string.IsNullOrEmpty(Dev))
             {
                 <div class="auth-dev-hint">
-                    حالت توسعه: سامانه پیامک متصل نیست، کد تایید همینجا نمایش داده می‌شود → <b dir="ltr">@Dev</b>
+                    @Localizer["Login_DevHintPrefix"] <b dir="ltr">@Dev</b>
                 </div>
             }
 
@@ -50,11 +51,11 @@
                 <EditForm Model="PhoneModel" FormName="request-otp" OnValidSubmit="RequestCode" class="auth-form">
                     <DataAnnotationsValidator />
                     <label class="auth-field">
-                        <span>شماره موبایل</span>
-                        <InputText @bind-Value="PhoneModel.Phone" type="tel" inputmode="numeric" dir="ltr" placeholder="۰۹xxxxxxxxx" autofocus />
+                        <span>@Localizer["Login_PhoneFieldLabel"]</span>
+                        <InputText @bind-Value="PhoneModel.Phone" type="tel" inputmode="numeric" dir="ltr" placeholder="@Localizer["AddressForm_PhonePlaceholder"]" autofocus />
                         <ValidationMessage For="() => PhoneModel.Phone" />
                     </label>
-                    <button type="submit" class="btn btn-primary auth-submit">دریافت کد تایید</button>
+                    <button type="submit" class="btn btn-primary auth-submit">@Localizer["Login_RequestCodeBtn"]</button>
                 </EditForm>
             }
             else
@@ -62,17 +63,17 @@
                 <EditForm Model="OtpModel" FormName="verify-otp" OnValidSubmit="VerifyCode" class="auth-form">
                     <DataAnnotationsValidator />
                     <label class="auth-field">
-                        <span>کد تایید</span>
+                        <span>@Localizer["Login_CodeFieldLabel"]</span>
                         <InputText @bind-Value="OtpModel.Code" inputmode="numeric" dir="ltr" maxlength="6" placeholder="------" autofocus />
                         <ValidationMessage For="() => OtpModel.Code" />
                     </label>
-                    <button type="submit" class="btn btn-primary auth-submit">تایید و ورود</button>
+                    <button type="submit" class="btn btn-primary auth-submit">@Localizer["Login_VerifyBtn"]</button>
                 </EditForm>
 
                 <EditForm Model="ResendModel" FormName="resend-otp" OnValidSubmit="ResendCode" class="auth-resend-form">
-                    <button type="submit" class="btn btn-ghost btn-sm">ارسال مجدد کد</button>
+                    <button type="submit" class="btn btn-ghost btn-sm">@Localizer["Login_ResendBtn"]</button>
                 </EditForm>
-                <a class="auth-change-phone" href="/account/login">تغییر شماره موبایل</a>
+                <a class="auth-change-phone" href="/account/login">@Localizer["Login_ChangePhoneLink"]</a>
             }
         </div>
     </div>
@@ -118,7 +119,7 @@
         var phone = OtpService.NormalizePhone(PhoneModel.Phone);
         if (!OtpService.IsValidPhone(phone))
         {
-            _error = "شماره موبایل معتبر نیست. مثال: ۰۹۱۲۳۴۵۶۷۸۹";
+            _error = Localizer["Login_InvalidPhoneError"].Value;
             return;
         }
 
@@ -177,14 +178,14 @@
 
     public class PhoneInputModel
     {
-        [Required(ErrorMessage = "شماره موبایل را وارد کنید")]
+        [Required(ErrorMessageResourceType = typeof(AppStrings), ErrorMessageResourceName = nameof(AppStrings.Validation_LoginPhoneRequired))]
         public string Phone { get; set; } = "";
     }
 
     public class OtpInputModel
     {
-        [Required(ErrorMessage = "کد تایید را وارد کنید")]
-        [StringLength(6, MinimumLength = 6, ErrorMessage = "کد تایید باید ۶ رقم باشد")]
+        [Required(ErrorMessageResourceType = typeof(AppStrings), ErrorMessageResourceName = nameof(AppStrings.Validation_OtpCodeRequired))]
+        [StringLength(6, MinimumLength = 6, ErrorMessageResourceType = typeof(AppStrings), ErrorMessageResourceName = nameof(AppStrings.Validation_OtpCodeLength))]
         public string Code { get; set; } = "";
     }
 

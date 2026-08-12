@@ -1,8 +1,9 @@
 @inject CartService CartService
 @inject ToastService ToastService
+@inject IStringLocalizer<AppStrings> Localizer
 
 <article class="card">
-    <a class="card-link" href="@($"/product/{Product.Id}")" aria-label="مشاهده جزئیات @Product.Name">
+    <a class="card-link" href="@($"/product/{Product.Id}")" aria-label="@Localizer["ProductCard_ViewDetailsAria", Product.Name]">
         <div class="plate" style="background: color-mix(in srgb, var(@SwatchVar) 14%, var(--surface-2));">
             @if (!string.IsNullOrEmpty(Product.Badge))
             {
@@ -15,8 +16,8 @@
         <span class="cat-line">@CategoryLine</span>
         <h3><a href="@($"/product/{Product.Id}")">@Product.Name</a></h3>
         <div class="row">
-            <span class="price">@Product.Price.ToFa()<small>تومان</small></span>
-            <button class="add" type="button" disabled="@_added" @onclick="Add">@(_added ? "افزوده شد ✓" : "افزودن به سبد")</button>
+            <span class="price">@Product.Price.ToFa()<small>@Localizer["Common_Toman"]</small></span>
+            <button class="add" type="button" disabled="@_added" @onclick="Add">@(_added ? Localizer["ProductCard_Added"] : Localizer["ProductCard_AddToCart"])</button>
         </div>
     </div>
 </article>
@@ -44,11 +45,11 @@
         var added = await CartService.QuickAddAsync(Product.Id);
         if (!added)
         {
-            ToastService.ShowMessage("این محصول در حال حاضر ناموجود است");
+            ToastService.ShowMessage(Localizer["ProductCard_OutOfStock"].Value);
             return;
         }
 
-        ToastService.ShowMessage($"{Product.Name} به سبد اضافه شد");
+        ToastService.ShowMessage(Localizer["ProductCard_AddedToCart", Product.Name].Value);
         _added = true;
         StateHasChanged();
         await Task.Delay(1100);

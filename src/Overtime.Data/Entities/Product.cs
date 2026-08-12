@@ -9,8 +9,6 @@ public class Product
     public string Name { get; set; } = "";
     public int BrandId { get; set; }
     public Brand? Brand { get; set; }
-    public string Category { get; set; } = "";
-    public string Usage { get; set; } = "";
     public long Price { get; set; }
     public string Swatch { get; set; } = "accent";
     public string? Badge { get; set; }
@@ -22,4 +20,6 @@ public class Product
     public List<ProductImage> Images { get; set; } = [];
     public List<ProductSpec> Specs { get; set; } = [];
     public List<ProductSize> Sizes { get; set; } = [];
+    public List<Category> Categories { get; set; } = [];
+    public List<Usage> Usages { get; set; } = [];
 }

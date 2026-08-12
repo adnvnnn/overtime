@@ -84,8 +84,6 @@ public static class SeedData
             Id = p.Id,
             Name = p.Name,
             BrandId = 1,
-            Category = p.Category,
-            Usage = p.Usage,
             Price = p.Price,
             Swatch = p.Swatch,
             Badge = p.Badge,
@@ -94,6 +92,24 @@ public static class SeedData
             Description = p.Description,
             DisplayOrder = i,
         }).ToArray();
+
+    // Category/Usage names distinct across the product list above, in first-seen order —
+    // Ids are assigned sequentially (1-based) from that order, and reused below to link
+    // each product to its category/usage row without repeating the taxonomy inline.
+    private static readonly string[] CategoryNames = [.. Products.Select(p => p.Category).Distinct()];
+    private static readonly string[] UsageNames = [.. Products.Select(p => p.Usage).Distinct()];
+
+    public static Category[] GetCategories() =>
+        CategoryNames.Select((name, i) => new Category { Id = i + 1, Name = name, DisplayOrder = i }).ToArray();
+
+    public static Usage[] GetUsages() =>
+        UsageNames.Select((name, i) => new Usage { Id = i + 1, Name = name, DisplayOrder = i }).ToArray();
+
+    public static ProductCategory[] GetProductCategoryLinks() =>
+        Products.Select(p => new ProductCategory { ProductId = p.Id, CategoryId = Array.IndexOf(CategoryNames, p.Category) + 1 }).ToArray();
+
+    public static ProductUsage[] GetProductUsageLinks() =>
+        Products.Select(p => new ProductUsage { ProductId = p.Id, UsageId = Array.IndexOf(UsageNames, p.Usage) + 1 }).ToArray();
 
     public static ProductImage[] GetImages()
     {

@@ -1,12 +1,14 @@
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Localization;
 using Overtime.Data;
 using Overtime.Data.Entities;
+using Overtime.Web.Resources;
 
 namespace Overtime.Web.Services;
 
 public record ReviewLine(int Id, int UserId, string ReviewerName, int Rating, string? Comment, DateTime CreatedAt);
 
-public class ReviewService(IDbContextFactory<AppDbContext> dbFactory)
+public class ReviewService(IDbContextFactory<AppDbContext> dbFactory, IStringLocalizer<AppStrings> localizer)
 {
     public async Task<List<ReviewLine>> GetProductReviewsAsync(string productId)
     {
@@ -62,18 +64,18 @@ public class ReviewService(IDbContextFactory<AppDbContext> dbFactory)
         await db.SaveChangesAsync();
     }
 
-    private static ReviewLine ToLine(Review review) =>
+    private ReviewLine ToLine(Review review) =>
         new(review.Id, review.UserId, DisplayName(review.User), review.Rating, review.Comment, review.CreatedAt);
 
-    private static string DisplayName(User? user)
+    private string DisplayName(User? user)
     {
         if (user is null)
-            return "کاربر";
+            return localizer["Service_AnonymousUser"];
         if (!string.IsNullOrWhiteSpace(user.FullName))
             return user.FullName;
 
         var phone = user.PhoneNumber;
         var suffix = phone.Length >= 4 ? phone[^4..] : phone;
-        return $"کاربر …{suffix}";
+        return localizer["Service_UserWithPhoneSuffix", suffix];
     }
 }

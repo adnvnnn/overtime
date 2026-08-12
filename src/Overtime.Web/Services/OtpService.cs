@@ -1,11 +1,13 @@
 using System.Text.RegularExpressions;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Localization;
 using Overtime.Data;
 using Overtime.Data.Entities;
+using Overtime.Web.Resources;
 
 namespace Overtime.Web.Services;
 
-public partial class OtpService(IDbContextFactory<AppDbContext> dbFactory, ILogger<OtpService> logger)
+public partial class OtpService(IDbContextFactory<AppDbContext> dbFactory, ILogger<OtpService> logger, IStringLocalizer<AppStrings> localizer)
 {
     private static readonly TimeSpan CodeLifetime = TimeSpan.FromMinutes(2);
     private static readonly TimeSpan ResendCooldown = TimeSpan.FromSeconds(60);
@@ -34,7 +36,7 @@ public partial class OtpService(IDbContextFactory<AppDbContext> dbFactory, ILogg
             .FirstOrDefaultAsync();
 
         if (recent is not null && DateTime.UtcNow - recent.CreatedAt < ResendCooldown)
-            return (false, "لطفاً کمی صبر کنید و دوباره تلاش کنید.", null);
+            return (false, localizer["Otp_TooSoon"], null);
 
         var code = Random.Shared.Next(100_000, 999_999).ToString();
         db.OtpCodes.Add(new OtpCode
@@ -62,19 +64,19 @@ public partial class OtpService(IDbContextFactory<AppDbContext> dbFactory, ILogg
             .FirstOrDefaultAsync();
 
         if (otp is null)
-            return (false, "ابتدا کد تایید را درخواست کنید.", null);
+            return (false, localizer["Otp_NotRequested"], null);
 
         if (otp.ExpiresAt < DateTime.UtcNow)
-            return (false, "کد تایید منقضی شده است. دوباره درخواست کنید.", null);
+            return (false, localizer["Otp_Expired"], null);
 
         if (otp.Attempts >= MaxAttempts)
-            return (false, "تعداد تلاش‌های مجاز به پایان رسید. کد جدید درخواست کنید.", null);
+            return (false, localizer["Otp_MaxAttemptsReached"], null);
 
         if (otp.Code != code)
         {
             otp.Attempts++;
             await db.SaveChangesAsync();
-            return (false, "کد وارد شده صحیح نیست.", null);
+            return (false, localizer["Otp_IncorrectCode"], null);
         }
 
         otp.ConsumedAt = DateTime.UtcNow;
