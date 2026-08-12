@@ -2,6 +2,7 @@
 @using System.Globalization
 @inject ProductService ProductService
 @inject BrandService BrandService
+@inject CategoryService CategoryService
 @inject IStringLocalizer<AppStrings> Localizer
 
 <PageTitle>@Localizer["Products_PageTitle"]</PageTitle>
@@ -125,15 +126,8 @@
 
     protected override async Task OnInitializedAsync()
     {
-        _tabs =
-        [
-            ("all", Localizer["Products_TabAll"].Value),
-            ("مردانه", Localizer["Common_CategoryMen"].Value),
-            ("زنانه", Localizer["Common_CategoryWomen"].Value),
-            ("بچگانه", Localizer["Common_CategoryKids"].Value),
-            ("یونیسکس", Localizer["Common_CategoryUnisex"].Value),
-            ("لیمیتد", Localizer["Common_CategoryLimited"].Value),
-        ];
+        var categories = await CategoryService.GetAllAsync();
+        _tabs = [("all", Localizer["Products_TabAll"].Value), .. categories.Select(c => (c.Name, c.Name))];
 
         _totalCount = await ProductService.CountAllAsync();
         _priceBounds = await ProductService.GetPriceBoundsAsync();

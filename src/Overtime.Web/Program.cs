@@ -21,6 +21,8 @@ builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<CartContext>();
 builder.Services.AddScoped<ProductService>();
 builder.Services.AddScoped<BrandService>();
+builder.Services.AddScoped<CategoryService>();
+builder.Services.AddScoped<UsageService>();
 builder.Services.AddScoped<CartService>();
 builder.Services.AddScoped<OrderService>();
 builder.Services.AddScoped<AddressService>();

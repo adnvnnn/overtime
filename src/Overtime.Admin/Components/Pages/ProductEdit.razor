@@ -3,6 +3,8 @@
 @rendermode InteractiveServer
 @inject AdminProductService ProductService
 @inject AdminBrandService BrandService
+@inject AdminCategoryService CategoryService
+@inject AdminUsageService UsageService
 @inject NavigationManager NavigationManager
 
 <PageTitle>@(IsNew ? "افزودن محصول" : "ویرایش محصول") | مدیریت اورتایم</PageTitle>
@@ -45,15 +47,29 @@
                         }
                     </InputSelect>
                 </label>
-                <label class="auth-field">
+                <label class="auth-field span-2">
                     <span>دسته‌بندی</span>
-                    <InputText @bind-Value="_model.Category" placeholder="مثال: مردانه" />
-                    <ValidationMessage For="() => _model.Category" />
+                    <div class="checkbox-group">
+                        @foreach (var category in _categories)
+                        {
+                            <label class="checkbox-chip">
+                                <input type="checkbox" checked="@_selectedCategoryIds.Contains(category.Id)" @onchange="e => ToggleCategory(category.Id, e)" />
+                                <span>@category.Name</span>
+                            </label>
+                        }
+                    </div>
                 </label>
-                <label class="auth-field">
+                <label class="auth-field span-2">
                     <span>کاربرد</span>
-                    <InputText @bind-Value="_model.Usage" placeholder="مثال: رانینگ" />
-                    <ValidationMessage For="() => _model.Usage" />
+                    <div class="checkbox-group">
+                        @foreach (var usage in _usages)
+                        {
+                            <label class="checkbox-chip">
+                                <input type="checkbox" checked="@_selectedUsageIds.Contains(usage.Id)" @onchange="e => ToggleUsage(usage.Id, e)" />
+                                <span>@usage.Name</span>
+                            </label>
+                        }
+                    </div>
                 </label>
                 <label class="auth-field">
                     <span>قیمت (تومان)</span>
@@ -125,6 +141,10 @@
     private string? _error;
     private Product _model = new();
     private List<Brand> _brands = [];
+    private List<Category> _categories = [];
+    private List<Usage> _usages = [];
+    private HashSet<int> _selectedCategoryIds = [];
+    private HashSet<int> _selectedUsageIds = [];
     private List<SizeRow> _sizeRows = [];
     private int _nextRowKey;
 
@@ -138,6 +158,8 @@
     protected override async Task OnInitializedAsync()
     {
         _brands = await BrandService.GetAllAsync();
+        _categories = await CategoryService.GetAllAsync();
+        _usages = await UsageService.GetAllAsync();
 
         if (!IsNew)
         {
@@ -149,6 +171,8 @@
                 return;
             }
             _model = existing;
+            _selectedCategoryIds = existing.Categories.Select(c => c.Id).ToHashSet();
+            _selectedUsageIds = existing.Usages.Select(u => u.Id).ToHashSet();
         }
 
         _sizeRows = _model.Sizes

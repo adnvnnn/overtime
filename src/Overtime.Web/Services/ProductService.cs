@@ -10,10 +10,14 @@ public class ProductService(IDbContextFactory<AppDbContext> dbFactory)
         long? minPrice = null, long? maxPrice = null, bool inStockOnly = false, string? brandSlug = null)
     {
         await using var db = await dbFactory.CreateDbContextAsync();
-        IQueryable<Product> q = db.Products.Include(p => p.Images.OrderBy(i => i.SortOrder)).Include(p => p.Brand);
+        IQueryable<Product> q = db.Products
+            .Include(p => p.Images.OrderBy(i => i.SortOrder))
+            .Include(p => p.Brand)
+            .Include(p => p.Categories)
+            .Include(p => p.Usages);
 
         if (category != "all")
-            q = q.Where(p => p.Category.Contains(category));
+            q = q.Where(p => p.Categories.Any(c => c.Name == category));
 
         if (!string.IsNullOrWhiteSpace(brandSlug))
             q = q.Where(p => p.Brand!.Slug == brandSlug);
@@ -21,7 +25,7 @@ public class ProductService(IDbContextFactory<AppDbContext> dbFactory)
         if (!string.IsNullOrWhiteSpace(query))
         {
             var pattern = $"%{query.Trim()}%";
-            q = q.Where(p => EF.Functions.Like(p.Name, pattern) || EF.Functions.Like(p.Category, pattern) || EF.Functions.Like(p.Brand!.Name, pattern));
+            q = q.Where(p => EF.Functions.Like(p.Name, pattern) || p.Categories.Any(c => EF.Functions.Like(c.Name, pattern)) || EF.Functions.Like(p.Brand!.Name, pattern));
         }
 
         if (minPrice is not null)
@@ -67,6 +71,8 @@ public class ProductService(IDbContextFactory<AppDbContext> dbFactory)
             .Include(p => p.Specs.OrderBy(s => s.SortOrder))
             .Include(p => p.Sizes.OrderBy(s => s.Size))
             .Include(p => p.Brand)
+            .Include(p => p.Categories)
+            .Include(p => p.Usages)
             .FirstOrDefaultAsync(p => p.Id == id);
     }
 
@@ -76,6 +82,8 @@ public class ProductService(IDbContextFactory<AppDbContext> dbFactory)
         return await db.Products
             .Include(p => p.Images.OrderBy(i => i.SortOrder))
             .Include(p => p.Brand)
+            .Include(p => p.Categories)
+            .Include(p => p.Usages)
             .OrderBy(p => p.DisplayOrder)
             .Take(count)
             .ToListAsync();
@@ -87,6 +95,8 @@ public class ProductService(IDbContextFactory<AppDbContext> dbFactory)
         return await db.Products
             .Include(p => p.Images.OrderBy(i => i.SortOrder))
             .Include(p => p.Brand)
+            .Include(p => p.Categories)
+            .Include(p => p.Usages)
             .Where(p => p.Id != excludeId)
             .OrderBy(p => p.DisplayOrder)
             .Take(count)

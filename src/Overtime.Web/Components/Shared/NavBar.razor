@@ -2,6 +2,7 @@
 @inject CartService CartService
 @inject BrandService BrandService
 @inject IJSRuntime JS
+@inject CategoryService CategoryService
 @inject IStringLocalizer<AppStrings> Localizer
 
 <header>
@@ -30,11 +31,10 @@
                     <div class="mega-menu-inner">
                         <div class="mega-col mega-col-links">
                             <p class="mega-heading">@Localizer["Common_Categories"]</p>
-                            <a href="/products?cat=مردانه" @onclick="CloseMenu">@Localizer["Common_CategoryMen"]</a>
-                            <a href="/products?cat=زنانه" @onclick="CloseMenu">@Localizer["Common_CategoryWomen"]</a>
-                            <a href="/products?cat=بچگانه" @onclick="CloseMenu">@Localizer["Common_CategoryKids"]</a>
-                            <a href="/products?cat=یونیسکس" @onclick="CloseMenu">@Localizer["Common_CategoryUnisex"]</a>
-                            <a href="/products?cat=لیمیتد" @onclick="CloseMenu">@Localizer["Common_CategoryLimited"]</a>
+                            @foreach (var category in _categories)
+                            {
+                                <a href="@($"/products?cat={category.Name}")" @onclick="CloseMenu">@category.Name</a>
+                            }
                             <a class="mega-view-all" href="/products" @onclick="CloseMenu">
                                 @Localizer["Nav_ViewAllProducts"]
                                 <Icon Name="chevron-left" Class="ic" />
@@ -61,7 +61,7 @@
                                 }
                             </div>
                         </div>
-                        <a class="mega-promo" href="/products?cat=لیمیتد" @onclick="CloseMenu">
+                        <a class="mega-promo" href="/products?cat=لیمیتد ادیشن" @onclick="CloseMenu">
                             <img src="assets/images/products/product-6.jpg" alt="@Localizer["Nav_LimitedCollectionAlt"]" loading="lazy" />
                             <span class="mega-promo-overlay">
                                 <span class="mega-promo-tag">@Localizer["Common_CategoryLimited"]</span>
@@ -74,7 +74,6 @@
                     </div>
                 </div>
             </div>
-            <a href="/#categories" @onclick="CloseMenu">@Localizer["Common_Categories"]</a>
             <a href="/about" @onclick="CloseMenu">@Localizer["Common_About"]</a>
             <div class="nav-mobile-actions">
                 <a class="btn btn-primary btn-sm" href="/products" @onclick="CloseMenu">@Localizer["Nav_ViewProducts"]</a>
@@ -127,12 +126,14 @@
     private int _count;
     private string _theme = "light";
     private List<Brand> _brands = [];
+    private List<Category> _categories = [];
 
     protected override async Task OnInitializedAsync()
     {
         CartService.Changed += OnCartChanged;
         _count = await CartService.GetCountAsync();
         _brands = await BrandService.GetAllAsync();
+        _categories = await CategoryService.GetAllAsync();
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
