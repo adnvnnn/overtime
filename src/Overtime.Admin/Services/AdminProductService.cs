@@ -10,12 +10,12 @@ public partial class AdminProductService(IDbContextFactory<AppDbContext> dbFacto
     public async Task<List<Product>> GetAllAsync(string? query = null)
     {
         await using var db = await dbFactory.CreateDbContextAsync();
-        IQueryable<Product> q = db.Products.Include(p => p.Sizes);
+        IQueryable<Product> q = db.Products.Include(p => p.Sizes).Include(p => p.Brand);
 
         if (!string.IsNullOrWhiteSpace(query))
         {
             var pattern = $"%{query.Trim()}%";
-            q = q.Where(p => EF.Functions.Like(p.Name, pattern) || EF.Functions.Like(p.Brand, pattern) || EF.Functions.Like(p.Category, pattern));
+            q = q.Where(p => EF.Functions.Like(p.Name, pattern) || EF.Functions.Like(p.Brand!.Name, pattern) || EF.Functions.Like(p.Category, pattern));
         }
 
         return await q.OrderBy(p => p.DisplayOrder).ToListAsync();
@@ -28,6 +28,7 @@ public partial class AdminProductService(IDbContextFactory<AppDbContext> dbFacto
             .Include(p => p.Images.OrderBy(i => i.SortOrder))
             .Include(p => p.Specs.OrderBy(s => s.SortOrder))
             .Include(p => p.Sizes.OrderBy(s => s.Size))
+            .Include(p => p.Brand)
             .FirstOrDefaultAsync(p => p.Id == id);
     }
 
@@ -58,7 +59,7 @@ public partial class AdminProductService(IDbContextFactory<AppDbContext> dbFacto
             return;
 
         existing.Name = product.Name;
-        existing.Brand = product.Brand;
+        existing.BrandId = product.BrandId;
         existing.Category = product.Category;
         existing.Usage = product.Usage;
         existing.Price = product.Price;

@@ -27,6 +27,10 @@
                 <Icon Name="package" Class="ic" />
                 <span>محصولات</span>
             </NavLink>
+            <NavLink href="/brands" @onclick="CloseNav">
+                <Icon Name="tag" Class="ic" />
+                <span>برندها</span>
+            </NavLink>
             <NavLink href="/orders" @onclick="CloseNav">
                 <Icon Name="receipt" Class="ic" />
                 <span>سفارش‌ها</span>
@@ -103,6 +107,7 @@
         {
             "" => "داشبورد",
             "products" => "محصولات",
+            "brands" => "برندها",
             "orders" => "سفارش‌ها",
             "customers" => "مشتریان",
             "admins" => "مدیریت ادمین‌ها",

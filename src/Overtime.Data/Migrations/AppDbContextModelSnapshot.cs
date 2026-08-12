@@ -109,6 +109,245 @@ namespace Overtime.Data.Migrations
                     b.ToTable("AdminUsers");
                 });
 
+            modelBuilder.Entity("Overtime.Data.Entities.Brand", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("DisplayOrder")
+                        .HasColumnType("int");
+
+                    b.Property<string>("LogoUrl")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Slug")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Slug")
+                        .IsUnique();
+
+                    b.ToTable("Brands");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            DisplayOrder = 0,
+                            Name = "اورتایم",
+                            Slug = "overtime"
+                        },
+                        new
+                        {
+                            Id = 2,
+                            DisplayOrder = 1,
+                            LogoUrl = "assets/images/brands/nike-logo.svg",
+                            Name = "Nike",
+                            Slug = "nike"
+                        },
+                        new
+                        {
+                            Id = 3,
+                            DisplayOrder = 2,
+                            LogoUrl = "assets/images/brands/adidas-logo.svg",
+                            Name = "Adidas",
+                            Slug = "adidas"
+                        },
+                        new
+                        {
+                            Id = 4,
+                            DisplayOrder = 3,
+                            LogoUrl = "assets/images/brands/airjordan-logo.svg",
+                            Name = "Air Jordan",
+                            Slug = "airjordan"
+                        },
+                        new
+                        {
+                            Id = 5,
+                            DisplayOrder = 4,
+                            LogoUrl = "assets/images/brands/new-balance-logo.svg",
+                            Name = "New Balance",
+                            Slug = "new-balance"
+                        },
+                        new
+                        {
+                            Id = 6,
+                            DisplayOrder = 5,
+                            LogoUrl = "assets/images/brands/puma-logo.svg",
+                            Name = "Puma",
+                            Slug = "puma"
+                        },
+                        new
+                        {
+                            Id = 7,
+                            DisplayOrder = 6,
+                            LogoUrl = "assets/images/brands/asics-logo.svg",
+                            Name = "Asics",
+                            Slug = "asics"
+                        },
+                        new
+                        {
+                            Id = 8,
+                            DisplayOrder = 7,
+                            LogoUrl = "assets/images/brands/reebok-logo.svg",
+                            Name = "Reebok",
+                            Slug = "reebok"
+                        },
+                        new
+                        {
+                            Id = 9,
+                            DisplayOrder = 8,
+                            LogoUrl = "assets/images/brands/converse-logo.svg",
+                            Name = "Converse",
+                            Slug = "converse"
+                        },
+                        new
+                        {
+                            Id = 10,
+                            DisplayOrder = 9,
+                            LogoUrl = "assets/images/brands/hoka-logo.svg",
+                            Name = "Hoka",
+                            Slug = "hoka"
+                        },
+                        new
+                        {
+                            Id = 11,
+                            DisplayOrder = 10,
+                            LogoUrl = "assets/images/brands/salomon-logo.svg",
+                            Name = "Salomon",
+                            Slug = "salomon"
+                        },
+                        new
+                        {
+                            Id = 12,
+                            DisplayOrder = 11,
+                            LogoUrl = "assets/images/brands/saucony-logo.svg",
+                            Name = "Saucony",
+                            Slug = "saucony"
+                        },
+                        new
+                        {
+                            Id = 13,
+                            DisplayOrder = 12,
+                            LogoUrl = "assets/images/brands/skechers-logo.svg",
+                            Name = "Skechers",
+                            Slug = "skechers"
+                        },
+                        new
+                        {
+                            Id = 14,
+                            DisplayOrder = 13,
+                            LogoUrl = "assets/images/brands/brooks-logo.svg",
+                            Name = "Brooks",
+                            Slug = "brooks"
+                        },
+                        new
+                        {
+                            Id = 15,
+                            DisplayOrder = 14,
+                            LogoUrl = "assets/images/brands/mizuno-logo.svg",
+                            Name = "Mizuno",
+                            Slug = "mizuno"
+                        },
+                        new
+                        {
+                            Id = 16,
+                            DisplayOrder = 15,
+                            LogoUrl = "assets/images/brands/under-armour-logo.svg",
+                            Name = "Under Armour",
+                            Slug = "under-armour"
+                        },
+                        new
+                        {
+                            Id = 17,
+                            DisplayOrder = 16,
+                            LogoUrl = "assets/images/brands/fila-logo.svg",
+                            Name = "Fila",
+                            Slug = "fila"
+                        },
+                        new
+                        {
+                            Id = 18,
+                            DisplayOrder = 17,
+                            LogoUrl = "assets/images/brands/timberland-logo.svg",
+                            Name = "Timberland",
+                            Slug = "timberland"
+                        },
+                        new
+                        {
+                            Id = 19,
+                            DisplayOrder = 18,
+                            LogoUrl = "assets/images/brands/columbia-logo.svg",
+                            Name = "Columbia",
+                            Slug = "columbia"
+                        },
+                        new
+                        {
+                            Id = 20,
+                            DisplayOrder = 19,
+                            LogoUrl = "assets/images/brands/lacoste-logo.svg",
+                            Name = "Lacoste",
+                            Slug = "lacoste"
+                        },
+                        new
+                        {
+                            Id = 21,
+                            DisplayOrder = 20,
+                            LogoUrl = "assets/images/brands/diesel-logo.svg",
+                            Name = "Diesel",
+                            Slug = "diesel"
+                        },
+                        new
+                        {
+                            Id = 22,
+                            DisplayOrder = 21,
+                            LogoUrl = "assets/images/brands/amiri-logo.svg",
+                            Name = "Amiri",
+                            Slug = "amiri"
+                        },
+                        new
+                        {
+                            Id = 23,
+                            DisplayOrder = 22,
+                            LogoUrl = "assets/images/brands/balenciaga-logo.svg",
+                            Name = "Balenciaga",
+                            Slug = "balenciaga"
+                        },
+                        new
+                        {
+                            Id = 24,
+                            DisplayOrder = 23,
+                            LogoUrl = "assets/images/brands/louis-vuitton-logo.svg",
+                            Name = "Louis Vuitton",
+                            Slug = "louis-vuitton"
+                        },
+                        new
+                        {
+                            Id = 25,
+                            DisplayOrder = 24,
+                            LogoUrl = "assets/images/brands/alexander-macqueen-logo.svg",
+                            Name = "Alexander McQueen",
+                            Slug = "alexander-macqueen"
+                        },
+                        new
+                        {
+                            Id = 26,
+                            DisplayOrder = 25,
+                            LogoUrl = "assets/images/brands/vico-logo.svg",
+                            Name = "Vico",
+                            Slug = "vico"
+                        });
+                });
+
             modelBuilder.Entity("Overtime.Data.Entities.Cart", b =>
                 {
                     b.Property<Guid>("Id")
@@ -274,9 +513,8 @@ namespace Overtime.Data.Migrations
                     b.Property<string>("Badge")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("Brand")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<int>("BrandId")
+                        .HasColumnType("int");
 
                     b.Property<string>("Category")
                         .IsRequired()
@@ -312,6 +550,8 @@ namespace Overtime.Data.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("BrandId");
+
                     b.ToTable("Products");
 
                     b.HasData(
@@ -319,7 +559,7 @@ namespace Overtime.Data.Migrations
                         {
                             Id = "air-pulse",
                             Badge = "پرفروش",
-                            Brand = "اورتایم",
+                            BrandId = 1,
                             Category = "مردانه",
                             Description = "کتانی رانینگ Air Pulse برای دویدن‌های روزمره و تمرین‌های سبک طراحی شده است. رویه‌ی مش تنفس‌پذیر همراه با میان‌کفش سبک، احساس راحتی را در هر قدم حفظ می‌کند.",
                             DisplayOrder = 0,
@@ -334,7 +574,7 @@ namespace Overtime.Data.Migrations
                         {
                             Id = "highjump-x",
                             Badge = "جدید",
-                            Brand = "اورتایم",
+                            BrandId = 1,
                             Category = "مردانه",
                             Description = "Highjump X با میان‌کفش ضربه‌گیر و ساق بلندتر، برای حرکات ناگهانی در زمین بسکتبال طراحی شده و پایداری مچ پا را در فرودها افزایش می‌دهد.",
                             DisplayOrder = 1,
@@ -348,7 +588,7 @@ namespace Overtime.Data.Migrations
                         new
                         {
                             Id = "street-low",
-                            Brand = "اورتایم",
+                            BrandId = 1,
                             Category = "یونیسکس",
                             Description = "یک کتانی روزمره‌ی ساده و همه‌کاره؛ Street Low با طراحی مینیمال و رنگ خنثی، با هر پوششی هم‌نشین می‌شود.",
                             DisplayOrder = 2,
@@ -363,7 +603,7 @@ namespace Overtime.Data.Migrations
                         {
                             Id = "aria-knit",
                             Badge = "تخفیف",
-                            Brand = "اورتایم",
+                            BrandId = 1,
                             Category = "زنانه",
                             Description = "Aria Knit با رویه‌ی نیت کشباف، فرمی نزدیک به فرم پا دارد و برای پوشیدن طولانی‌مدت در طول روز بسیار راحت است.",
                             DisplayOrder = 3,
@@ -377,7 +617,7 @@ namespace Overtime.Data.Migrations
                         new
                         {
                             Id = "mini-dash",
-                            Brand = "اورتایم",
+                            BrandId = 1,
                             Category = "بچگانه",
                             Description = "Mini Dash مدلی سبک و بادوام برای کودکان است؛ زیره‌ی ضدلغزش و بست چسبی، پوشیدن و درآوردن را برای کودکان آسان می‌کند.",
                             DisplayOrder = 4,
@@ -392,7 +632,7 @@ namespace Overtime.Data.Migrations
                         {
                             Id = "overtime-06",
                             Badge = "لیمیتد",
-                            Brand = "اورتایم",
+                            BrandId = 1,
                             Category = "لیمیتد ادیشن",
                             Description = "Overtime №06 نسخه‌ی محدود امضای برند اورتایم است؛ تیراژ کم، جزئیات ویژه و جعبه‌ی اختصاصی این مدل را به یک قطعه‌ی کالکشنی تبدیل می‌کند.",
                             DisplayOrder = 5,
@@ -1182,6 +1422,17 @@ namespace Overtime.Data.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("Overtime.Data.Entities.Product", b =>
+                {
+                    b.HasOne("Overtime.Data.Entities.Brand", "Brand")
+                        .WithMany("Products")
+                        .HasForeignKey("BrandId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Brand");
+                });
+
             modelBuilder.Entity("Overtime.Data.Entities.ProductImage", b =>
                 {
                     b.HasOne("Overtime.Data.Entities.Product", null)
@@ -1226,6 +1477,11 @@ namespace Overtime.Data.Migrations
                     b.Navigation("Product");
 
                     b.Navigation("User");
+                });
+
+            modelBuilder.Entity("Overtime.Data.Entities.Brand", b =>
+                {
+                    b.Navigation("Products");
                 });
 
             modelBuilder.Entity("Overtime.Data.Entities.Cart", b =>

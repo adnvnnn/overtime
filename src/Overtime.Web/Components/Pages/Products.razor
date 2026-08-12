@@ -1,5 +1,7 @@
 @page "/products"
+@using System.Globalization
 @inject ProductService ProductService
+@inject BrandService BrandService
 
 <PageTitle>Overtime | محصولات</PageTitle>
 
@@ -32,6 +34,13 @@
                     <button type="button" class="filter-tab @(_category == tab.Value ? "active" : "")" @onclick="() => SetCategory(tab.Value)">@tab.Label</button>
                 }
             </div>
+            <select class="brand-select" aria-label="فیلتر برند" value="@_brandSlug" @onchange="OnBrandChange">
+                <option value="">همه برندها</option>
+                @foreach (var brand in _allBrands)
+                {
+                    <option value="@brand.Slug">@brand.Name</option>
+                }
+            </select>
             <select class="sort-select" aria-label="مرتب‌سازی محصولات" value="@_sort" @onchange="OnSortChange">
                 <option value="default">مرتب‌سازی: پیش‌فرض</option>
                 <option value="price-asc">ارزان‌ترین</option>
@@ -39,9 +48,21 @@
                 <option value="name">نام (الفبا)</option>
             </select>
             <div class="price-filter">
-                <input type="number" min="0" step="10000" placeholder="@(_priceBounds.Min.ToFa())" aria-label="حداقل قیمت" value="@_minPrice" @onchange="OnMinPriceChange" />
-                <span>تا</span>
-                <input type="number" min="0" step="10000" placeholder="@(_priceBounds.Max.ToFa())" aria-label="حداکثر قیمت" value="@_maxPrice" @onchange="OnMaxPriceChange" />
+                <div class="price-filter-values">
+                    <span>@((_minPrice ?? _priceBounds.Min).ToFa()) تومان</span>
+                    <span class="price-filter-sep">تا</span>
+                    <span>@((_maxPrice ?? _priceBounds.Max).ToFa()) تومان</span>
+                </div>
+                <div class="price-slider" style="--min-percent:@MinPercent; --max-percent:@MaxPercent;">
+                    <div class="price-slider-track"></div>
+                    <div class="price-slider-range"></div>
+                    <input type="range" class="range-min" min="@_priceBounds.Min" max="@_priceBounds.Max" step="10000"
+                           value="@(_minPrice ?? _priceBounds.Min)" @oninput="OnMinRangeInput" @onchange="OnPriceRangeCommit"
+                           aria-label="حداقل قیمت" />
+                    <input type="range" class="range-max" min="@_priceBounds.Min" max="@_priceBounds.Max" step="10000"
+                           value="@(_maxPrice ?? _priceBounds.Max)" @oninput="OnMaxRangeInput" @onchange="OnPriceRangeCommit"
+                           aria-label="حداکثر قیمت" />
+                </div>
             </div>
             <label class="stock-filter">
                 <input type="checkbox" checked="@_inStockOnly" @onchange="OnInStockChange" />
@@ -71,6 +92,9 @@
     [SupplyParameterFromQuery(Name = "cat")]
     public string? CatQuery { get; set; }
 
+    [SupplyParameterFromQuery(Name = "brand")]
+    public string? BrandQuery { get; set; }
+
     private static readonly (string Value, string Label)[] Tabs =
     [
         ("all", "همه"),
@@ -91,20 +115,47 @@
     private List<Product> _products = [];
     private int _totalCount;
     private string _countText = "";
+    private string? _brandSlug;
+    private List<Brand> _allBrands = [];
+
+    private string MinPercent => FormatPercent(_minPrice ?? _priceBounds.Min);
+    private string MaxPercent => FormatPercent(_maxPrice ?? _priceBounds.Max);
+
+    private string FormatPercent(long value)
+    {
+        if (_priceBounds.Max <= _priceBounds.Min)
+            return "0%";
+
+        var pct = (double)(value - _priceBounds.Min) / (_priceBounds.Max - _priceBounds.Min) * 100;
+        return pct.ToString("0.##", CultureInfo.InvariantCulture) + "%";
+    }
 
     protected override async Task OnInitializedAsync()
     {
         _totalCount = await ProductService.CountAllAsync();
         _priceBounds = await ProductService.GetPriceBoundsAsync();
+        _allBrands = await BrandService.GetAllAsync();
+
         if (!string.IsNullOrEmpty(CatQuery) && Tabs.Any(t => t.Value == CatQuery))
             _category = CatQuery;
+
+        if (!string.IsNullOrEmpty(BrandQuery) && _allBrands.Any(b => b.Slug == BrandQuery))
+            _brandSlug = BrandQuery;
+
         await Refresh();
     }
 
     private async Task Refresh()
     {
-        _products = await ProductService.GetCatalogAsync(_category, _query, _sort, _minPrice, _maxPrice, _inStockOnly);
+        _products = await ProductService.GetCatalogAsync(_category, _query, _sort, _minPrice, _maxPrice, _inStockOnly, _brandSlug);
         _countText = $"{_products.Count.ToFa()} از {_totalCount.ToFa()} محصول";
+    }
+
+    private async Task OnBrandChange(ChangeEventArgs e)
+    {
+        var value = e.Value?.ToString();
+        _brandSlug = string.IsNullOrEmpty(value) ? null : value;
+        await Refresh();
     }
 
     private async Task OnSearchInput(ChangeEventArgs e)
@@ -125,17 +176,19 @@
         await Refresh();
     }
 
-    private async Task OnMinPriceChange(ChangeEventArgs e)
+    private void OnMinRangeInput(ChangeEventArgs e)
     {
-        _minPrice = long.TryParse(e.Value?.ToString(), out var value) && value > 0 ? value : null;
-        await Refresh();
+        if (long.TryParse(e.Value?.ToString(), out var value))
+            _minPrice = Math.Min(value, _maxPrice ?? _priceBounds.Max);
     }
 
-    private async Task OnMaxPriceChange(ChangeEventArgs e)
+    private void OnMaxRangeInput(ChangeEventArgs e)
     {
-        _maxPrice = long.TryParse(e.Value?.ToString(), out var value) && value > 0 ? value : null;
-        await Refresh();
+        if (long.TryParse(e.Value?.ToString(), out var value))
+            _maxPrice = Math.Max(value, _minPrice ?? _priceBounds.Min);
     }
+
+    private async Task OnPriceRangeCommit() => await Refresh();
 
     private async Task OnInStockChange(ChangeEventArgs e)
     {
@@ -151,6 +204,7 @@
         _minPrice = null;
         _maxPrice = null;
         _inStockOnly = false;
+        _brandSlug = null;
         await Refresh();
     }
 }
