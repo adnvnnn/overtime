@@ -13,10 +13,19 @@
         </a>
         <div class="nav-backdrop @(_menuOpen ? "show" : "")" @onclick="CloseMenu"></div>
         <nav class="links @(_menuOpen ? "open" : "")" id="navLinks">
+            <div class="drawer-head">
+                <span class="drawer-brand en wordmark">OVER<span class="t2">TIME</span></span>
+                <button type="button" class="drawer-close" aria-label="بستن منو" @onclick="CloseMenu">
+                    <Icon Name="x" Class="ic" />
+                </button>
+            </div>
             <a href="/" @onclick="CloseMenu">خانه</a>
-            <div class="nav-item">
-                <a href="/products" @onclick="CloseMenu">محصولات</a>
-                <div class="mega-menu">
+            <div class="nav-item @(_productsExpanded ? "expanded" : "")">
+                <div class="nav-item-row">
+                    <a href="/products" @onclick="CloseMenu">محصولات</a>
+                    <button type="button" class="nav-item-toggle" aria-expanded="@(_productsExpanded ? "true" : "false")" aria-controls="navProductsPanel" aria-label="نمایش زیرمنوی محصولات" @onclick="ToggleProducts"></button>
+                </div>
+                <div class="mega-menu" id="navProductsPanel">
                     <div class="mega-menu-inner">
                         <div class="mega-col mega-col-links">
                             <p class="mega-heading">دسته‌بندی‌ها</p>
@@ -111,6 +120,7 @@
 
 @code {
     private bool _menuOpen;
+    private bool _productsExpanded;
     private int _count;
     private string _theme = "light";
     private List<Brand> _brands = [];
@@ -140,11 +150,13 @@
     private Task ToggleMenu() => SetMenuOpen(!_menuOpen);
     private Task CloseMenu() => SetMenuOpen(false);
     private void ToggleCart() => CartService.ToggleDrawer();
+    private void ToggleProducts() => _productsExpanded = !_productsExpanded;
 
     private async Task SetMenuOpen(bool open)
     {
         if (_menuOpen == open) return;
         _menuOpen = open;
+        if (!open) _productsExpanded = false;
         await JS.InvokeVoidAsync("overtimeNav.setBodyScrollLock", open);
     }
 
