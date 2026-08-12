@@ -7,7 +7,8 @@ public class Product
     [MaxLength(50)]
     public string Id { get; set; } = "";
     public string Name { get; set; } = "";
-    public string Brand { get; set; } = "";
+    public int BrandId { get; set; }
+    public Brand? Brand { get; set; }
     public string Category { get; set; } = "";
     public string Usage { get; set; } = "";
     public long Price { get; set; }

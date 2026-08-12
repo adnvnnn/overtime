@@ -2,6 +2,7 @@
 @page "/products/{Id}/edit"
 @rendermode InteractiveServer
 @inject AdminProductService ProductService
+@inject AdminBrandService BrandService
 @inject NavigationManager NavigationManager
 
 <PageTitle>@(IsNew ? "افزودن محصول" : "ویرایش محصول") | مدیریت اورتایم</PageTitle>
@@ -36,8 +37,13 @@
                 </label>
                 <label class="auth-field">
                     <span>برند</span>
-                    <InputText @bind-Value="_model.Brand" placeholder="مثال: اورتایم" />
-                    <ValidationMessage For="() => _model.Brand" />
+                    <InputSelect @bind-Value="_model.BrandId">
+                        <option value="0">— انتخاب برند —</option>
+                        @foreach (var brand in _brands)
+                        {
+                            <option value="@brand.Id">@brand.Name</option>
+                        }
+                    </InputSelect>
                 </label>
                 <label class="auth-field">
                     <span>دسته‌بندی</span>
@@ -118,6 +124,7 @@
     private bool _loaded;
     private string? _error;
     private Product _model = new();
+    private List<Brand> _brands = [];
     private List<SizeRow> _sizeRows = [];
     private int _nextRowKey;
 
@@ -130,6 +137,8 @@
 
     protected override async Task OnInitializedAsync()
     {
+        _brands = await BrandService.GetAllAsync();
+
         if (!IsNew)
         {
             var existing = await ProductService.GetByIdAsync(Id!);
@@ -168,7 +177,7 @@
 
     private async Task SaveAsync()
     {
-        if (string.IsNullOrWhiteSpace(_model.Name) || string.IsNullOrWhiteSpace(_model.Brand) ||
+        if (string.IsNullOrWhiteSpace(_model.Name) || _model.BrandId <= 0 ||
             string.IsNullOrWhiteSpace(_model.Category) || _model.Price <= 0)
         {
             _error = "نام، برند، دسته‌بندی و قیمت محصول را به‌درستی وارد کنید.";

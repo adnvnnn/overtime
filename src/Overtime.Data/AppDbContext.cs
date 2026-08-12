@@ -5,6 +5,7 @@ namespace Overtime.Data;
 
 public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(options)
 {
+    public DbSet<Brand> Brands => Set<Brand>();
     public DbSet<Product> Products => Set<Product>();
     public DbSet<ProductImage> ProductImages => Set<ProductImage>();
     public DbSet<ProductSpec> ProductSpecs => Set<ProductSpec>();
@@ -21,8 +22,15 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        modelBuilder.Entity<Brand>(e =>
+        {
+            e.HasIndex(b => b.Slug).IsUnique();
+            e.HasData(SeedData.GetBrands());
+        });
+
         modelBuilder.Entity<Product>(e =>
         {
+            e.HasOne(p => p.Brand).WithMany(b => b.Products).HasForeignKey(p => p.BrandId).OnDelete(DeleteBehavior.Restrict);
             e.HasMany(p => p.Images).WithOne().HasForeignKey(i => i.ProductId).OnDelete(DeleteBehavior.Cascade);
             e.HasMany(p => p.Specs).WithOne().HasForeignKey(s => s.ProductId).OnDelete(DeleteBehavior.Cascade);
             e.HasMany(p => p.Sizes).WithOne().HasForeignKey(s => s.ProductId).OnDelete(DeleteBehavior.Cascade);
