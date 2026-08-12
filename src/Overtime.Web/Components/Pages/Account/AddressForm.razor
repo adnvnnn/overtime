@@ -6,83 +6,84 @@
 @using Microsoft.AspNetCore.Authorization
 @inject AddressService AddressService
 @inject NavigationManager NavigationManager
+@inject IStringLocalizer<AppStrings> Localizer
 
-<PageTitle>Overtime | @(IsNew ? "افزودن آدرس" : "ویرایش آدرس")</PageTitle>
+<PageTitle>Overtime | @(IsNew ? Localizer["AddressForm_AddTitle"] : Localizer["AddressForm_EditTitle"])</PageTitle>
 
 <div class="wrap">
-    <nav class="breadcrumb" aria-label="مسیر صفحه">
-        <a href="/">خانه</a>
+    <nav class="breadcrumb" aria-label="@Localizer["Products_BreadcrumbAria"]">
+        <a href="/">@Localizer["Common_Home"]</a>
         <span>/</span>
-        <a href="/account">حساب کاربری</a>
+        <a href="/account">@Localizer["Common_Account"]</a>
         <span>/</span>
-        <span class="cur">@(IsNew ? "آدرس جدید" : "ویرایش آدرس")</span>
+        <span class="cur">@(IsNew ? Localizer["AddressForm_NewAddressBreadcrumb"] : Localizer["AddressForm_EditTitle"])</span>
     </nav>
 </div>
 
 <section class="account-section">
     <div class="wrap">
         <div class="address-form-container">
-            <h1>@(IsNew ? "افزودن آدرس جدید" : "ویرایش آدرس")</h1>
+            <h1>@(IsNew ? Localizer["AddressForm_AddHeading"] : Localizer["AddressForm_EditTitle"])</h1>
 
             <EditForm Model="FormModel" FormName="address-form" OnValidSubmit="SaveAddress" class="address-form">
                 <DataAnnotationsValidator />
 
                 <div class="form-group">
-                    <label>نام گیرنده *</label>
-                    <InputText @bind-Value="FormModel.RecipientName" placeholder="نام کامل" />
+                    <label>@Localizer["AddressForm_RecipientNameLabel"]</label>
+                    <InputText @bind-Value="FormModel.RecipientName" placeholder="@Localizer["AddressForm_FullNamePlaceholder"]" />
                     <ValidationMessage For="() => FormModel.RecipientName" />
                 </div>
 
                 <div class="form-group">
-                    <label>شماره تلفن *</label>
-                    <InputText @bind-Value="FormModel.PhoneNumber" type="tel" placeholder="۰۹xxxxxxxxx" dir="ltr" />
+                    <label>@Localizer["AddressForm_PhoneLabel"]</label>
+                    <InputText @bind-Value="FormModel.PhoneNumber" type="tel" placeholder="@Localizer["AddressForm_PhonePlaceholder"]" dir="ltr" />
                     <ValidationMessage For="() => FormModel.PhoneNumber" />
                 </div>
 
                 <div class="form-row">
                     <div class="form-group">
-                        <label>استان *</label>
-                        <InputText @bind-Value="FormModel.Province" placeholder="استان" />
+                        <label>@Localizer["AddressForm_ProvinceLabel"]</label>
+                        <InputText @bind-Value="FormModel.Province" placeholder="@Localizer["AddressForm_ProvincePlaceholder"]" />
                         <ValidationMessage For="() => FormModel.Province" />
                     </div>
                     <div class="form-group">
-                        <label>شهر *</label>
-                        <InputText @bind-Value="FormModel.City" placeholder="شهر" />
+                        <label>@Localizer["AddressForm_CityLabel"]</label>
+                        <InputText @bind-Value="FormModel.City" placeholder="@Localizer["AddressForm_CityPlaceholder"]" />
                         <ValidationMessage For="() => FormModel.City" />
                     </div>
                 </div>
 
                 <div class="form-group">
-                    <label>منطقه *</label>
-                    <InputText @bind-Value="FormModel.District" placeholder="منطقه" />
+                    <label>@Localizer["AddressForm_DistrictLabel"]</label>
+                    <InputText @bind-Value="FormModel.District" placeholder="@Localizer["AddressForm_DistrictPlaceholder"]" />
                     <ValidationMessage For="() => FormModel.District" />
                 </div>
 
                 <div class="form-group">
-                    <label>آدرس *</label>
-                    <InputText @bind-Value="FormModel.Address1" placeholder="آدرس کامل" />
+                    <label>@Localizer["AddressForm_Address1Label"]</label>
+                    <InputText @bind-Value="FormModel.Address1" placeholder="@Localizer["AddressForm_Address1Placeholder"]" />
                     <ValidationMessage For="() => FormModel.Address1" />
                 </div>
 
                 <div class="form-group">
-                    <label>آدرس دوم (اختیاری)</label>
-                    <InputText @bind-Value="FormModel.Address2" placeholder="آدرس دوم" />
+                    <label>@Localizer["AddressForm_Address2Label"]</label>
+                    <InputText @bind-Value="FormModel.Address2" placeholder="@Localizer["AddressForm_Address2Placeholder"]" />
                 </div>
 
                 <div class="form-group">
-                    <label>کد پستی *</label>
-                    <InputText @bind-Value="FormModel.PostalCode" placeholder="کد پستی" dir="ltr" />
+                    <label>@Localizer["AddressForm_PostalCodeLabel"]</label>
+                    <InputText @bind-Value="FormModel.PostalCode" placeholder="@Localizer["AddressForm_PostalCodePlaceholder"]" dir="ltr" />
                     <ValidationMessage For="() => FormModel.PostalCode" />
                 </div>
 
                 <div class="form-group checkbox">
                     <InputCheckbox @bind-Value="FormModel.IsDefault" />
-                    <label>این آدرس را به عنوان آدرس پیش‌فرض انتخاب کن</label>
+                    <label>@Localizer["AddressForm_SetDefaultLabel"]</label>
                 </div>
 
                 <div class="form-actions">
-                    <button type="submit" class="btn btn-primary">@(IsNew ? "افزودن" : "ذخیره")</button>
-                    <button type="button" class="btn btn-ghost" @onclick="Cancel">انصراف</button>
+                    <button type="submit" class="btn btn-primary">@(IsNew ? Localizer["AddressForm_AddBtn"] : Localizer["AddressForm_SaveBtn"])</button>
+                    <button type="button" class="btn btn-ghost" @onclick="Cancel">@Localizer["Common_Cancel"]</button>
                 </div>
             </EditForm>
         </div>
@@ -152,27 +153,27 @@
 
     public class AddressFormModel
     {
-        [Required(ErrorMessage = "نام گیرنده را وارد کنید")]
+        [Required(ErrorMessageResourceType = typeof(AppStrings), ErrorMessageResourceName = nameof(AppStrings.Validation_RecipientNameRequired))]
         public string RecipientName { get; set; } = "";
 
-        [Required(ErrorMessage = "شماره تلفن را وارد کنید")]
+        [Required(ErrorMessageResourceType = typeof(AppStrings), ErrorMessageResourceName = nameof(AppStrings.Validation_PhoneRequired))]
         public string PhoneNumber { get; set; } = "";
 
-        [Required(ErrorMessage = "استان را وارد کنید")]
+        [Required(ErrorMessageResourceType = typeof(AppStrings), ErrorMessageResourceName = nameof(AppStrings.Validation_ProvinceRequired))]
         public string Province { get; set; } = "";
 
-        [Required(ErrorMessage = "شهر را وارد کنید")]
+        [Required(ErrorMessageResourceType = typeof(AppStrings), ErrorMessageResourceName = nameof(AppStrings.Validation_CityRequired))]
         public string City { get; set; } = "";
 
-        [Required(ErrorMessage = "منطقه را وارد کنید")]
+        [Required(ErrorMessageResourceType = typeof(AppStrings), ErrorMessageResourceName = nameof(AppStrings.Validation_DistrictRequired))]
         public string District { get; set; } = "";
 
-        [Required(ErrorMessage = "آدرس را وارد کنید")]
+        [Required(ErrorMessageResourceType = typeof(AppStrings), ErrorMessageResourceName = nameof(AppStrings.Validation_Address1Required))]
         public string Address1 { get; set; } = "";
 
         public string? Address2 { get; set; }
 
-        [Required(ErrorMessage = "کد پستی را وارد کنید")]
+        [Required(ErrorMessageResourceType = typeof(AppStrings), ErrorMessageResourceName = nameof(AppStrings.Validation_PostalCodeRequired))]
         public string PostalCode { get; set; } = "";
 
         public bool IsDefault { get; set; }

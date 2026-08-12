@@ -2,14 +2,15 @@
 @using System.Globalization
 @inject ProductService ProductService
 @inject BrandService BrandService
+@inject IStringLocalizer<AppStrings> Localizer
 
-<PageTitle>Overtime | محصولات</PageTitle>
+<PageTitle>@Localizer["Products_PageTitle"]</PageTitle>
 
 <div class="wrap">
-    <nav class="breadcrumb" aria-label="مسیر صفحه">
-        <a href="/">خانه</a>
+    <nav class="breadcrumb" aria-label="@Localizer["Products_BreadcrumbAria"]">
+        <a href="/">@Localizer["Common_Home"]</a>
         <span>/</span>
-        <span class="cur">محصولات</span>
+        <span class="cur">@Localizer["Common_Products"]</span>
     </nav>
 </div>
 
@@ -17,8 +18,8 @@
     <div class="wrap">
         <div class="sec-head">
             <div>
-                <p class="eyebrow">فروشگاه</p>
-                <h1>همه محصولات</h1>
+                <p class="eyebrow">@Localizer["Products_Eyebrow"]</p>
+                <h1>@Localizer["Products_Heading"]</h1>
             </div>
             <p class="lede">@_countText</p>
         </div>
@@ -26,47 +27,47 @@
         <div class="catalog-toolbar">
             <label class="search-box">
                 <Icon Name="search" Class="ic" />
-                <input type="search" placeholder="جستجوی محصول…" aria-label="جستجوی محصول" value="@_query" @oninput="OnSearchInput" />
+                <input type="search" placeholder="@Localizer["Products_SearchPlaceholder"]" aria-label="@Localizer["Products_SearchAria"]" value="@_query" @oninput="OnSearchInput" />
             </label>
-            <div class="filter-tabs" role="group" aria-label="فیلتر دسته‌بندی">
-                @foreach (var tab in Tabs)
+            <div class="filter-tabs" role="group" aria-label="@Localizer["Products_CategoryFilterAria"]">
+                @foreach (var tab in _tabs)
                 {
                     <button type="button" class="filter-tab @(_category == tab.Value ? "active" : "")" @onclick="() => SetCategory(tab.Value)">@tab.Label</button>
                 }
             </div>
-            <select class="brand-select" aria-label="فیلتر برند" value="@_brandSlug" @onchange="OnBrandChange">
-                <option value="">همه برندها</option>
+            <select class="brand-select" aria-label="@Localizer["Products_BrandFilterAria"]" value="@_brandSlug" @onchange="OnBrandChange">
+                <option value="">@Localizer["Products_AllBrandsOption"]</option>
                 @foreach (var brand in _allBrands)
                 {
                     <option value="@brand.Slug">@brand.Name</option>
                 }
             </select>
-            <select class="sort-select" aria-label="مرتب‌سازی محصولات" value="@_sort" @onchange="OnSortChange">
-                <option value="default">مرتب‌سازی: پیش‌فرض</option>
-                <option value="price-asc">ارزان‌ترین</option>
-                <option value="price-desc">گران‌ترین</option>
-                <option value="name">نام (الفبا)</option>
+            <select class="sort-select" aria-label="@Localizer["Products_SortAria"]" value="@_sort" @onchange="OnSortChange">
+                <option value="default">@Localizer["Products_SortDefault"]</option>
+                <option value="price-asc">@Localizer["Products_SortPriceAsc"]</option>
+                <option value="price-desc">@Localizer["Products_SortPriceDesc"]</option>
+                <option value="name">@Localizer["Products_SortName"]</option>
             </select>
             <div class="price-filter">
                 <div class="price-filter-values">
-                    <span>@((_minPrice ?? _priceBounds.Min).ToFa()) تومان</span>
-                    <span class="price-filter-sep">تا</span>
-                    <span>@((_maxPrice ?? _priceBounds.Max).ToFa()) تومان</span>
+                    <span>@((_minPrice ?? _priceBounds.Min).ToFa()) @Localizer["Common_Toman"]</span>
+                    <span class="price-filter-sep">@Localizer["Products_PriceRangeSep"]</span>
+                    <span>@((_maxPrice ?? _priceBounds.Max).ToFa()) @Localizer["Common_Toman"]</span>
                 </div>
                 <div class="price-slider" style="--min-percent:@MinPercent; --max-percent:@MaxPercent;">
                     <div class="price-slider-track"></div>
                     <div class="price-slider-range"></div>
                     <input type="range" class="range-min" min="@_priceBounds.Min" max="@_priceBounds.Max" step="10000"
                            value="@(_minPrice ?? _priceBounds.Min)" @oninput="OnMinRangeInput" @onchange="OnPriceRangeCommit"
-                           aria-label="حداقل قیمت" />
+                           aria-label="@Localizer["Products_MinPriceAria"]" />
                     <input type="range" class="range-max" min="@_priceBounds.Min" max="@_priceBounds.Max" step="10000"
                            value="@(_maxPrice ?? _priceBounds.Max)" @oninput="OnMaxRangeInput" @onchange="OnPriceRangeCommit"
-                           aria-label="حداکثر قیمت" />
+                           aria-label="@Localizer["Products_MaxPriceAria"]" />
                 </div>
             </div>
             <label class="stock-filter">
                 <input type="checkbox" checked="@_inStockOnly" @onchange="OnInStockChange" />
-                <span>فقط کالای موجود</span>
+                <span>@Localizer["Products_InStockOnlyLabel"]</span>
             </label>
         </div>
 
@@ -81,8 +82,8 @@
         {
             <div class="catalog-empty">
                 <Icon Name="search" Class="ic" />
-                <p>محصولی با این مشخصات پیدا نشد.</p>
-                <button type="button" class="btn btn-ghost btn-sm" @onclick="ResetFilters">پاک کردن فیلترها</button>
+                <p>@Localizer["Products_EmptyMessage"]</p>
+                <button type="button" class="btn btn-ghost btn-sm" @onclick="ResetFilters">@Localizer["Products_ClearFilters"]</button>
             </div>
         }
     </div>
@@ -95,15 +96,7 @@
     [SupplyParameterFromQuery(Name = "brand")]
     public string? BrandQuery { get; set; }
 
-    private static readonly (string Value, string Label)[] Tabs =
-    [
-        ("all", "همه"),
-        ("مردانه", "مردانه"),
-        ("زنانه", "زنانه"),
-        ("بچگانه", "بچگانه"),
-        ("یونیسکس", "یونیسکس"),
-        ("لیمیتد", "لیمیتد ادیشن"),
-    ];
+    private (string Value, string Label)[] _tabs = [];
 
     private string _category = "all";
     private string _query = "";
@@ -132,11 +125,21 @@
 
     protected override async Task OnInitializedAsync()
     {
+        _tabs =
+        [
+            ("all", Localizer["Products_TabAll"].Value),
+            ("مردانه", Localizer["Common_CategoryMen"].Value),
+            ("زنانه", Localizer["Common_CategoryWomen"].Value),
+            ("بچگانه", Localizer["Common_CategoryKids"].Value),
+            ("یونیسکس", Localizer["Common_CategoryUnisex"].Value),
+            ("لیمیتد", Localizer["Common_CategoryLimited"].Value),
+        ];
+
         _totalCount = await ProductService.CountAllAsync();
         _priceBounds = await ProductService.GetPriceBoundsAsync();
         _allBrands = await BrandService.GetAllAsync();
 
-        if (!string.IsNullOrEmpty(CatQuery) && Tabs.Any(t => t.Value == CatQuery))
+        if (!string.IsNullOrEmpty(CatQuery) && _tabs.Any(t => t.Value == CatQuery))
             _category = CatQuery;
 
         if (!string.IsNullOrEmpty(BrandQuery) && _allBrands.Any(b => b.Slug == BrandQuery))
@@ -148,7 +151,7 @@
     private async Task Refresh()
     {
         _products = await ProductService.GetCatalogAsync(_category, _query, _sort, _minPrice, _maxPrice, _inStockOnly, _brandSlug);
-        _countText = $"{_products.Count.ToFa()} از {_totalCount.ToFa()} محصول";
+        _countText = Localizer["Products_CountText", _products.Count.ToFa(), _totalCount.ToFa()].Value;
     }
 
     private async Task OnBrandChange(ChangeEventArgs e)

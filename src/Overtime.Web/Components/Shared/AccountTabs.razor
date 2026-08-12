@@ -1,4 +1,6 @@
-<nav class="account-tabs" aria-label="بخش‌های حساب کاربری">
-    <NavLink href="/account" Match="NavLinkMatch.All">آدرس‌ها</NavLink>
-    <NavLink href="/account/orders">سفارش‌های من</NavLink>
+@inject IStringLocalizer<AppStrings> Localizer
+
+<nav class="account-tabs" aria-label="@Localizer["AccountTabs_Aria"]">
+    <NavLink href="/account" Match="NavLinkMatch.All">@Localizer["AccountTabs_Addresses"]</NavLink>
+    <NavLink href="/account/orders">@Localizer["AccountTabs_MyOrders"]</NavLink>
 </nav>

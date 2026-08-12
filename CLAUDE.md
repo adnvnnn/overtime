@@ -32,7 +32,7 @@ dotnet ef migrations add <Name> --project src/Overtime.Data --startup-project sr
 
 Both `Overtime.Web` and `Overtime.Admin` call `db.Database.Migrate()` and seed demo data on every startup (see `Program.cs` in each), so pending migrations are applied automatically the next time either app runs — no manual `dotnet ef database update` needed in normal dev flow.
 
-The default connection string (`appsettings.json` in both apps) points at `(localdb)\mssqllocaldb`, database `Overtime`.
+The default connection string (`appsettings.json` in both apps) points at `Server=.` (the machine's default SQL Server instance, with `TrustServerCertificate=True` for its self-signed cert), database `Overtime`. It originally pointed at `(localdb)\mssqllocaldb`; that instance's registry state got corrupted beyond repair during development, so both apps were switched to the local default instance instead.
 
 ## Architecture notes
 
@@ -57,6 +57,17 @@ Neither app references a Blazor component library (MudBlazor was tried for a car
 - Everything is RTL (`direction: rtl` on `html`/`body`, logical CSS properties like `inset-inline`/`border-inline-end` preferred over `left`/`right` for anything that needs to work correctly in RTL).
 - Persian digits/formatting go through `PersianNumberFormatter` (present in both `Overtime.Web/Services` and `Overtime.Admin/Services` — not shared, so keep them in sync if you change one).
 - Icons are inline SVG paths in a single `Icon.razor` component per app (`Name` string switched to a `<path>`/`<line>` fragment) — not separate `.svg` files. Brand logos, by contrast, *are* real `.svg` files under `wwwroot/assets/images/brands/`.
+
+### Overtime.Web: all Persian UI text goes through AppStrings.resx
+
+`Overtime.Web` has a single shared resource file, `src/Overtime.Web/Resources/AppStrings.resx`, holding every piece of Persian UI text in that project (labels, headings, placeholders, toast/validation messages) — deliberately one file, not one per component, so lookups stay in one place. `Resources/AppStrings.cs` is the marker type; components inject `IStringLocalizer<AppStrings>` (auto-available via the `@using`s in `_Imports.razor`) and reference strings as `@Localizer["Key"]`, with `Localizer["Key", arg0, arg1]` for `{0}`/`{1}`-style format strings (the resx value itself holds the placeholders). Keys are `Area_Description` (e.g. `Products_SearchPlaceholder`); reuse a `Common_*`/`*` key across components instead of duplicating identical text under a new name.
+
+When adding new Persian text to `Overtime.Web`, add it to `AppStrings.resx` and reference it via the localizer — don't inline a new Persian string literal in a `.razor` file or a DI-registered service. Two narrow exceptions:
+- **`DataAnnotations` validation attributes** (`[Required(ErrorMessage = ...)]`) need a compile-time constant, so `IStringLocalizer`'s runtime indexer can't be used directly there. Use `ErrorMessageResourceType = typeof(AppStrings), ErrorMessageResourceName = nameof(AppStrings.Validation_Foo)` instead — `AppStrings` also exposes a handful of `public static string` properties (backed by a `ResourceManager` reading the same resx) just for this.
+- **Plain `static` helpers with no DI access** (e.g. `PersianNumberFormatter.FormatToman`) read those same static `AppStrings.*` properties rather than being refactored into instance methods.
+- Query-string/route data values that happen to be Persian words (e.g. `href="/products?cat=مردانه"`, matched against category strings stored in the DB) are literal data, not display text — leave those as-is.
+
+The `Footer` section of `appsettings.json` (tagline, nav links, contact links — see `FooterOptions`/`Footer.razor`) is a deliberate exception: it's config, not resx, so the footer's text and links can be edited without a rebuild. Don't move it into `AppStrings.resx`.
 
 ### wwwroot CSS files are all loaded globally — watch for cross-file drift
 

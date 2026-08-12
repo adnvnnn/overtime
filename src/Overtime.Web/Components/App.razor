@@ -1,11 +1,12 @@
+@inject IStringLocalizer<AppStrings> Localizer
 <!DOCTYPE html>
 <html lang="fa" dir="rtl">
 
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Overtime | فروشگاه اینترنتی کفش کتانی</title>
-    <meta name="description" content="نسخه نمایشی فروشگاه اینترنتی کفش کتانی Overtime — اردبیل" />
+    <title>@Localizer["Home_PageTitle"]</title>
+    <meta name="description" content="@Localizer["App_MetaDescription"]" />
     <base href="/" />
     <script src="js/theme-init.js"></script>
     <ResourcePreloader />

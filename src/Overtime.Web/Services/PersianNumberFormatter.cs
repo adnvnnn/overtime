@@ -1,4 +1,5 @@
 using System.Globalization;
+using Overtime.Web.Resources;
 
 namespace Overtime.Web.Services;
 
@@ -24,5 +25,5 @@ public static class PersianNumberFormatter
     public static string ToFa(this double input, int decimals) =>
         ToFa(input.ToString("F" + decimals, CultureInfo.InvariantCulture));
 
-    public static string FormatToman(this long price) => $"{ToFa(price)} تومان";
+    public static string FormatToman(this long price) => $"{ToFa(price)} {AppStrings.Common_Toman}";
 }
