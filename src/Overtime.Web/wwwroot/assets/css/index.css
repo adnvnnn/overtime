@@ -22,6 +22,11 @@
     /* Deliberate deceleration for panels/menus settling into place — reserved
        for spatial motion, not plain color/opacity fades. */
     --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+    /* Brand logo SVGs are fixed-white artwork with no theme variant, so their
+       chip background stays constant across light/dark instead of following
+       --surface-2 (which would wash the white marks out in light mode). */
+    --brand-chip-bg: #1c1a24;
+    --brand-chip-bg-hover: #29253a;
     color-scheme: light;
   }
   @media (prefers-color-scheme: dark){
@@ -210,11 +215,11 @@
   .mega-brand:hover{ background: var(--surface-2); color: var(--ink); }
   .mega-brand-logo{
     display:flex; align-items:center; justify-content:center;
-    width:44px; height:44px; border-radius:10px; background: var(--surface-2);
+    width:44px; height:44px; border-radius:10px; background: var(--brand-chip-bg);
     border:1px solid var(--line); flex:none;
     transition: border-color .12s ease, background .12s ease;
   }
-  .mega-brand:hover .mega-brand-logo{ border-color: var(--accent); background: var(--surface); }
+  .mega-brand:hover .mega-brand-logo{ border-color: var(--accent); background: var(--brand-chip-bg-hover); }
   .mega-brand-logo img{ width:26px; height:26px; object-fit:contain; }
   .mega-brand-monogram{
     font-size:11px; font-weight:800; letter-spacing:.02em; color: var(--accent);
@@ -306,33 +311,53 @@
   .hero-stats div span{ font-size: 12.5px; color: var(--muted); }
 
   .hero-art{
-    position:relative; aspect-ratio: 1/1; border-radius: 28px;
-    background:
-      radial-gradient(120% 100% at 70% 20%, color-mix(in srgb, var(--accent) 20%, transparent), transparent 60%),
-      repeating-linear-gradient(90deg, color-mix(in srgb, var(--ink) 5%, transparent) 0 1px, transparent 1px 46px),
-      var(--surface);
+    position:relative; aspect-ratio: 1/1; border-radius: 28px; overflow:hidden;
+    background: #fff;
     border: 1px solid var(--line);
-    display:flex; align-items:center; justify-content:center;
     box-shadow: var(--shadow);
   }
+  .hero-slides{
+    position:absolute; inset:0; cursor: grab; touch-action: pan-y;
+  }
+  .hero-slides.dragging{ cursor: grabbing; }
+  .hero-slide{
+    position:absolute; inset:0;
+    display:flex; align-items:center; justify-content:center;
+    opacity:0; visibility:hidden; pointer-events:none;
+    transition: opacity .5s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .hero-slide.active{ opacity:1; visibility:visible; pointer-events:auto; }
   .hero-art .ground{
     position:absolute; bottom: 9%; width: 54%; height: 8%; border-radius: 50%;
     background: radial-gradient(closest-side, color-mix(in srgb, var(--ink) 38%, transparent), transparent 75%);
     filter: blur(6px);
   }
   .hero-art .shoe{
-    width: 84%; height: 84%; object-fit: cover;
+    width: 100%; height: 100%; object-fit: cover;
     position:relative;
-    -webkit-mask-image: radial-gradient(ellipse 62% 62% at 50% 46%, black 55%, transparent 88%);
-    mask-image: radial-gradient(ellipse 62% 62% at 50% 46%, black 55%, transparent 88%);
+    -webkit-user-drag: none; user-select: none; pointer-events: none;
   }
   .hero-art .badge{
-    position:absolute; top: 20px; inset-inline-start: 20px;
+    position:absolute; top: 20px; inset-inline-start: 20px; z-index: 2;
     background: var(--surface); border:1px solid var(--line); border-radius: 14px;
     padding: 10px 14px; font-size: 12.5px; font-weight:700; box-shadow: var(--shadow);
     display:flex; align-items:center; gap:8px;
   }
   .hero-art .badge b{ color: var(--accent-2); font-variant-numeric: tabular-nums; }
+  .hero-dots{
+    position:absolute; bottom: 18px; inset-inline: 0; z-index: 2;
+    display:flex; gap:8px; justify-content:center;
+  }
+  .hero-dots .dot{
+    width: 8px; height: 8px; border-radius: 50%; border: none; padding:0;
+    background: color-mix(in srgb, var(--ink) 25%, transparent);
+    cursor:pointer; transition: background .15s ease, transform .15s ease;
+  }
+  .hero-dots .dot.active{ background: var(--accent); transform: scale(1.25); }
+  .hero-dots .dot:hover{ background: var(--accent); }
+  @media (prefers-reduced-motion: reduce){
+    .hero-slide{ transition: none; }
+  }
 
   /* ---------- Ticker ---------- */
   .ticker{
@@ -435,6 +460,36 @@
   .feature .ic{ width:34px; height:34px; color: var(--accent); margin-bottom: 14px; }
   .feature b{ display:block; font-size:15.5px; margin-bottom:6px; }
   .feature p{ margin:0; color: var(--muted); font-size: 13.5px; }
+
+  /* ---------- Promo banners ---------- */
+  .promo-banners{ display:grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
+  .promo-banner{
+    position:relative; display:block; aspect-ratio: 4/5; border-radius: var(--radius);
+    overflow:hidden; border:1px solid var(--line); text-decoration:none; color:#fff;
+    transition: transform .3s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .promo-banner:hover{ transform: translateY(-4px); }
+  .promo-banner img{ position:absolute; inset:0; width:100%; height:100%; object-fit:cover; }
+  .promo-banner::after{
+    content:""; position:absolute; inset:0;
+    background: linear-gradient(to top, rgba(0,0,0,.72) 0%, rgba(0,0,0,.25) 45%, transparent 70%);
+  }
+  .promo-banner-badge{
+    position:absolute; top:16px; inset-inline-start:16px; z-index:2;
+    background: var(--accent); color:#fff; border-radius: 999px;
+    padding: 6px 12px; font-size: 12px; font-weight:800;
+  }
+  .promo-banner-content{
+    position:absolute; inset-inline: 0; bottom:0; z-index:2; padding: 22px;
+    display:flex; flex-direction:column; align-items:flex-start; gap:6px;
+  }
+  .promo-banner-content h3{ font-size: 18px; font-weight:800; }
+  .promo-banner-price{ font-size: 14px; font-weight:700; opacity:.92; }
+  .promo-banner-price small{ font-size: 11.5px; font-weight:500; margin-inline-start:2px; opacity:.85; }
+  .promo-banner-cta{ margin-top: 6px; }
+  @media (prefers-reduced-motion: reduce){ .promo-banner{ transition:none; } }
+  @media (max-width: 860px){ .promo-banners{ grid-template-columns: 1fr 1fr; } }
+  @media (max-width: 560px){ .promo-banners{ grid-template-columns: 1fr; } }
 
   /* ---------- Instagram ---------- */
   .insta{
@@ -794,10 +849,10 @@
     .mega-brand-grid{ grid-template-columns: repeat(5,1fr); gap:2px; }
     nav.links .nav-item .mega-brand{ padding:6px 2px; border-bottom:none; gap:0; }
     nav.links .mega-brand > span:not(.mega-brand-logo){ display:none; }
-    nav.links .mega-brand-logo{ border:none; background:none; width:100%; aspect-ratio:1; }
+    nav.links .mega-brand-logo{ border:none; background: var(--brand-chip-bg); width:100%; aspect-ratio:1; border-radius:10px; }
     nav.links .mega-brand-logo img{ width:60%; height:60%; }
     nav.links .mega-brand:hover .mega-brand-logo, nav.links .mega-brand:active .mega-brand-logo{
-      background: var(--surface-2); border-radius:10px;
+      background: var(--brand-chip-bg-hover); border-radius:10px;
     }
     .mega-menu .mega-promo{ display:none; }
 

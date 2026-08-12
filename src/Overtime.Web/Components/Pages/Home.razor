@@ -2,6 +2,8 @@
 @inject ProductService ProductService
 @inject BrandService BrandService
 @inject IStringLocalizer<AppStrings> Localizer
+@inject IJSRuntime JS
+@implements IAsyncDisposable
 
 <PageTitle>@Localizer["Home_PageTitle"]</PageTitle>
 
@@ -25,9 +27,27 @@
             </div>
         </div>
         <div class="hero-art">
-            <div class="badge">@Localizer["Home_HeroBadgeBrand"] <b>№06</b></div>
-            <div class="ground"></div>
-            <img class="shoe" src="assets/images/products/product-9.jpg" alt="Overtime №06">
+            <div class="hero-slides" @ref="_heroSlidesRef">
+                @for (int i = 0; i < _heroSlides.Count; i++)
+                {
+                    var slide = _heroSlides[i];
+                    <div class="hero-slide @(_heroIndex == i ? "active" : "")" aria-hidden="@(_heroIndex == i ? "false" : "true")">
+                        <div class="badge">@Localizer["Home_HeroBadgeBrand"] <b>@slide.Badge</b></div>
+                        <div class="ground"></div>
+                        <img class="shoe" src="@slide.ImageUrl" alt="Overtime @slide.Badge" draggable="false">
+                    </div>
+                }
+            </div>
+            <div class="hero-dots">
+                @for (int i = 0; i < _heroSlides.Count; i++)
+                {
+                    var index = i;
+                    <button type="button" class="dot @(_heroIndex == index ? "active" : "")"
+                            @onclick="() => GoToHeroSlide(index)"
+                            aria-label="@Localizer["Home_HeroGoToSlideAria", index + 1]">
+                    </button>
+                }
+            </div>
         </div>
     </div>
 </section>
@@ -100,6 +120,34 @@
     </div>
 </section>
 
+<section id="banners">
+    <div class="wrap">
+        <div class="sec-head">
+            <div>
+                <p class="eyebrow">@Localizer["Home_BannersEyebrow"]</p>
+                <h2>@Localizer["Home_BannersHeading"]</h2>
+            </div>
+        </div>
+        <div class="promo-banners">
+            @foreach (var product in _bannerProducts)
+            {
+                <a class="promo-banner" href="@($"/product/{product.Slug}")">
+                    <img src="@(product.Images.Count > 0 ? product.Images[0].Url : "")" alt="@product.Name" loading="lazy">
+                    <div class="promo-banner-content">
+                        @if (!string.IsNullOrEmpty(product.Badge))
+                        {
+                            <span class="promo-banner-badge">@product.Badge</span>
+                        }
+                        <h3>@product.Name</h3>
+                        <span class="promo-banner-price">@product.Price.ToFa()<small>@Localizer["Common_Toman"]</small></span>
+                        <span class="btn btn-primary btn-sm promo-banner-cta">@Localizer["Home_BannerCta"]</span>
+                    </div>
+                </a>
+            }
+        </div>
+    </div>
+</section>
+
 <section id="instagram">
     <div class="wrap">
         <div class="insta">
@@ -133,13 +181,87 @@
 </section>
 
 @code {
+    private readonly record struct HeroSlide(string ImageUrl, string Badge);
+
+    private readonly List<HeroSlide> _heroSlides =
+    [
+        new("assets/images/products/product-9.jpg", "№06"),
+        new("assets/images/products/product-3.jpg", "№02"),
+        new("assets/images/products/product-6.jpg", "№04"),
+        new("assets/images/products/product-12.jpg", "№08"),
+    ];
+    private int _heroIndex = 0;
+    private CancellationTokenSource? _heroSlideCts;
+    private ElementReference _heroSlidesRef;
+    private DotNetObjectReference<Home>? _heroDotNetRef;
+    private IJSObjectReference? _heroGalleryHandle;
+
     private List<Product> _topProducts = [];
+    private List<Product> _bannerProducts = [];
     private List<Brand> _instaBrands = [];
 
     protected override async Task OnInitializedAsync()
     {
         _topProducts = await ProductService.GetTopAsync(6);
+        _bannerProducts = [.. _topProducts.Where(p => !string.IsNullOrEmpty(p.Badge)).Take(3)];
         var allBrands = await BrandService.GetAllAsync();
         _instaBrands = [.. allBrands.OrderBy(_ => Random.Shared.Next()).Take(6)];
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            _heroDotNetRef = DotNetObjectReference.Create(this);
+            _heroGalleryHandle = await JS.InvokeAsync<IJSObjectReference>("overtimeGallery.attach", _heroSlidesRef, _heroDotNetRef);
+
+            _heroSlideCts = new CancellationTokenSource();
+            _ = RunHeroAutoSlideAsync(_heroSlideCts.Token);
+        }
+    }
+
+    private async Task RunHeroAutoSlideAsync(CancellationToken token)
+    {
+        try
+        {
+            while (!token.IsCancellationRequested)
+            {
+                await Task.Delay(4500, token);
+                _heroIndex = (_heroIndex + 1) % _heroSlides.Count;
+                await InvokeAsync(StateHasChanged);
+            }
+        }
+        catch (TaskCanceledException)
+        {
+        }
+    }
+
+    private void GoToHeroSlide(int index) => _heroIndex = index;
+
+    [JSInvokable]
+    public void OnSwipe(int direction)
+    {
+        // overtimeGallery reports physical (LTR) drag direction; this page is RTL, so invert it.
+        _heroIndex = ((_heroIndex - direction) % _heroSlides.Count + _heroSlides.Count) % _heroSlides.Count;
+        StateHasChanged();
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        _heroSlideCts?.Cancel();
+        _heroSlideCts?.Dispose();
+
+        if (_heroGalleryHandle is not null)
+        {
+            try
+            {
+                await _heroGalleryHandle.InvokeVoidAsync("dispose");
+                await _heroGalleryHandle.DisposeAsync();
+            }
+            catch (JSDisconnectedException)
+            {
+            }
+        }
+        _heroDotNetRef?.Dispose();
     }
 }
