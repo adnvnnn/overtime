@@ -156,7 +156,6 @@ public partial class ProductDetail
     {
         if (Product is null)
             return;
-
         _reviews = await ReviewService.GetProductReviewsAsync(Product.Id);
         (_avgRating, _reviewCount) = await ReviewService.GetRatingSummaryAsync(Product.Id);
 

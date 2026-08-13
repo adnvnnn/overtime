@@ -18,22 +18,24 @@ window.overtimeNav = {
   }
 };
 
-// Swipe/drag support for the product-detail image gallery. Ported from the
-// original assets/js/product.js drag-threshold logic; reports a direction
-// (-1/+1) back to the Blazor component instead of mutating the DOM directly.
+// Swipe/drag support for the hero slider and the product-detail image
+// gallery. Ported from the original assets/js/product.js drag-threshold
+// logic; reports a direction (-1/+1) back to the Blazor component instead
+// of mutating the DOM directly.
 window.overtimeGallery = {
   attach: function (sliderEl, dotNetRef) {
     if (!sliderEl || sliderEl.nodeType !== 1) return null;
-    let dragging = false, startX = 0, deltaX = 0;
+    let dragging = false, moved = false, startX = 0, deltaX = 0;
 
     function pointerX(e) { return e.touches ? e.touches[0].clientX : e.clientX; }
     function dragStart(e) {
-      dragging = true; deltaX = 0; startX = pointerX(e);
+      dragging = true; moved = false; deltaX = 0; startX = pointerX(e);
       sliderEl.classList.add("dragging");
     }
     function dragMove(e) {
       if (!dragging) return;
       deltaX = pointerX(e) - startX;
+      if (Math.abs(deltaX) > 4) moved = true;
     }
     function dragEnd() {
       if (!dragging) return;
@@ -43,6 +45,22 @@ window.overtimeGallery = {
       if (deltaX < -threshold) dotNetRef.invokeMethodAsync("OnSwipe", 1);
       else if (deltaX > threshold) dotNetRef.invokeMethodAsync("OnSwipe", -1);
     }
+    // The hero slides are links now (clickable through to /products) —
+    // dragging shouldn't also fire a click-through navigation on whatever
+    // slide was under the cursor when the pointer came back up. Mirrors the
+    // same fix the product carousel needed.
+    function onClickCapture(e) {
+      if (moved) {
+        e.preventDefault();
+        e.stopPropagation();
+        moved = false;
+      }
+    }
+    // Suppresses the browser's own native image-drag (ghost thumbnail),
+    // which would otherwise race this custom drag — same fix as the carousel.
+    function onDragStart(e) {
+      e.preventDefault();
+    }
 
     sliderEl.addEventListener("touchstart", dragStart, { passive: true });
     sliderEl.addEventListener("touchmove", dragMove, { passive: true });
@@ -50,6 +68,8 @@ window.overtimeGallery = {
     sliderEl.addEventListener("mousedown", function (e) { e.preventDefault(); dragStart(e); });
     window.addEventListener("mousemove", dragMove);
     window.addEventListener("mouseup", dragEnd);
+    sliderEl.addEventListener("click", onClickCapture, true);
+    sliderEl.addEventListener("dragstart", onDragStart);
 
     return {
       dispose: function () {
@@ -58,6 +78,8 @@ window.overtimeGallery = {
         sliderEl.removeEventListener("touchend", dragEnd);
         window.removeEventListener("mousemove", dragMove);
         window.removeEventListener("mouseup", dragEnd);
+        sliderEl.removeEventListener("click", onClickCapture, true);
+        sliderEl.removeEventListener("dragstart", onDragStart);
       }
     };
   }
@@ -185,6 +207,7 @@ window.overtimeCarousel = {
     // this same code instead of the browser, so touch goes through the exact
     // same path as mouse/pen instead of a separate native fallback.
     var activePointerId = null, dragged = false, startX = 0, startTranslate = 0, liveTranslate = 0;
+    var pressedLink = null;
     var DRAG_THRESHOLD = 0.18; // fraction of one card's width that counts as "committed to moving"
 
     function onPointerDown(e) {
@@ -193,6 +216,16 @@ window.overtimeCarousel = {
       startX = e.clientX;
       startTranslate = translateFor(currentIndex);
       liveTranslate = startTranslate;
+      // Captured now, before setPointerCapture below can affect anything:
+      // once the pointer is captured, the native `click` that normally
+      // follows a release gets retargeted to trackEl itself instead of
+      // whatever link was actually under the cursor (per the Pointer Events
+      // spec — capture redirects the whole event sequence to the capturing
+      // element). That means a genuine, no-drag click would never actually
+      // reach the card's <a> to navigate it, so onPointerEnd below drives
+      // navigation from this reference directly instead of trusting the
+      // click to land on the right element.
+      pressedLink = e.target.closest("a[href]");
       trackEl.classList.add("dragging");
       try {
         trackEl.setPointerCapture(e.pointerId);
@@ -227,8 +260,15 @@ window.overtimeCarousel = {
       } catch (err) { /* already released/invalid — nothing to clean up */ }
       trackEl.classList.remove("dragging");
 
+      // Only follow the link on a genuine no-drag release — this is the
+      // real click-vs-drag decision now, not the onClickCapture guard below
+      // (whose click target isn't reliable under pointer capture).
+      var linkToActivate = !dragged ? pressedLink : null;
+      pressedLink = null;
+
       if (!dragged || step <= 0) {
         applyTransform(true);
+        if (linkToActivate) linkToActivate.click();
         return;
       }
       // How far past the threshold decides how many cards to move, not just
@@ -241,8 +281,11 @@ window.overtimeCarousel = {
         : 0;
       goToIndex(currentIndex + indexChange, true);
     }
-    // Dragging shouldn't also fire the click on whatever card was under the
-    // cursor when the pointer came back up.
+    // Belt-and-suspenders: onPointerEnd above already decides whether to
+    // navigate (dragged vs not) and drives it directly rather than relying
+    // on this click, since pointer capture retargets it to trackEl rather
+    // than the actual card that was under the cursor. This just mops up
+    // that retargeted click after a real drag so it can't do anything else.
     function onClickCapture(e) {
       if (dragged) {
         e.preventDefault();
