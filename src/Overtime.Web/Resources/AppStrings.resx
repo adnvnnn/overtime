@@ -152,7 +152,7 @@
   <data name="Home_HeroEyebrow" xml:space="preserve"><value>فروشگاه اینترنتی اورتایم — اردبیل</value></data>
   <data name="Home_HeroTitle" xml:space="preserve"><value>وقت اضافه‌ای که&lt;br&gt;برای هر &lt;span&gt;قدم&lt;/span&gt; می‌گذاریم.</value></data>
   <data name="Home_HeroLede" xml:space="preserve"><value>کلکسیون کفش‌های کتانی اورتایم؛ از دویدن‌های روزمره تا زمین بازی و خیابان. کیفیت اصل، ارسال به سراسر کشور و پشتیبانی واقعی از شعبه اردبیل.</value></data>
-  <data name="Home_BranchAddressCta" xml:space="preserve"><value>آدرس شعبه ۲ (کتونی)</value></data>
+  <data name="Home_BranchAddressCta" xml:space="preserve"><value>آدرس {0}</value></data>
   <data name="Home_StatModelsCount" xml:space="preserve"><value>+{0}</value></data>
   <data name="Home_StatModelsLabel" xml:space="preserve"><value>مدل در انبار</value></data>
   <data name="Home_StatGuaranteeValue" xml:space="preserve"><value>۱۰۰٪</value></data>
@@ -161,11 +161,6 @@
   <data name="Home_StatReturnLabel" xml:space="preserve"><value>مهلت مرجوعی</value></data>
   <data name="Home_HeroBadgeBrand" xml:space="preserve"><value>اورتایم</value></data>
   <data name="Home_HeroGoToSlideAria" xml:space="preserve"><value>رفتن به تصویر {0}</value></data>
-  <data name="Home_TickerShipping" xml:space="preserve"><value>ارسال به سراسر ایران</value></data>
-  <data name="Home_TickerGuarantee" xml:space="preserve"><value>ضمانت اصالت کالا</value></data>
-  <data name="Home_TickerNewModels" xml:space="preserve"><value>جدیدترین مدل‌های ۲۰۲۶</value></data>
-  <data name="Home_TickerReturns" xml:space="preserve"><value>امکان تعویض و مرجوعی</value></data>
-  <data name="Home_TickerCod" xml:space="preserve"><value>پرداخت در محل (اردبیل)</value></data>
   <data name="Home_CategoriesHeading" xml:space="preserve"><value>هر سبک، مدل خودش را دارد</value></data>
   <data name="Home_CategoriesLede" xml:space="preserve"><value>از پیاده‌روی سبک تا زمین بازی؛ کالکشن اورتایم برای هر قدم یک مدل دارد.</value></data>
   <data name="Home_ProductsHeading" xml:space="preserve"><value>پرفروش‌های اورتایم</value></data>
@@ -192,9 +187,7 @@
   <data name="About_PaymentText" xml:space="preserve"><value>پرداخت آنلاین امن یا پرداخت در محل (اردبیل).</value></data>
   <data name="About_LocationEyebrow" xml:space="preserve"><value>موقعیت فروشگاه</value></data>
   <data name="About_LocationHeading" xml:space="preserve"><value>از نزدیک از ما بازدید کنید</value></data>
-  <data name="About_BranchName" xml:space="preserve"><value>شعبه ۲ (کتونی)</value></data>
   <data name="About_AddressLabel" xml:space="preserve"><value>آدرس:</value></data>
-  <data name="About_AddressText" xml:space="preserve"><value>اردبیل، ایستگاه سرعین، به سمت شریعتی، اطلس مال، پلاک G۹</value></data>
   <data name="About_NeshanCta" xml:space="preserve"><value>مسیریابی در نشان</value></data>
   <data name="About_MapAriaLabel" xml:space="preserve"><value>مشاهده موقعیت روی نقشه نشان</value></data>
 

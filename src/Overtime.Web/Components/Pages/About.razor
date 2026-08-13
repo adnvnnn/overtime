@@ -1,4 +1,6 @@
 @page "/about"
+@using Microsoft.Extensions.Options
+@inject IOptions<StoreInfoOptions> StoreInfoAccessor
 @inject IStringLocalizer<AppStrings> Localizer
 
 <PageTitle>@Localizer["About_PageTitle"]</PageTitle>
@@ -13,16 +15,16 @@
         </div>
         <div class="location">
             <div class="loc-card">
-                <h3>@Localizer["About_BranchName"]</h3>
+                <h3>@_store.BranchName</h3>
                 <p class="addr">
                     <b>@Localizer["About_AddressLabel"]</b>
-                    @Localizer["About_AddressText"]
+                    @_store.AddressText
                 </p>
-                <a class="btn btn-primary" href="https://nshn.ir/f4rbCkHYN5lISF" target="_blank" rel="noopener">
+                <a class="btn btn-primary" href="@_store.MapUrl" target="_blank" rel="noopener">
                     @Localizer["About_NeshanCta"]
                 </a>
             </div>
-            <a class="map-art" href="https://nshn.ir/f4rbCkHYN5lISF" target="_blank" rel="noopener" aria-label="@Localizer["About_MapAriaLabel"]">
+            <a class="map-art" href="@_store.MapUrl" target="_blank" rel="noopener" aria-label="@Localizer["About_MapAriaLabel"]">
                 <div class="ring"></div>
                 <Icon Name="map-pin" Class="pin" />
             </a>
@@ -62,3 +64,7 @@
         </div>
     </div>
 </section>
+
+@code {
+    private StoreInfoOptions _store => StoreInfoAccessor.Value;
+}

@@ -1,8 +1,10 @@
 @implements IDisposable
+@using Microsoft.Extensions.Options
 @inject CartService CartService
 @inject BrandService BrandService
 @inject IJSRuntime JS
 @inject CategoryService CategoryService
+@inject IOptions<StoreInfoOptions> StoreInfoAccessor
 @inject IStringLocalizer<AppStrings> Localizer
 
 <header>
@@ -84,7 +86,7 @@
                 <Icon Name="menu" Class="ic ic-menu" />
                 <Icon Name="x" Class="ic ic-close" />
             </button>
-            <a class="btn btn-primary btn-sm" href="https://www.instagram.com/overtime_sneaker/" target="_blank" rel="noopener">
+            <a class="btn btn-primary btn-sm" href="@_store.InstagramUrl" target="_blank" rel="noopener">
                 <Icon Name="instagram" Class="ic" />
                 @Localizer["Common_Instagram"]
             </a>
@@ -121,6 +123,7 @@
 </header>
 
 @code {
+    private StoreInfoOptions _store => StoreInfoAccessor.Value;
     private bool _menuOpen;
     private bool _productsExpanded;
     private int _count;
