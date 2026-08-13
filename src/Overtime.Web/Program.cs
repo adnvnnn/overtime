@@ -14,6 +14,8 @@ builder.Services.AddDbContextFactory<AppDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("Default")));
 
 builder.Services.Configure<FooterOptions>(builder.Configuration.GetSection("Footer"));
+builder.Services.Configure<TickerOptions>(builder.Configuration.GetSection("Ticker"));
+builder.Services.Configure<StoreInfoOptions>(builder.Configuration.GetSection("Store"));
 
 builder.Services.AddLocalization();
 

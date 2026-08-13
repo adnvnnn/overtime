@@ -101,16 +101,33 @@ window.overtimeCarousel = {
     }, { threshold: 0.3 });
     intersectionObserver.observe(trackEl);
 
+    // Pause auto-scroll while the pointer is over the carousel (buttons and
+    // dots included, since they're siblings of the track under this same
+    // container) so it doesn't yank a slide away mid-read or mid-hover.
+    var container = trackEl.parentElement;
+    var onEnter = function () { dotNetRef.invokeMethodAsync("OnHoverChanged", true); };
+    var onLeave = function () { dotNetRef.invokeMethodAsync("OnHoverChanged", false); };
+    if (container) {
+      container.addEventListener("mouseenter", onEnter);
+      container.addEventListener("mouseleave", onLeave);
+    }
+
     return {
       dispose: function () {
         resizeObserver.disconnect();
         intersectionObserver.disconnect();
+        if (container) {
+          container.removeEventListener("mouseenter", onEnter);
+          container.removeEventListener("mouseleave", onLeave);
+        }
       }
     };
   },
-  scrollToIndex: function (trackEl, index) {
+  scrollToIndex: function (trackEl, index, smooth) {
     if (!trackEl) return;
     var item = trackEl.children[index];
-    if (item) item.scrollIntoView({ behavior: "smooth", inline: "start", block: "nearest" });
+    // "auto" would still honor .carousel-track's CSS scroll-behavior:smooth —
+    // "instant" is the one value that actually bypasses it for the wrap-reset case.
+    if (item) item.scrollIntoView({ behavior: smooth === false ? "instant" : "smooth", inline: "start", block: "nearest" });
   }
 };

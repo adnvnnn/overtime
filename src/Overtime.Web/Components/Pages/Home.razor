@@ -1,7 +1,10 @@
 @page "/"
+@using Microsoft.Extensions.Options
 @inject ProductService ProductService
 @inject BrandService BrandService
 @inject BannerService BannerService
+@inject IOptions<TickerOptions> TickerOptionsAccessor
+@inject IOptions<StoreInfoOptions> StoreInfoAccessor
 @inject IStringLocalizer<AppStrings> Localizer
 @inject IJSRuntime JS
 @implements IAsyncDisposable
@@ -19,7 +22,7 @@
             </p>
             <div class="actions">
                 <a class="btn btn-primary" href="/products">@Localizer["Nav_ViewProducts"]</a>
-                <a class="btn btn-ghost" href="/about#location">@Localizer["Home_BranchAddressCta"]</a>
+                <a class="btn btn-ghost" href="/about#location">@Localizer["Home_BranchAddressCta", Store.BranchName]</a>
             </div>
             <div class="hero-stats">
                 <div><b>@Localizer["Home_StatModelsCount", _inStockCount.ToFa()]</b><span>@Localizer["Home_StatModelsLabel"]</span></div>
@@ -55,16 +58,13 @@
 
 <div class="ticker" aria-hidden="true">
     <div class="track">
-        <span>@Localizer["Home_TickerShipping"]</span>
-        <span>@Localizer["Home_TickerGuarantee"]</span>
-            @foreach (var key in _tickerKeys)
-        <span>@Localizer["Home_TickerReturns"]</span>
-        <span>@Localizer["Home_TickerCod"]</span>
-        <span>@Localizer["Home_TickerShipping"]</span>
-        <span>@Localizer["Home_TickerGuarantee"]</span>
-        <span>@Localizer["Home_TickerNewModels"]</span>
-        <span>@Localizer["Home_TickerReturns"]</span>
-        <span>@Localizer["Home_TickerCod"]</span>
+        @for (int i = 0; i < TickerRepeatCount; i++)
+        {
+            @foreach (var item in _tickerItems)
+            {
+                <span>@item</span>
+            }
+        }
     </div>
 </div>
 
@@ -109,7 +109,7 @@
             </div>
             <div class="sec-head-actions">
                 <a class="btn btn-primary btn-sm" href="/products">@Localizer["Nav_ViewAllProducts"]</a>
-                <a class="btn btn-ghost btn-sm" href="https://www.instagram.com/overtime_sneaker/" target="_blank" rel="noopener">@Localizer["Home_ViewFullCollectionInsta"]</a>
+                <a class="btn btn-ghost btn-sm" href="@Store.InstagramUrl" target="_blank" rel="noopener">@Localizer["Home_ViewFullCollectionInsta"]</a>
             </div>
         </div>
         <div class="products">
@@ -158,12 +158,12 @@
             <div>
                 <p class="eyebrow">@Localizer["Home_SocialEyebrow"]</p>
                 <h2 class="insta-heading">@Localizer["Home_InstaHeading"]</h2>
-                <a class="insta-handle" href="https://www.instagram.com/overtime_sneaker/" target="_blank" rel="noopener">
+                <a class="insta-handle" href="@Store.InstagramUrl" target="_blank" rel="noopener">
                     <Icon Name="camera" Class="ic" />
-                    overtime_sneaker@@
+                    @Store.InstagramHandle@@
                 </a>
                 <p class="lede">@Localizer["Home_InstaLede"]</p>
-                <a class="btn btn-primary insta-cta" href="https://www.instagram.com/overtime_sneaker/" target="_blank" rel="noopener">@Localizer["Home_InstaCta"]</a>
+                <a class="btn btn-primary insta-cta" href="@Store.InstagramUrl" target="_blank" rel="noopener">@Localizer["Home_InstaCta"]</a>
             </div>
             <div class="grid6" aria-hidden="true">
                 @foreach (var brand in _instaBrands)
@@ -183,95 +183,3 @@
         </div>
     </div>
 </section>
-
-@code {
-    private List<Banner> _heroBanners = [];
-    private int _heroIndex = 0;
-    private CancellationTokenSource? _heroSlideCts;
-    private ElementReference _heroSlidesRef;
-    private DotNetObjectReference<Home>? _heroDotNetRef;
-    private IJSObjectReference? _heroGalleryHandle;
-
-    private List<Product> _topProducts = [];
-    private int _inStockCount;
-    private List<Banner> _promoBanners = [];
-    private List<Brand> _instaBrands = [];
-
-    protected override async Task OnInitializedAsync()
-    {
-        var topProductsTask = ProductService.GetTopAsync(6);
-        var inStockCountTask = ProductService.CountInStockAsync();
-        var heroBannersTask = BannerService.GetActiveAsync(BannerKind.Hero);
-        var promoBannersTask = BannerService.GetActiveAsync(BannerKind.Promo);
-        var allBrandsTask = BrandService.GetAllAsync();
-        await Task.WhenAll(topProductsTask, inStockCountTask, heroBannersTask, promoBannersTask, allBrandsTask);
-
-        _topProducts = topProductsTask.Result;
-        _inStockCount = inStockCountTask.Result;
-        _heroBanners = heroBannersTask.Result;
-        _promoBanners = promoBannersTask.Result;
-        _instaBrands = [.. allBrandsTask.Result.OrderBy(_ => Random.Shared.Next()).Take(6)];
-    }
-
-    protected override async Task OnAfterRenderAsync(bool firstRender)
-    {
-        if (firstRender)
-        {
-            _heroDotNetRef = DotNetObjectReference.Create(this);
-            _heroGalleryHandle = await JS.InvokeAsync<IJSObjectReference>("overtimeGallery.attach", _heroSlidesRef, _heroDotNetRef);
-
-            _heroSlideCts = new CancellationTokenSource();
-            _ = RunHeroAutoSlideAsync(_heroSlideCts.Token);
-        }
-    }
-
-    private async Task RunHeroAutoSlideAsync(CancellationToken token)
-    {
-        try
-        {
-            while (!token.IsCancellationRequested)
-            {
-                await Task.Delay(4500, token);
-                if (_heroBanners.Count == 0)
-                    continue;
-                _heroIndex = (_heroIndex + 1) % _heroBanners.Count;
-                await InvokeAsync(StateHasChanged);
-            }
-        }
-        catch (TaskCanceledException)
-        {
-        }
-    }
-
-    private void GoToHeroSlide(int index) => _heroIndex = index;
-
-    [JSInvokable]
-    public void OnSwipe(int direction)
-    {
-        if (_heroBanners.Count == 0)
-            return;
-
-        // overtimeGallery reports physical (LTR) drag direction; this page is RTL, so invert it.
-        _heroIndex = ((_heroIndex - direction) % _heroBanners.Count + _heroBanners.Count) % _heroBanners.Count;
-        StateHasChanged();
-    }
-
-    public async ValueTask DisposeAsync()
-    {
-        _heroSlideCts?.Cancel();
-        _heroSlideCts?.Dispose();
-
-        if (_heroGalleryHandle is not null)
-        {
-            try
-            {
-                await _heroGalleryHandle.InvokeVoidAsync("dispose");
-                await _heroGalleryHandle.DisposeAsync();
-            }
-            catch (JSDisconnectedException)
-            {
-            }
-        }
-        _heroDotNetRef?.Dispose();
-    }
-}
