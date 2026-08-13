@@ -21,6 +21,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
     public DbSet<OtpCode> OtpCodes => Set<OtpCode>();
     public DbSet<AdminUser> AdminUsers => Set<AdminUser>();
     public DbSet<Review> Reviews => Set<Review>();
+    public DbSet<Banner> Banners => Set<Banner>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -120,6 +121,11 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
         {
             e.Property(a => a.Username).UseCollation("SQL_Latin1_General_CP1_CI_AS");
             e.HasIndex(a => a.Username).IsUnique();
+        });
+
+        modelBuilder.Entity<Banner>(e =>
+        {
+            e.HasData(SeedData.GetBanners());
         });
     }
 }

@@ -78,6 +78,20 @@ public static class SeedData
         new() { Id = 26, Name = "Vico", Slug = "vico", LogoUrl = "assets/images/brands/vico-logo.svg", DisplayOrder = 25 },
     ];
 
+    public static Banner[] GetBanners() =>
+    [
+        // Hero — mirrors the storefront's hero slideshow slides
+        new() { Id = 1, Kind = BannerKind.Hero, ImageUrl = "assets/images/products/product-9.jpg", Badge = "№06", DisplayOrder = 0 },
+        new() { Id = 2, Kind = BannerKind.Hero, ImageUrl = "assets/images/products/product-3.jpg", Badge = "№02", DisplayOrder = 1 },
+        new() { Id = 3, Kind = BannerKind.Hero, ImageUrl = "assets/images/products/product-6.jpg", Badge = "№04", DisplayOrder = 2 },
+        new() { Id = 4, Kind = BannerKind.Hero, ImageUrl = "assets/images/products/product-12.jpg", Badge = "№08", DisplayOrder = 3 },
+
+        // Promo — product banners shown between the products and Instagram sections
+        new() { Id = 5, Kind = BannerKind.Promo, ImageUrl = "assets/images/products/product-1.jpg", Badge = "پرفروش", Title = "Air Pulse", Price = 2950000, LinkUrl = "/product/air-pulse", DisplayOrder = 0 },
+        new() { Id = 6, Kind = BannerKind.Promo, ImageUrl = "assets/images/products/product-2.jpg", Badge = "جدید", Title = "Highjump X", Price = 3800000, LinkUrl = "/product/highjump-x", DisplayOrder = 1 },
+        new() { Id = 7, Kind = BannerKind.Promo, ImageUrl = "assets/images/products/product-4.jpg", Badge = "تخفیف", Title = "Aria Knit", Price = 2650000, LinkUrl = "/product/aria-knit", DisplayOrder = 2 },
+    ];
+
     // Product.Id is a DB-assigned int (auto-increment), but HasData needs explicit values,
     // so seed rows get sequential ids matching this array's order (1-based). ProductIds maps
     // each product's readable Slug back to that id, so the rest of this file — order seed data,
