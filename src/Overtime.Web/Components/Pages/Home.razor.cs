@@ -26,7 +26,6 @@ public partial class Home
     private DotNetObjectReference<Home>? _heroDotNetRef;
     private IJSObjectReference? _heroGalleryHandle;
 
-    private List<Product> _topProducts = [];
     private int _inStockCount;
     private List<Banner> _promoBanners = [];
     private List<Brand> _instaBrands = [];
@@ -35,14 +34,12 @@ public partial class Home
     {
         _tickerItems = TickerOptionsAccessor.Value.Items;
 
-        var topProductsTask = ProductService.GetTopAsync(6);
         var inStockCountTask = ProductService.CountInStockAsync();
         var heroBannersTask = BannerService.GetActiveAsync(BannerKind.Hero);
         var promoBannersTask = BannerService.GetActiveAsync(BannerKind.Promo);
         var allBrandsTask = BrandService.GetAllAsync();
-        await Task.WhenAll(topProductsTask, inStockCountTask, heroBannersTask, promoBannersTask, allBrandsTask);
+        await Task.WhenAll(inStockCountTask, heroBannersTask, promoBannersTask, allBrandsTask);
 
-        _topProducts = topProductsTask.Result;
         _inStockCount = inStockCountTask.Result;
         _heroBanners = heroBannersTask.Result;
         _promoBanners = promoBannersTask.Result;

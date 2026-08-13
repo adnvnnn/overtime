@@ -163,8 +163,6 @@
   <data name="Home_HeroGoToSlideAria" xml:space="preserve"><value>رفتن به تصویر {0}</value></data>
   <data name="Home_CategoriesHeading" xml:space="preserve"><value>هر سبک، مدل خودش را دارد</value></data>
   <data name="Home_CategoriesLede" xml:space="preserve"><value>از پیاده‌روی سبک تا زمین بازی؛ کالکشن اورتایم برای هر قدم یک مدل دارد.</value></data>
-  <data name="Home_ProductsHeading" xml:space="preserve"><value>پرفروش‌های اورتایم</value></data>
-  <data name="Home_ViewFullCollectionInsta" xml:space="preserve"><value>مشاهده کالکشن کامل در اینستاگرام</value></data>
   <data name="Home_BannersEyebrow" xml:space="preserve"><value>پیشنهاد ما</value></data>
   <data name="Home_BannersHeading" xml:space="preserve"><value>چند مدل که نباید از دست بدهید</value></data>
   <data name="Home_BannerCta" xml:space="preserve"><value>مشاهده محصول</value></data>

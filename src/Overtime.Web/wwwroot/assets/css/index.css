@@ -480,12 +480,26 @@
   .feature p{ margin:0; color: var(--muted); font-size: 13.5px; }
 
   /* ---------- Promo banners ---------- */
-  .promo-banners{ display:grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
+  /* A bento-style mosaic instead of three identical tiles: every group of
+     three banners gets one tall "feature" tile (2 cols x 2 rows) beside two
+     stacked smaller ones (2 cols x 1 row each) — the pattern repeats via
+     nth-child if more than three banners are configured, so it stays a
+     gallery instead of degrading into a uniform grid again. Row height is
+     driven by grid-auto-rows (not aspect-ratio) since each tile's shape now
+     comes from how many rows it spans. */
+  .promo-banners{
+    display:grid; grid-template-columns: repeat(4, 1fr);
+    grid-auto-rows: clamp(140px, 22vw, 220px);
+    gap: 24px;
+  }
   .promo-banner{
-    position:relative; display:block; aspect-ratio: 4/5; border-radius: var(--radius);
+    position:relative; display:block; border-radius: var(--radius);
     overflow:hidden; border:1px solid var(--line); text-decoration:none; color:#fff;
     transition: transform .3s cubic-bezier(0.16, 1, 0.3, 1);
   }
+  .promo-banner:nth-child(3n+1){ grid-column: span 2; grid-row: span 2; }
+  .promo-banner:nth-child(3n+2){ grid-column: span 2; grid-row: span 1; }
+  .promo-banner:nth-child(3n+3){ grid-column: span 2; grid-row: span 1; }
   .promo-banner:hover{ transform: translateY(-4px); }
   .promo-banner img{ position:absolute; inset:0; width:100%; height:100%; object-fit:cover; }
   .promo-banner::after{
@@ -506,8 +520,21 @@
   .promo-banner-price small{ font-size: 11.5px; font-weight:500; margin-inline-start:2px; opacity:.85; }
   .promo-banner-cta{ margin-top: 6px; }
   @media (prefers-reduced-motion: reduce){ .promo-banner{ transition:none; } }
-  @media (max-width: 860px){ .promo-banners{ grid-template-columns: 1fr 1fr; } }
-  @media (max-width: 560px){ .promo-banners{ grid-template-columns: 1fr; } }
+  @media (max-width: 860px){
+    /* Same mosaic idea on two columns: the feature tile goes full-width and
+       tall, the other two sit side by side under it instead of beside it. */
+    .promo-banners{ grid-template-columns: repeat(2, 1fr); }
+    .promo-banner:nth-child(3n+2), .promo-banner:nth-child(3n+3){ grid-column: span 1; }
+  }
+  @media (max-width: 560px){
+    /* A single column has no room for a mosaic to read as one — revert to
+       plain stacked portrait cards instead of a lopsided one-column mosaic. */
+    .promo-banners{ grid-template-columns: 1fr; grid-auto-rows: auto; }
+    .promo-banner{ aspect-ratio: 4/5; }
+    .promo-banner:nth-child(3n+1), .promo-banner:nth-child(3n+2), .promo-banner:nth-child(3n+3){
+      grid-column: span 1; grid-row: span 1;
+    }
+  }
 
   /* ---------- Instagram ---------- */
   .insta{
