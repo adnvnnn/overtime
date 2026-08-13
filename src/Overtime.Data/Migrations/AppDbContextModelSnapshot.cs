@@ -74,7 +74,7 @@ namespace Overtime.Data.Migrations
 
                     b.HasIndex("UserId", "IsDefault");
 
-                    b.ToTable("Addresses", (string)null);
+                    b.ToTable("Addresses");
                 });
 
             modelBuilder.Entity("Overtime.Data.Entities.AdminUser", b =>
@@ -106,7 +106,119 @@ namespace Overtime.Data.Migrations
                     b.HasIndex("Username")
                         .IsUnique();
 
-                    b.ToTable("AdminUsers", (string)null);
+                    b.ToTable("AdminUsers");
+                });
+
+            modelBuilder.Entity("Overtime.Data.Entities.Banner", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Badge")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("DisplayOrder")
+                        .HasColumnType("int");
+
+                    b.Property<string>("ImageUrl")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<int>("Kind")
+                        .HasColumnType("int");
+
+                    b.Property<string>("LinkUrl")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<long?>("Price")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("Title")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Banners");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            Badge = "№06",
+                            DisplayOrder = 0,
+                            ImageUrl = "assets/images/products/product-9.jpg",
+                            IsActive = true,
+                            Kind = 0
+                        },
+                        new
+                        {
+                            Id = 2,
+                            Badge = "№02",
+                            DisplayOrder = 1,
+                            ImageUrl = "assets/images/products/product-3.jpg",
+                            IsActive = true,
+                            Kind = 0
+                        },
+                        new
+                        {
+                            Id = 3,
+                            Badge = "№04",
+                            DisplayOrder = 2,
+                            ImageUrl = "assets/images/products/product-6.jpg",
+                            IsActive = true,
+                            Kind = 0
+                        },
+                        new
+                        {
+                            Id = 4,
+                            Badge = "№08",
+                            DisplayOrder = 3,
+                            ImageUrl = "assets/images/products/product-12.jpg",
+                            IsActive = true,
+                            Kind = 0
+                        },
+                        new
+                        {
+                            Id = 5,
+                            Badge = "پرفروش",
+                            DisplayOrder = 0,
+                            ImageUrl = "assets/images/products/product-1.jpg",
+                            IsActive = true,
+                            Kind = 1,
+                            LinkUrl = "/product/air-pulse",
+                            Price = 2950000L,
+                            Title = "Air Pulse"
+                        },
+                        new
+                        {
+                            Id = 6,
+                            Badge = "جدید",
+                            DisplayOrder = 1,
+                            ImageUrl = "assets/images/products/product-2.jpg",
+                            IsActive = true,
+                            Kind = 1,
+                            LinkUrl = "/product/highjump-x",
+                            Price = 3800000L,
+                            Title = "Highjump X"
+                        },
+                        new
+                        {
+                            Id = 7,
+                            Badge = "تخفیف",
+                            DisplayOrder = 2,
+                            ImageUrl = "assets/images/products/product-4.jpg",
+                            IsActive = true,
+                            Kind = 1,
+                            LinkUrl = "/product/aria-knit",
+                            Price = 2650000L,
+                            Title = "Aria Knit"
+                        });
                 });
 
             modelBuilder.Entity("Overtime.Data.Entities.Brand", b =>
@@ -136,7 +248,7 @@ namespace Overtime.Data.Migrations
                     b.HasIndex("Slug")
                         .IsUnique();
 
-                    b.ToTable("Brands", (string)null);
+                    b.ToTable("Brands");
 
                     b.HasData(
                         new
@@ -359,7 +471,7 @@ namespace Overtime.Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Carts", (string)null);
+                    b.ToTable("Carts");
                 });
 
             modelBuilder.Entity("Overtime.Data.Entities.CartItem", b =>
@@ -389,7 +501,7 @@ namespace Overtime.Data.Migrations
                     b.HasIndex("CartId", "ProductId", "Size")
                         .IsUnique();
 
-                    b.ToTable("CartItems", (string)null);
+                    b.ToTable("CartItems");
                 });
 
             modelBuilder.Entity("Overtime.Data.Entities.Category", b =>
@@ -416,7 +528,7 @@ namespace Overtime.Data.Migrations
                     b.HasIndex("Slug")
                         .IsUnique();
 
-                    b.ToTable("Categories", (string)null);
+                    b.ToTable("Categories");
 
                     b.HasData(
                         new
@@ -492,7 +604,7 @@ namespace Overtime.Data.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Orders", (string)null);
+                    b.ToTable("Orders");
                 });
 
             modelBuilder.Entity("Overtime.Data.Entities.OrderItem", b =>
@@ -526,7 +638,7 @@ namespace Overtime.Data.Migrations
 
                     b.HasIndex("OrderId");
 
-                    b.ToTable("OrderItems", (string)null);
+                    b.ToTable("OrderItems");
                 });
 
             modelBuilder.Entity("Overtime.Data.Entities.OtpCode", b =>
@@ -562,7 +674,7 @@ namespace Overtime.Data.Migrations
 
                     b.HasIndex("PhoneNumber", "CreatedAt");
 
-                    b.ToTable("OtpCodes", (string)null);
+                    b.ToTable("OtpCodes");
                 });
 
             modelBuilder.Entity("Overtime.Data.Entities.Product", b =>
@@ -615,7 +727,7 @@ namespace Overtime.Data.Migrations
                     b.HasIndex("Slug")
                         .IsUnique();
 
-                    b.ToTable("Products", (string)null);
+                    b.ToTable("Products");
 
                     b.HasData(
                         new
@@ -714,7 +826,7 @@ namespace Overtime.Data.Migrations
 
                     b.HasIndex("CategoryId");
 
-                    b.ToTable("ProductCategory", (string)null);
+                    b.ToTable("ProductCategory");
 
                     b.HasData(
                         new
@@ -771,7 +883,7 @@ namespace Overtime.Data.Migrations
 
                     b.HasIndex("ProductId");
 
-                    b.ToTable("ProductImages", (string)null);
+                    b.ToTable("ProductImages");
 
                     b.HasData(
                         new
@@ -924,7 +1036,7 @@ namespace Overtime.Data.Migrations
                     b.HasIndex("ProductId", "Size")
                         .IsUnique();
 
-                    b.ToTable("ProductSizes", (string)null);
+                    b.ToTable("ProductSizes");
 
                     b.HasData(
                         new
@@ -1207,7 +1319,7 @@ namespace Overtime.Data.Migrations
 
                     b.HasIndex("ProductId");
 
-                    b.ToTable("ProductSpecs", (string)null);
+                    b.ToTable("ProductSpecs");
 
                     b.HasData(
                         new
@@ -1416,7 +1528,7 @@ namespace Overtime.Data.Migrations
 
                     b.HasIndex("UsageId");
 
-                    b.ToTable("ProductUsage", (string)null);
+                    b.ToTable("ProductUsage");
 
                     b.HasData(
                         new
@@ -1481,7 +1593,7 @@ namespace Overtime.Data.Migrations
                     b.HasIndex("ProductId", "UserId")
                         .IsUnique();
 
-                    b.ToTable("Reviews", (string)null);
+                    b.ToTable("Reviews");
                 });
 
             modelBuilder.Entity("Overtime.Data.Entities.Usage", b =>
@@ -1501,7 +1613,7 @@ namespace Overtime.Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Usages", (string)null);
+                    b.ToTable("Usages");
 
                     b.HasData(
                         new
@@ -1560,7 +1672,7 @@ namespace Overtime.Data.Migrations
                     b.HasIndex("PhoneNumber")
                         .IsUnique();
 
-                    b.ToTable("Users", (string)null);
+                    b.ToTable("Users");
                 });
 
             modelBuilder.Entity("Overtime.Data.Entities.Address", b =>

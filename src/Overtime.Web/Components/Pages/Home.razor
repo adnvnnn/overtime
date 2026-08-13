@@ -1,6 +1,7 @@
 @page "/"
 @inject ProductService ProductService
 @inject BrandService BrandService
+@inject BannerService BannerService
 @inject IStringLocalizer<AppStrings> Localizer
 @inject IJSRuntime JS
 @implements IAsyncDisposable
@@ -21,16 +22,16 @@
                 <a class="btn btn-ghost" href="/about#location">@Localizer["Home_BranchAddressCta"]</a>
             </div>
             <div class="hero-stats">
-                <div><b>@Localizer["Home_StatModelsCount"]</b><span>@Localizer["Home_StatModelsLabel"]</span></div>
+                <div><b>@Localizer["Home_StatModelsCount", _inStockCount.ToFa()]</b><span>@Localizer["Home_StatModelsLabel"]</span></div>
                 <div><b>@Localizer["Home_StatGuaranteeValue"]</b><span>@Localizer["Home_StatGuaranteeLabel"]</span></div>
                 <div><b>@Localizer["Home_StatReturnValue"]</b><span>@Localizer["Home_StatReturnLabel"]</span></div>
             </div>
         </div>
         <div class="hero-art">
             <div class="hero-slides" @ref="_heroSlidesRef">
-                @for (int i = 0; i < _heroSlides.Count; i++)
+                @for (int i = 0; i < _heroBanners.Count; i++)
                 {
-                    var slide = _heroSlides[i];
+                    var slide = _heroBanners[i];
                     <div class="hero-slide @(_heroIndex == i ? "active" : "")" aria-hidden="@(_heroIndex == i ? "false" : "true")">
                         <div class="badge">@Localizer["Home_HeroBadgeBrand"] <b>@slide.Badge</b></div>
                         <div class="ground"></div>
@@ -39,7 +40,7 @@
                 }
             </div>
             <div class="hero-dots">
-                @for (int i = 0; i < _heroSlides.Count; i++)
+                @for (int i = 0; i < _heroBanners.Count; i++)
                 {
                     var index = i;
                     <button type="button" class="dot @(_heroIndex == index ? "active" : "")"
@@ -129,17 +130,20 @@
             </div>
         </div>
         <div class="promo-banners">
-            @foreach (var product in _bannerProducts)
+            @foreach (var banner in _promoBanners)
             {
-                <a class="promo-banner" href="@($"/product/{product.Slug}")">
-                    <img src="@(product.Images.Count > 0 ? product.Images[0].Url : "")" alt="@product.Name" loading="lazy">
+                <a class="promo-banner" href="@banner.LinkUrl">
+                    <img src="@banner.ImageUrl" alt="@banner.Title" loading="lazy">
                     <div class="promo-banner-content">
-                        @if (!string.IsNullOrEmpty(product.Badge))
+                        @if (!string.IsNullOrEmpty(banner.Badge))
                         {
-                            <span class="promo-banner-badge">@product.Badge</span>
+                            <span class="promo-banner-badge">@banner.Badge</span>
                         }
-                        <h3>@product.Name</h3>
-                        <span class="promo-banner-price">@product.Price.ToFa()<small>@Localizer["Common_Toman"]</small></span>
+                        <h3>@banner.Title</h3>
+                        @if (banner.Price is not null)
+                        {
+                            <span class="promo-banner-price">@banner.Price.Value.ToFa()<small>@Localizer["Common_Toman"]</small></span>
+                        }
                         <span class="btn btn-primary btn-sm promo-banner-cta">@Localizer["Home_BannerCta"]</span>
                     </div>
                 </a>
@@ -181,15 +185,7 @@
 </section>
 
 @code {
-    private readonly record struct HeroSlide(string ImageUrl, string Badge);
-
-    private readonly List<HeroSlide> _heroSlides =
-    [
-        new("assets/images/products/product-9.jpg", "№06"),
-        new("assets/images/products/product-3.jpg", "№02"),
-        new("assets/images/products/product-6.jpg", "№04"),
-        new("assets/images/products/product-12.jpg", "№08"),
-    ];
+    private List<Banner> _heroBanners = [];
     private int _heroIndex = 0;
     private CancellationTokenSource? _heroSlideCts;
     private ElementReference _heroSlidesRef;
@@ -197,15 +193,24 @@
     private IJSObjectReference? _heroGalleryHandle;
 
     private List<Product> _topProducts = [];
-    private List<Product> _bannerProducts = [];
+    private int _inStockCount;
+    private List<Banner> _promoBanners = [];
     private List<Brand> _instaBrands = [];
 
     protected override async Task OnInitializedAsync()
     {
-        _topProducts = await ProductService.GetTopAsync(6);
-        _bannerProducts = [.. _topProducts.Where(p => !string.IsNullOrEmpty(p.Badge)).Take(3)];
-        var allBrands = await BrandService.GetAllAsync();
-        _instaBrands = [.. allBrands.OrderBy(_ => Random.Shared.Next()).Take(6)];
+        var topProductsTask = ProductService.GetTopAsync(6);
+        var inStockCountTask = ProductService.CountInStockAsync();
+        var heroBannersTask = BannerService.GetActiveAsync(BannerKind.Hero);
+        var promoBannersTask = BannerService.GetActiveAsync(BannerKind.Promo);
+        var allBrandsTask = BrandService.GetAllAsync();
+        await Task.WhenAll(topProductsTask, inStockCountTask, heroBannersTask, promoBannersTask, allBrandsTask);
+
+        _topProducts = topProductsTask.Result;
+        _inStockCount = inStockCountTask.Result;
+        _heroBanners = heroBannersTask.Result;
+        _promoBanners = promoBannersTask.Result;
+        _instaBrands = [.. allBrandsTask.Result.OrderBy(_ => Random.Shared.Next()).Take(6)];
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -227,7 +232,9 @@
             while (!token.IsCancellationRequested)
             {
                 await Task.Delay(4500, token);
-                _heroIndex = (_heroIndex + 1) % _heroSlides.Count;
+                if (_heroBanners.Count == 0)
+                    continue;
+                _heroIndex = (_heroIndex + 1) % _heroBanners.Count;
                 await InvokeAsync(StateHasChanged);
             }
         }
@@ -241,8 +248,11 @@
     [JSInvokable]
     public void OnSwipe(int direction)
     {
+        if (_heroBanners.Count == 0)
+            return;
+
         // overtimeGallery reports physical (LTR) drag direction; this page is RTL, so invert it.
-        _heroIndex = ((_heroIndex - direction) % _heroSlides.Count + _heroSlides.Count) % _heroSlides.Count;
+        _heroIndex = ((_heroIndex - direction) % _heroBanners.Count + _heroBanners.Count) % _heroBanners.Count;
         StateHasChanged();
     }
 

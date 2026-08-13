@@ -153,7 +153,7 @@
   <data name="Home_HeroTitle" xml:space="preserve"><value>وقت اضافه‌ای که&lt;br&gt;برای هر &lt;span&gt;قدم&lt;/span&gt; می‌گذاریم.</value></data>
   <data name="Home_HeroLede" xml:space="preserve"><value>کلکسیون کفش‌های کتانی اورتایم؛ از دویدن‌های روزمره تا زمین بازی و خیابان. کیفیت اصل، ارسال به سراسر کشور و پشتیبانی واقعی از شعبه اردبیل.</value></data>
   <data name="Home_BranchAddressCta" xml:space="preserve"><value>آدرس شعبه ۲ (کتونی)</value></data>
-  <data name="Home_StatModelsCount" xml:space="preserve"><value>+۲۵۰</value></data>
+  <data name="Home_StatModelsCount" xml:space="preserve"><value>+{0}</value></data>
   <data name="Home_StatModelsLabel" xml:space="preserve"><value>مدل در انبار</value></data>
   <data name="Home_StatGuaranteeValue" xml:space="preserve"><value>۱۰۰٪</value></data>
   <data name="Home_StatGuaranteeLabel" xml:space="preserve"><value>ضمانت اصالت</value></data>
