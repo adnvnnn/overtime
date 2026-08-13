@@ -129,18 +129,14 @@
 
     private Task NextSlide()
     {
-        var next = (_currentIndex + 1) % (_maxIndex + 1);
-        var wrapped = next < _currentIndex;
-        _currentIndex = next;
-        return ScrollToCurrentAsync(smooth: !wrapped);
+        _currentIndex = (_currentIndex + 1) % (_maxIndex + 1);
+        return ScrollToCurrentAsync();
     }
 
     private Task PrevSlide()
     {
-        var prev = (_currentIndex - 1 + _maxIndex + 1) % (_maxIndex + 1);
-        var wrapped = prev > _currentIndex;
-        _currentIndex = prev;
-        return ScrollToCurrentAsync(smooth: !wrapped);
+        _currentIndex = (_currentIndex - 1 + _maxIndex + 1) % (_maxIndex + 1);
+        return ScrollToCurrentAsync();
     }
 
     private Task GoToSlide(int index)
@@ -149,10 +145,6 @@
         return ScrollToCurrentAsync();
     }
 
-    // Wrapping past the last/first slide snaps instantly instead of smooth-
-    // scrolling across the whole track — otherwise "next" from the last slide
-    // back to the first plays a long, jarring reverse traversal of every item
-    // in between instead of reading as a quick reset to the start.
     private async Task ScrollToCurrentAsync(bool smooth = true)
     {
         if (_carouselHandle is not null)
