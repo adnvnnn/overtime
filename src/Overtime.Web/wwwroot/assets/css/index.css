@@ -462,7 +462,7 @@
   .card .body{ padding: 18px 20px 22px; border-top: 1px solid var(--line); display:flex; flex-direction:column; gap:10px; flex:1; }
   .card .cat-line{ font-size: 12px; color: var(--muted); }
   .card h3{ font-size: 17px; font-weight:700; }
-  .card .row{ display:flex; align-items:center; justify-content:space-between; margin-top:auto; padding-top: 8px; }
+  .card .row{ display:flex; align-items:center; justify-content:space-between; flex-wrap: wrap; gap: 8px; margin-top:auto; padding-top: 8px; }
   .card .price{ font-weight: 800; font-size: 16px; }
   .card .price small{ font-weight:600; color: var(--muted); font-size: 12px; margin-inline-start: 4px; }
   .card .add{
@@ -700,19 +700,42 @@
   /* ---------- Carousel ---------- */
   .carousel-container{
     position: relative; margin-bottom: 30px;
+    /* Contains .carousel-viewport's negative margin (used to cancel out its
+       own shadow-clearance padding) so it doesn't collapse into this
+       element's box and erase the padding's effect. */
+    display: flow-root;
+  }
+  .carousel-viewport{
+    overflow: hidden;
+    /* Clipping (needed so off-screen cards don't spill past the arrows)
+       would otherwise also clip .card's box-shadow and hover lift right at
+       the edge. Padding gives the shadow room inside the clipped box; the
+       matching negative margin cancels the padding back out so this
+       element's footprint in the page layout (and the button/dot positions
+       around it) is unaffected. */
+    padding: 14px 10px 36px;
+    margin: -14px -10px -36px;
   }
   .carousel-track{
     display: flex; gap: 24px;
-    overflow-x: auto; overscroll-behavior-x: contain;
-    scroll-snap-type: x mandatory; scroll-behavior: smooth;
-    scrollbar-width: none; -ms-overflow-style: none;
     cursor: grab;
+    /* No native scrolling here — position is driven entirely by JS setting
+       `transform: translateX(...)` (see interop.js), snapped to the nearest
+       card by distance dragged rather than released velocity. touch-action
+       hands horizontal gestures to JS while still letting vertical page
+       scroll pass through natively. */
+    touch-action: pan-y;
+    user-select: none; -webkit-user-select: none;
   }
-  .carousel-track::-webkit-scrollbar{ display: none; }
-  .carousel-track.dragging{ cursor: grabbing; scroll-snap-type: none; }
+  .carousel-track.dragging{ cursor: grabbing; }
+  .carousel-track.snap{
+    transition: transform .42s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  @media (prefers-reduced-motion: reduce){
+    .carousel-track.snap{ transition: none; }
+  }
   .carousel-item{
     flex: 0 0 calc(25% - 18px); min-width: 0;
-    scroll-snap-align: start;
   }
   .carousel-btn{
     position: absolute; top: 50%; transform: translateY(-50%);
@@ -901,7 +924,11 @@
     .cats{ grid-template-columns: 1fr 1fr; }
     section{ padding: 56px 0; }
     .hero-stats, .hero-lede{ display: none; }
-    .carousel-item{ flex: 0 0 calc(50% - 12px); }
+    /* One card per view here, matching .products' own 1fr drop at this same
+       breakpoint — at 2-up the price+button row didn't have enough width
+       and was overflowing/clipping (see .card .row's wrap fallback above,
+       which is the safety net for any width, not just this tier). */
+    .carousel-item{ flex: 0 0 100%; }
   }
   @media (max-width: 480px){
     .cart-drawer{ width: 100vw; }
