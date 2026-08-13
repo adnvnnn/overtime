@@ -265,6 +265,7 @@
   <!-- Common: generic actions -->
   <data name="Common_Close" xml:space="preserve"><value>بستن</value></data>
   <data name="Common_Cancel" xml:space="preserve"><value>انصراف</value></data>
+  <data name="Common_Loading" xml:space="preserve"><value>در حال بارگذاری</value></data>
 
   <!-- CartDrawer -->
   <data name="Cart_CloseAria" xml:space="preserve"><value>بستن سبد خرید</value></data>

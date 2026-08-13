@@ -154,7 +154,8 @@ namespace Overtime.Data.Migrations
                             DisplayOrder = 0,
                             ImageUrl = "assets/images/products/product-9.jpg",
                             IsActive = true,
-                            Kind = 0
+                            Kind = 0,
+                            LinkUrl = "/products"
                         },
                         new
                         {
@@ -163,7 +164,8 @@ namespace Overtime.Data.Migrations
                             DisplayOrder = 1,
                             ImageUrl = "assets/images/products/product-3.jpg",
                             IsActive = true,
-                            Kind = 0
+                            Kind = 0,
+                            LinkUrl = "/products"
                         },
                         new
                         {
@@ -172,7 +174,8 @@ namespace Overtime.Data.Migrations
                             DisplayOrder = 2,
                             ImageUrl = "assets/images/products/product-6.jpg",
                             IsActive = true,
-                            Kind = 0
+                            Kind = 0,
+                            LinkUrl = "/products"
                         },
                         new
                         {
@@ -181,7 +184,8 @@ namespace Overtime.Data.Migrations
                             DisplayOrder = 3,
                             ImageUrl = "assets/images/products/product-12.jpg",
                             IsActive = true,
-                            Kind = 0
+                            Kind = 0,
+                            LinkUrl = "/products"
                         },
                         new
                         {

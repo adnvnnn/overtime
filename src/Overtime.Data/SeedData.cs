@@ -80,11 +80,14 @@ public static class SeedData
 
     public static Banner[] GetBanners() =>
     [
-        // Hero — mirrors the storefront's hero slideshow slides
-        new() { Id = 1, Kind = BannerKind.Hero, ImageUrl = "assets/images/products/product-9.jpg", Badge = "№06", DisplayOrder = 0 },
-        new() { Id = 2, Kind = BannerKind.Hero, ImageUrl = "assets/images/products/product-3.jpg", Badge = "№02", DisplayOrder = 1 },
-        new() { Id = 3, Kind = BannerKind.Hero, ImageUrl = "assets/images/products/product-6.jpg", Badge = "№04", DisplayOrder = 2 },
-        new() { Id = 4, Kind = BannerKind.Hero, ImageUrl = "assets/images/products/product-12.jpg", Badge = "№08", DisplayOrder = 3 },
+        // Hero — mirrors the storefront's hero slideshow slides. These are
+        // brand/campaign imagery rather than ads for one specific product
+        // (the badge numbers don't correspond to real product slugs), so
+        // they link to the catalog rather than a single product page.
+        new() { Id = 1, Kind = BannerKind.Hero, ImageUrl = "assets/images/products/product-9.jpg", Badge = "№06", LinkUrl = "/products", DisplayOrder = 0 },
+        new() { Id = 2, Kind = BannerKind.Hero, ImageUrl = "assets/images/products/product-3.jpg", Badge = "№02", LinkUrl = "/products", DisplayOrder = 1 },
+        new() { Id = 3, Kind = BannerKind.Hero, ImageUrl = "assets/images/products/product-6.jpg", Badge = "№04", LinkUrl = "/products", DisplayOrder = 2 },
+        new() { Id = 4, Kind = BannerKind.Hero, ImageUrl = "assets/images/products/product-12.jpg", Badge = "№08", LinkUrl = "/products", DisplayOrder = 3 },
 
         // Promo — product banners shown between the products and Instagram sections
         new() { Id = 5, Kind = BannerKind.Promo, ImageUrl = "assets/images/products/product-1.jpg", Badge = "پرفروش", Title = "Air Pulse", Price = 2950000, LinkUrl = "/product/air-pulse", DisplayOrder = 0 },

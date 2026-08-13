@@ -318,6 +318,7 @@
   }
   .hero-slides{
     position:absolute; inset:0; cursor: grab; touch-action: pan-y;
+    user-select: none; -webkit-user-select: none;
   }
   .hero-slides.dragging{ cursor: grabbing; }
   .hero-slide{
@@ -325,6 +326,7 @@
     display:flex; align-items:center; justify-content:center;
     opacity:0; visibility:hidden; pointer-events:none;
     transition: opacity .5s cubic-bezier(0.16, 1, 0.3, 1);
+    color:inherit; text-decoration:none;
   }
   .hero-slide.active{ opacity:1; visibility:visible; pointer-events:auto; }
   .hero-art .ground{
@@ -792,6 +794,25 @@
   @media (prefers-reduced-motion: reduce){
     .carousel-btn, .carousel-dots .dot{ transition: none; }
   }
+
+  /* ---------- Content loader ---------- */
+  /* Shown inside MainLayout's <main> while the page being navigated to is
+     still loading (see MainLayout.razor's RegisterLocationChangingHandler) —
+     replaces @Body there specifically, so the header/nav and footer stay in
+     place instead of the whole page going blank. min-height:100vh so the
+     content area still reads as substantial/"page-sized" rather than a
+     thin sliver, with a small centered spinner. */
+  .content-loader{
+    min-height: 100vh; min-height: 100dvh;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .content-loader-spinner{
+    width: 40px; height: 40px; border-radius: 50%;
+    border: 3px solid var(--line); border-inline-start-color: var(--accent);
+    animation: content-loader-spin .7s linear infinite;
+  }
+  @media (prefers-reduced-motion: reduce){ .content-loader-spinner{ animation: none; } }
+  @keyframes content-loader-spin{ to{ transform: rotate(360deg); } }
 
   /* ---------- Toast ---------- */
   .toast{
