@@ -100,27 +100,6 @@
     </div>
 </section>
 
-<section id="products">
-    <div class="wrap">
-        <div class="sec-head">
-            <div>
-                <p class="eyebrow">@Localizer["Common_Products"]</p>
-                <h2>@Localizer["Home_ProductsHeading"]</h2>
-            </div>
-            <div class="sec-head-actions">
-                <a class="btn btn-primary btn-sm" href="/products">@Localizer["Nav_ViewAllProducts"]</a>
-                <a class="btn btn-ghost btn-sm" href="@Store.InstagramUrl" target="_blank" rel="noopener">@Localizer["Home_ViewFullCollectionInsta"]</a>
-            </div>
-        </div>
-        <div class="products">
-            @foreach (var product in _topProducts)
-            {
-                <ProductCard Product="product" />
-            }
-        </div>
-    </div>
-</section>
-
 <section id="banners">
     <div class="wrap">
         <div class="sec-head">
@@ -134,11 +113,11 @@
             {
                 <a class="promo-banner" href="@banner.LinkUrl">
                     <img src="@banner.ImageUrl" alt="@banner.Title" loading="lazy">
+                    @if (!string.IsNullOrEmpty(banner.Badge))
+                    {
+                        <span class="promo-banner-badge">@banner.Badge</span>
+                    }
                     <div class="promo-banner-content">
-                        @if (!string.IsNullOrEmpty(banner.Badge))
-                        {
-                            <span class="promo-banner-badge">@banner.Badge</span>
-                        }
                         <h3>@banner.Title</h3>
                         @if (banner.Price is not null)
                         {
@@ -159,7 +138,7 @@
                 <p class="eyebrow">@Localizer["Home_SocialEyebrow"]</p>
                 <h2 class="insta-heading">@Localizer["Home_InstaHeading"]</h2>
                 <a class="insta-handle" href="@Store.InstagramUrl" target="_blank" rel="noopener">
-                    <Icon Name="camera" Class="ic" />
+                    <Icon Name="instagram" Class="ic" />
                     @Store.InstagramHandle@@
                 </a>
                 <p class="lede">@Localizer["Home_InstaLede"]</p>
