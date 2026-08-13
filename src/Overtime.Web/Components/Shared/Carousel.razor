@@ -13,13 +13,15 @@
             <p class="lede">@Localizer["Carousel_Lede"]</p>
         </div>
         <div class="carousel-container">
-            <div class="carousel-track" @ref="_trackRef">
-                @foreach (var product in _products)
-                {
-                    <div class="carousel-item">
-                        <ProductCard Product="product" />
-                    </div>
-                }
+            <div class="carousel-viewport">
+                <div class="carousel-track" @ref="_trackRef">
+                    @foreach (var product in _products)
+                    {
+                        <div class="carousel-item">
+                            <ProductCard Product="product" />
+                        </div>
+                    }
+                </div>
             </div>
             <button type="button" class="carousel-btn carousel-prev" @onclick="ManualPrev" aria-label="@Localizer["Carousel_PrevAria"]">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -79,6 +81,17 @@
         _maxIndex = maxIndex;
         if (_currentIndex > _maxIndex)
             _currentIndex = _maxIndex;
+        StateHasChanged();
+    }
+
+    // Fired whenever the JS side's index changes for any reason — including
+    // a drag, which (unlike the old scrollLeft-based drag) has no other way
+    // to reach this component — so the dots stay in sync with wherever the
+    // track actually is, not just with button/auto-scroll-driven moves.
+    [JSInvokable]
+    public void OnCurrentIndexChanged(int index)
+    {
+        _currentIndex = index;
         StateHasChanged();
     }
 
@@ -142,7 +155,8 @@
     // in between instead of reading as a quick reset to the start.
     private async Task ScrollToCurrentAsync(bool smooth = true)
     {
-        await JS.InvokeVoidAsync("overtimeCarousel.scrollToIndex", _trackRef, _currentIndex, smooth);
+        if (_carouselHandle is not null)
+            await _carouselHandle.InvokeVoidAsync("goTo", _currentIndex, smooth);
     }
 
     private void RestartAutoScroll()
