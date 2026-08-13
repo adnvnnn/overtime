@@ -21,14 +21,14 @@
                     </div>
                 }
             </div>
-            <button type="button" class="carousel-btn carousel-prev" @onclick="PrevSlide" aria-label="@Localizer["Carousel_PrevAria"]">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <polyline points="15 18 9 12 15 6"></polyline>
-                </svg>
-            </button>
-            <button type="button" class="carousel-btn carousel-next" @onclick="NextSlide" aria-label="@Localizer["Carousel_NextAria"]">
+            <button type="button" class="carousel-btn carousel-prev" @onclick="ManualPrev" aria-label="@Localizer["Carousel_PrevAria"]">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <polyline points="9 18 15 12 9 6"></polyline>
+                </svg>
+            </button>
+            <button type="button" class="carousel-btn carousel-next" @onclick="ManualNext" aria-label="@Localizer["Carousel_NextAria"]">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="15 18 9 12 15 6"></polyline>
                 </svg>
             </button>
         </div>
@@ -37,7 +37,7 @@
             {
                 var index = i;
                 <button type="button" class="dot @(_currentIndex == index ? "active" : "")"
-                        @onclick="() => GoToSlide(index)"
+                        @onclick="() => ManualGoToSlide(index)"
                         aria-label="@Localizer["Carousel_GoToProductAria", index + 1]">
                 </button>
             }
@@ -54,6 +54,7 @@
     private IJSObjectReference? _carouselHandle;
     private CancellationTokenSource? _autoScrollCts;
     private bool _isVisible;
+    private bool _isHovering;
 
     protected override async Task OnInitializedAsync()
     {
@@ -68,8 +69,7 @@
             _dotNetRef = DotNetObjectReference.Create(this);
             _carouselHandle = await JS.InvokeAsync<IJSObjectReference>("overtimeCarousel.attach", _trackRef, _dotNetRef);
 
-            _autoScrollCts = new CancellationTokenSource();
-            _ = RunAutoScrollAsync(_autoScrollCts.Token);
+            RestartAutoScroll();
         }
     }
 
@@ -88,16 +88,46 @@
         _isVisible = isVisible;
     }
 
+    [JSInvokable]
+    public void OnHoverChanged(bool isHovering)
+    {
+        _isHovering = isHovering;
+    }
+
+    // Manual navigation restarts the auto-scroll countdown so a click doesn't
+    // get followed a moment later by an auto-advance the user didn't ask for.
+    private Task ManualNext()
+    {
+        RestartAutoScroll();
+        return NextSlide();
+    }
+
+    private Task ManualPrev()
+    {
+        RestartAutoScroll();
+        return PrevSlide();
+    }
+
+    private Task ManualGoToSlide(int index)
+    {
+        RestartAutoScroll();
+        return GoToSlide(index);
+    }
+
     private Task NextSlide()
     {
-        _currentIndex = (_currentIndex + 1) % (_maxIndex + 1);
-        return ScrollToCurrentAsync();
+        var next = (_currentIndex + 1) % (_maxIndex + 1);
+        var wrapped = next < _currentIndex;
+        _currentIndex = next;
+        return ScrollToCurrentAsync(smooth: !wrapped);
     }
 
     private Task PrevSlide()
     {
-        _currentIndex = (_currentIndex - 1 + _maxIndex + 1) % (_maxIndex + 1);
-        return ScrollToCurrentAsync();
+        var prev = (_currentIndex - 1 + _maxIndex + 1) % (_maxIndex + 1);
+        var wrapped = prev > _currentIndex;
+        _currentIndex = prev;
+        return ScrollToCurrentAsync(smooth: !wrapped);
     }
 
     private Task GoToSlide(int index)
@@ -106,9 +136,21 @@
         return ScrollToCurrentAsync();
     }
 
-    private async Task ScrollToCurrentAsync()
+    // Wrapping past the last/first slide snaps instantly instead of smooth-
+    // scrolling across the whole track — otherwise "next" from the last slide
+    // back to the first plays a long, jarring reverse traversal of every item
+    // in between instead of reading as a quick reset to the start.
+    private async Task ScrollToCurrentAsync(bool smooth = true)
     {
-        await JS.InvokeVoidAsync("overtimeCarousel.scrollToIndex", _trackRef, _currentIndex);
+        await JS.InvokeVoidAsync("overtimeCarousel.scrollToIndex", _trackRef, _currentIndex, smooth);
+    }
+
+    private void RestartAutoScroll()
+    {
+        _autoScrollCts?.Cancel();
+        _autoScrollCts?.Dispose();
+        _autoScrollCts = new CancellationTokenSource();
+        _ = RunAutoScrollAsync(_autoScrollCts.Token);
     }
 
     private async Task RunAutoScrollAsync(CancellationToken token)
@@ -118,11 +160,10 @@
             while (!token.IsCancellationRequested)
             {
                 await Task.Delay(5000, token);
-                if (!_isVisible)
+                if (!_isVisible || _isHovering)
                     continue;
-                _currentIndex = (_currentIndex + 1) % (_maxIndex + 1);
+                await NextSlide();
                 await InvokeAsync(StateHasChanged);
-                await ScrollToCurrentAsync();
             }
         }
         catch (TaskCanceledException)

@@ -348,13 +348,17 @@
     position:absolute; bottom: 18px; inset-inline: 0; z-index: 2;
     display:flex; gap:8px; justify-content:center;
   }
+  /* hero-art's background is fixed solid white regardless of theme, so its dots
+     use fixed light-mode colors too instead of following --ink/--accent — the
+     dark-mode --ink/--accent values would otherwise wash out against that
+     always-white background. */
   .hero-dots .dot{
     width: 8px; height: 8px; border-radius: 50%; border: none; padding:0;
-    background: color-mix(in srgb, var(--ink) 25%, transparent);
+    background: rgba(23, 20, 29, 0.25);
     cursor:pointer; transition: background .15s ease, transform .15s ease;
   }
-  .hero-dots .dot.active{ background: var(--accent); transform: scale(1.25); }
-  .hero-dots .dot:hover{ background: var(--accent); }
+  .hero-dots .dot.active{ background: #6c2fd6; transform: scale(1.25); }
+  .hero-dots .dot:hover{ background: #6c2fd6; }
   @media (prefers-reduced-motion: reduce){
     .hero-slide{ transition: none; }
   }
@@ -366,15 +370,29 @@
     overflow: hidden; white-space: nowrap;
   }
   .ticker .track{
-    display:inline-flex; gap: 48px; padding: 14px 0;
+    display:inline-flex; padding: 14px 0;
     animation: scroll-rtl 28s linear infinite;
     font-weight: 700; font-size: 13.5px; letter-spacing: .02em;
   }
-  .ticker .track span{ display:inline-flex; align-items:center; gap:10px; color: var(--ink-soft); }
+  /* Each span carries its own trailing spacing (instead of a `gap` on .track)
+     so the repeated span list is exactly periodic — every item, including the
+     boundary between repeats, is spaced identically. That's what makes the
+     0%→20% keyframe below land on a pixel-perfect repeat of the first copy
+     instead of snapping across a slightly different-sized gap. The Razor
+     markup repeats the item list 5x (TickerRepeatCount in Home.razor) so
+     there's always at least ~4 repeats' worth of extra content still on
+     screen while the 5th is shifted through — without that buffer, a wide
+     viewport can outrun a shorter repeat count and show a blank gap partway
+     through the loop before snapping back. Keep 20% (1/TickerRepeatCount) in
+     sync if that repeat count ever changes. */
+  .ticker .track span{
+    display:inline-flex; align-items:center; gap:10px; color: var(--ink-soft);
+    margin-inline-end: 48px;
+  }
   .ticker .track span::before{ content:"●"; color: var(--accent); font-size: 8px; }
   @keyframes scroll-rtl{
     from{ transform: translateX(0); }
-    to{ transform: translateX(50%); }
+    to{ transform: translateX(20%); }
   }
   @media (prefers-reduced-motion: reduce){
     .ticker .track{ animation: none; }
@@ -680,7 +698,6 @@
   .cart-success .ordno{ font-size:12.5px; color: var(--accent); font-weight:700; font-variant-numeric: tabular-nums; }
 
   /* ---------- Carousel ---------- */
-  .carousel-section{ }
   .carousel-container{
     position: relative; margin-bottom: 30px;
   }
@@ -689,6 +706,11 @@
     overflow-x: auto; overscroll-behavior-x: contain;
     scroll-snap-type: x mandatory; scroll-behavior: smooth;
     scrollbar-width: none; -ms-overflow-style: none;
+    /* Soft fade at both edges hints there's more to scroll instead of a hard
+       clip — fades symmetrically so it reads correctly regardless of which
+       edge is "start" under RTL. */
+    -webkit-mask-image: linear-gradient(to right, transparent, #000 32px, #000 calc(100% - 32px), transparent);
+    mask-image: linear-gradient(to right, transparent, #000 32px, #000 calc(100% - 32px), transparent);
   }
   .carousel-track::-webkit-scrollbar{ display: none; }
   .carousel-item{
@@ -700,13 +722,13 @@
     width: 44px; height: 44px; border-radius: 999px; border: 1px solid var(--line);
     background: var(--surface); color: var(--ink); cursor: pointer;
     display: flex; align-items: center; justify-content: center;
-    transition: border-color .15s ease, background .15s ease;
+    transition: border-color .15s ease, background .15s ease, transform .12s ease;
     box-shadow: var(--shadow); z-index: 10;
   }
   .carousel-btn:hover{
     border-color: var(--accent); background: var(--accent); color: var(--accent-ink);
   }
-  .carousel-btn:active{ transform: translateY(-50%) scale(0.94); }
+  .carousel-btn:active{ transform: translateY(-50%) scale(0.92); }
   .carousel-btn svg{ width: 20px; height: 20px; }
   .carousel-prev{ inset-inline-end: auto; inset-inline-start: -22px; }
   .carousel-next{ inset-inline-start: auto; inset-inline-end: -22px; }
@@ -715,10 +737,14 @@
   }
   .carousel-dots .dot{
     width: 10px; height: 10px; border-radius: 50%; border: none;
-    background: var(--line); cursor: pointer; transition: background .15s ease;
+    background: var(--line); cursor: pointer;
+    transition: background .15s ease, transform .15s ease;
   }
-  .carousel-dots .dot.active{ background: var(--accent); }
+  .carousel-dots .dot.active{ background: var(--accent); transform: scale(1.2); }
   .carousel-dots .dot:hover{ background: var(--accent); }
+  @media (prefers-reduced-motion: reduce){
+    .carousel-btn, .carousel-dots .dot{ transition: none; }
+  }
 
   /* ---------- Toast ---------- */
   .toast{
@@ -877,13 +903,12 @@
     .products{ grid-template-columns: 1fr; }
     .cats{ grid-template-columns: 1fr 1fr; }
     section{ padding: 56px 0; }
-    .hero-stats{ gap: 20px; }
+    .hero-stats, .hero-lede{ display: none; }
     .carousel-item{ flex: 0 0 calc(50% - 12px); }
   }
   @media (max-width: 480px){
     .cart-drawer{ width: 100vw; }
     .features{ grid-template-columns: 1fr; }
-    .hero-stats{ flex-wrap:wrap; row-gap: 16px; }
     .insta{ padding: 22px; }
     .insta .grid6{ grid-template-columns: repeat(2,1fr); }
     .loc-card{ padding: 24px; }
