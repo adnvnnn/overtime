@@ -1,12 +1,62 @@
 @inherits LayoutComponentBase
+@implements IDisposable
+@inject NavigationManager Nav
+@inject IStringLocalizer<AppStrings> Localizer
 
 <NavBar />
 
 <main>
-    @Body
+    @if (_isNavigating)
+    {
+        <div class="content-loader" role="status" aria-live="polite" aria-label="@Localizer["Common_Loading"]">
+            <div class="content-loader-spinner"></div>
+        </div>
+    }
+    else
+    {
+        @Body
+    }
 </main>
 
 <Footer />
 
 <CartDrawer />
 <Toast />
+
+@code {
+    // RegisterLocationChangingHandler (not the Router's <Navigating> fragment)
+    // is what actually fires uniformly here — this app's page-to-page links
+    // go through Blazor's enhanced navigation (a fetch-based full-document
+    // replace), which <Navigating> never sees since that's scoped to
+    // same-circuit client-side route changes only. LocationChanged then
+    // fires once the new page has actually taken over, which is also what
+    // clears this on a *new* MainLayout instance after an enhanced-nav swap
+    // even if this exact instance gets torn down mid-transition.
+    private bool _isNavigating;
+    private IDisposable? _locationChangingRegistration;
+
+    protected override void OnInitialized()
+    {
+        _locationChangingRegistration = Nav.RegisterLocationChangingHandler(OnLocationChanging);
+        Nav.LocationChanged += OnLocationChanged;
+    }
+
+    private ValueTask OnLocationChanging(LocationChangingContext context)
+    {
+        _isNavigating = true;
+        InvokeAsync(StateHasChanged);
+        return ValueTask.CompletedTask;
+    }
+
+    private void OnLocationChanged(object? sender, LocationChangedEventArgs e)
+    {
+        _isNavigating = false;
+        InvokeAsync(StateHasChanged);
+    }
+
+    public void Dispose()
+    {
+        _locationChangingRegistration?.Dispose();
+        Nav.LocationChanged -= OnLocationChanged;
+    }
+}
