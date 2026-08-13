@@ -63,44 +63,89 @@ window.overtimeGallery = {
   }
 };
 
-// Drives the home page product carousel. Scrolling uses scrollIntoView's
-// logical "inline" alignment instead of a transform, so it scrolls the
-// correct physical direction under both LTR and RTL without any manual sign
-// math. Since the number of items visible at once changes at each
-// responsive breakpoint, the reachable dot count is measured from the real
-// layout instead of assumed, so the dots always match how many distinct
-// positions the carousel can actually scroll to. Visibility is also
-// reported back so the Blazor side can pause auto-scroll while the
-// carousel is off-screen — scrollIntoView would otherwise yank the whole
-// page back to it every few seconds.
+// Drives the home page product carousel. Position is driven entirely by a
+// JS `transform: translateX(...)` on the track — no native scrolling at
+// all — with drag-to-index snapping based on *distance dragged* rather than
+// release velocity. This sidesteps every native-scroll quirk the previous
+// scrollLeft-based version kept running into: RTL's negative-scrollLeft
+// sign model, CSS scroll-snap fighting a JS-driven scrollLeft, and
+// background-tab timer throttling corrupting requestAnimationFrame-based
+// momentum physics. Since the number of items visible at once changes at
+// each responsive breakpoint, the reachable dot count and per-card step are
+// measured from the real layout instead of assumed. Visibility is reported
+// back so the Blazor side can pause auto-scroll while the carousel is
+// off-screen.
 window.overtimeCarousel = {
   attach: function (trackEl, dotNetRef) {
     if (!trackEl || trackEl.nodeType !== 1) return null;
 
-    function computeMaxIndex() {
+    var viewport = trackEl.parentElement; // .carousel-viewport — the overflow:hidden clipping box
+    var container = viewport ? viewport.parentElement : null; // .carousel-container — also hosts the arrows
+
+    // translateX's sign convention flips under RTL: index 0 sits at the
+    // *right* edge (content reads right-to-left), so moving to a later
+    // index has to translate the track rightward (positive) — the opposite
+    // of LTR's leftward (negative). Every index<->pixel conversion below
+    // goes through this one sign instead of special-casing RTL at each site.
+    var translateSign = getComputedStyle(trackEl).direction === "rtl" ? 1 : -1;
+
+    var step = 0, maxIndex = 0, currentIndex = 0;
+
+    function measure() {
       var items = trackEl.children;
-      if (items.length < 2) return 0;
-      var r0 = items[0].getBoundingClientRect();
-      var r1 = items[1].getBoundingClientRect();
-      var step = Math.abs(r1.left - r0.left);
-      if (step <= 0) return items.length - 1;
-      // step is item-width + gap, but the *last* visible item doesn't need a
-      // trailing gap — dividing the raw track width by step alone always
-      // undercounts by one item (e.g. 4 items fit exactly, but the division
-      // comes out just under 4 and floors to 3), which is what was inflating
-      // the dot count by one on every breakpoint. Adding one gap's worth back
-      // to the numerator corrects for that missing trailing gap.
-      var gap = Math.max(0, step - r0.width);
-      var visibleCount = Math.max(1, Math.floor((trackEl.clientWidth + gap) / step));
-      return Math.max(0, items.length - visibleCount);
+      if (items.length < 2) {
+        step = items.length ? items[0].getBoundingClientRect().width : 0;
+        maxIndex = 0;
+      } else {
+        var r0 = items[0].getBoundingClientRect();
+        var r1 = items[1].getBoundingClientRect();
+        step = Math.abs(r1.left - r0.left);
+        if (step <= 0) {
+          maxIndex = items.length - 1;
+        } else {
+          // step is item-width + gap, but the *last* visible item doesn't
+          // need a trailing gap — dividing the raw viewport width by step
+          // alone always undercounts by one item (e.g. 4 items fit exactly,
+          // but the division comes out just under 4 and floors to 3), which
+          // is what was inflating the dot count by one on every breakpoint.
+          // Adding one gap's worth back to the numerator corrects for that
+          // missing trailing gap.
+          var gap = Math.max(0, step - r0.width);
+          var viewportWidth = viewport ? viewport.clientWidth : trackEl.clientWidth;
+          var visibleCount = Math.max(1, Math.floor((viewportWidth + gap) / step));
+          maxIndex = Math.max(0, items.length - visibleCount);
+        }
+      }
+      if (currentIndex > maxIndex) currentIndex = maxIndex;
+    }
+
+    function translateFor(index) {
+      return translateSign * index * step;
+    }
+
+    function applyTransform(animate) {
+      trackEl.classList.toggle("snap", animate);
+      trackEl.style.transform = "translateX(" + translateFor(currentIndex) + "px)";
     }
 
     function reportMaxIndex() {
-      dotNetRef.invokeMethodAsync("OnMaxIndexChanged", computeMaxIndex());
+      dotNetRef.invokeMethodAsync("OnMaxIndexChanged", maxIndex);
+    }
+    function reportCurrentIndex() {
+      dotNetRef.invokeMethodAsync("OnCurrentIndexChanged", currentIndex);
     }
 
+    measure();
     reportMaxIndex();
-    var resizeObserver = new ResizeObserver(reportMaxIndex);
+    applyTransform(false);
+
+    var resizeObserver = new ResizeObserver(function () {
+      var before = currentIndex;
+      measure();
+      applyTransform(false);
+      reportMaxIndex();
+      if (currentIndex !== before) reportCurrentIndex();
+    });
     resizeObserver.observe(trackEl);
 
     var intersectionObserver = new IntersectionObserver(function (entries) {
@@ -109,9 +154,8 @@ window.overtimeCarousel = {
     intersectionObserver.observe(trackEl);
 
     // Pause auto-scroll while the pointer is over the carousel (buttons and
-    // dots included, since they're siblings of the track under this same
+    // dots included, since they're siblings of the viewport under this same
     // container) so it doesn't yank a slide away mid-read or mid-hover.
-    var container = trackEl.parentElement;
     var onEnter = function () { dotNetRef.invokeMethodAsync("OnHoverChanged", true); };
     var onLeave = function () { dotNetRef.invokeMethodAsync("OnHoverChanged", false); };
     if (container) {
@@ -119,43 +163,86 @@ window.overtimeCarousel = {
       container.addEventListener("mouseleave", onLeave);
     }
 
-    // Native overflow-x:auto only accepts touch/scrollbar drag out of the
-    // box — mouse users have no way to drag the track since the scrollbar is
-    // hidden (scrollbar-width:none). This adds click-and-drag scrolling for
-    // the mouse specifically; touch keeps using its native scroll.
-    //
-    // Two non-obvious things had to line up for this to actually move the
-    // track: (1) with scroll-snap-type:x mandatory active, this browser
-    // rejects direct `el.scrollLeft = x` assignments outright (silently
-    // clamps back to wherever it already was) — only recognized scroll APIs
-    // like scrollTo/scrollBy honor snap-affected containers mid-drag, so
-    // snap is disabled via the .dragging class (CSS) as belt-and-suspenders
-    // and scrollTo is used instead of a property set. (2) modern browsers
-    // use the negative scrollLeft model for RTL overflow (0 = start/
-    // rightmost, down to -(scrollWidth-clientWidth) = end), so the delta is
-    // added rather than subtracted — the usual LTR drag formula scrolls
-    // backwards here.
-    var isDown = false, dragged = false, startX = 0, scrollStart = 0;
-    function onMouseDown(e) {
-      isDown = true; dragged = false;
-      startX = e.pageX;
-      scrollStart = trackEl.scrollLeft;
-      trackEl.classList.add("dragging");
+    // Moves to the given index (clamped), animating unless told not to —
+    // used both by the drag-release snap below and by button/dot/auto-scroll
+    // navigation from the Blazor side (see the returned goTo()).
+    function goToIndex(index, animate) {
+      index = Math.max(0, Math.min(maxIndex, index));
+      var changed = index !== currentIndex;
+      currentIndex = index;
+      applyTransform(animate !== false);
+      if (changed) reportCurrentIndex();
     }
-    function onMouseMove(e) {
-      if (!isDown) return;
-      var dx = e.pageX - startX;
-      if (Math.abs(dx) > 3) dragged = true;
-      trackEl.scrollTo({ left: scrollStart + dx, behavior: "instant" });
+
+    // Uses the Pointer Events API with setPointerCapture (plus a
+    // window-level fallback below in case capture doesn't retarget the
+    // release back to the track) rather than mousedown/window-mousemove/
+    // window-mouseup — the older pattern gets permanently stuck mid-drag if
+    // the pointer leaves the browser window before it's released.
+    //
+    // Unlike a native scroll container, nothing here scrolls natively for
+    // touch either — touch-action:pan-y (CSS) hands horizontal gestures to
+    // this same code instead of the browser, so touch goes through the exact
+    // same path as mouse/pen instead of a separate native fallback.
+    var activePointerId = null, dragged = false, startX = 0, startTranslate = 0, liveTranslate = 0;
+    var DRAG_THRESHOLD = 0.18; // fraction of one card's width that counts as "committed to moving"
+
+    function onPointerDown(e) {
+      activePointerId = e.pointerId;
+      dragged = false;
+      startX = e.clientX;
+      startTranslate = translateFor(currentIndex);
+      liveTranslate = startTranslate;
+      trackEl.classList.add("dragging");
+      try {
+        trackEl.setPointerCapture(e.pointerId);
+      } catch (err) { /* capture unsupported/rejected — window-level fallback below still resolves the drag */ }
+      // Belt-and-suspenders alongside .carousel-track's CSS user-select:none —
+      // stops the browser starting a text/image selection right from the
+      // gesture that kicks off the drag.
       e.preventDefault();
     }
-    function onMouseUp() {
-      if (!isDown) return;
-      isDown = false;
+    function onPointerMove(e) {
+      if (e.pointerId !== activePointerId) return;
+      var delta = e.clientX - startX;
+      if (Math.abs(delta) > 4) dragged = true;
+
+      // Content follows the cursor 1:1 — this is a direct transform, not a
+      // native scroll fighting for control, so unlike the old scrollLeft
+      // approach there's no need for an amplified drag multiplier to feel
+      // responsive.
+      var next = startTranslate + delta;
+      var lo = Math.min(0, translateFor(maxIndex));
+      var hi = Math.max(0, translateFor(maxIndex));
+      liveTranslate = Math.max(lo, Math.min(hi, next));
+      trackEl.classList.remove("snap");
+      trackEl.style.transform = "translateX(" + liveTranslate + "px)";
+      e.preventDefault();
+    }
+    function onPointerEnd(e) {
+      if (e.pointerId !== activePointerId) return;
+      activePointerId = null;
+      try {
+        if (trackEl.hasPointerCapture(e.pointerId)) trackEl.releasePointerCapture(e.pointerId);
+      } catch (err) { /* already released/invalid — nothing to clean up */ }
       trackEl.classList.remove("dragging");
+
+      if (!dragged || step <= 0) {
+        applyTransform(true);
+        return;
+      }
+      // How far past the threshold decides how many cards to move, not just
+      // whether to move one — a fast, long drag can skip past several cards
+      // in one release, matching how far it was actually dragged rather than
+      // simulating a coast afterward.
+      var indexDelta = (liveTranslate - startTranslate) / (translateSign * step);
+      var indexChange = Math.abs(indexDelta) > DRAG_THRESHOLD
+        ? Math.sign(indexDelta) * Math.ceil(Math.abs(indexDelta))
+        : 0;
+      goToIndex(currentIndex + indexChange, true);
     }
     // Dragging shouldn't also fire the click on whatever card was under the
-    // cursor when the mouse came back up.
+    // cursor when the pointer came back up.
     function onClickCapture(e) {
       if (dragged) {
         e.preventDefault();
@@ -163,31 +250,54 @@ window.overtimeCarousel = {
         dragged = false;
       }
     }
-    trackEl.addEventListener("mousedown", onMouseDown);
-    window.addEventListener("mousemove", onMouseMove);
-    window.addEventListener("mouseup", onMouseUp);
+    // The cards contain <a> links and <img>s, which the browser will happily
+    // pick up as its own native drag operation (ghost thumbnail following
+    // the cursor) the moment the pointer moves past their built-in drag
+    // threshold — racing our drag above and making it look broken.
+    // Suppressing dragstart kills the native drag entirely; plain clicks
+    // never fire dragstart, so links stay clickable.
+    function onDragStart(e) {
+      e.preventDefault();
+    }
+
+    trackEl.addEventListener("pointerdown", onPointerDown);
+    trackEl.addEventListener("pointermove", onPointerMove);
+    trackEl.addEventListener("pointerup", onPointerEnd);
+    trackEl.addEventListener("pointercancel", onPointerEnd);
     trackEl.addEventListener("click", onClickCapture, true);
+    trackEl.addEventListener("dragstart", onDragStart);
+    // Belt-and-suspenders for setPointerCapture: onPointerEnd checks the
+    // pointerId and is a no-op once the drag already resolved via trackEl's
+    // own listener, so this only ever does anything in the rare case
+    // capture didn't retarget the release back to the track — the exact
+    // scenario that leaves a drag permanently "stuck" (dragging class/cursor
+    // pinned) if nothing else catches it.
+    window.addEventListener("pointerup", onPointerEnd);
+    window.addEventListener("pointercancel", onPointerEnd);
 
     return {
+      // Called from the Blazor side (buttons, dots, auto-scroll) via the
+      // IJSObjectReference this attach() call returns.
+      goTo: function (index, smooth) {
+        if (activePointerId !== null) return; // a live drag owns the track — don't fight it
+        goToIndex(index, smooth !== false);
+      },
       dispose: function () {
         resizeObserver.disconnect();
         intersectionObserver.disconnect();
-        trackEl.removeEventListener("mousedown", onMouseDown);
-        window.removeEventListener("mousemove", onMouseMove);
-        window.removeEventListener("mouseup", onMouseUp);
+        trackEl.removeEventListener("pointerdown", onPointerDown);
+        trackEl.removeEventListener("pointermove", onPointerMove);
+        trackEl.removeEventListener("pointerup", onPointerEnd);
+        trackEl.removeEventListener("pointercancel", onPointerEnd);
         trackEl.removeEventListener("click", onClickCapture, true);
+        trackEl.removeEventListener("dragstart", onDragStart);
+        window.removeEventListener("pointerup", onPointerEnd);
+        window.removeEventListener("pointercancel", onPointerEnd);
         if (container) {
           container.removeEventListener("mouseenter", onEnter);
           container.removeEventListener("mouseleave", onLeave);
         }
       }
     };
-  },
-  scrollToIndex: function (trackEl, index, smooth) {
-    if (!trackEl) return;
-    var item = trackEl.children[index];
-    // "auto" would still honor .carousel-track's CSS scroll-behavior:smooth —
-    // "instant" is the one value that actually bypasses it for the wrap-reset case.
-    if (item) item.scrollIntoView({ behavior: smooth === false ? "instant" : "smooth", inline: "start", block: "nearest" });
   }
 };
