@@ -706,13 +706,10 @@
     overflow-x: auto; overscroll-behavior-x: contain;
     scroll-snap-type: x mandatory; scroll-behavior: smooth;
     scrollbar-width: none; -ms-overflow-style: none;
-    /* Soft fade at both edges hints there's more to scroll instead of a hard
-       clip — fades symmetrically so it reads correctly regardless of which
-       edge is "start" under RTL. */
-    -webkit-mask-image: linear-gradient(to right, transparent, #000 32px, #000 calc(100% - 32px), transparent);
-    mask-image: linear-gradient(to right, transparent, #000 32px, #000 calc(100% - 32px), transparent);
+    cursor: grab;
   }
   .carousel-track::-webkit-scrollbar{ display: none; }
+  .carousel-track.dragging{ cursor: grabbing; scroll-snap-type: none; }
   .carousel-item{
     flex: 0 0 calc(25% - 18px); min-width: 0;
     scroll-snap-align: start;
