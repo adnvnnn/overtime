@@ -84,7 +84,14 @@ window.overtimeCarousel = {
       var r1 = items[1].getBoundingClientRect();
       var step = Math.abs(r1.left - r0.left);
       if (step <= 0) return items.length - 1;
-      var visibleCount = Math.max(1, Math.floor(trackEl.clientWidth / step));
+      // step is item-width + gap, but the *last* visible item doesn't need a
+      // trailing gap — dividing the raw track width by step alone always
+      // undercounts by one item (e.g. 4 items fit exactly, but the division
+      // comes out just under 4 and floors to 3), which is what was inflating
+      // the dot count by one on every breakpoint. Adding one gap's worth back
+      // to the numerator corrects for that missing trailing gap.
+      var gap = Math.max(0, step - r0.width);
+      var visibleCount = Math.max(1, Math.floor((trackEl.clientWidth + gap) / step));
       return Math.max(0, items.length - visibleCount);
     }
 
@@ -112,10 +119,63 @@ window.overtimeCarousel = {
       container.addEventListener("mouseleave", onLeave);
     }
 
+    // Native overflow-x:auto only accepts touch/scrollbar drag out of the
+    // box — mouse users have no way to drag the track since the scrollbar is
+    // hidden (scrollbar-width:none). This adds click-and-drag scrolling for
+    // the mouse specifically; touch keeps using its native scroll.
+    //
+    // Two non-obvious things had to line up for this to actually move the
+    // track: (1) with scroll-snap-type:x mandatory active, this browser
+    // rejects direct `el.scrollLeft = x` assignments outright (silently
+    // clamps back to wherever it already was) — only recognized scroll APIs
+    // like scrollTo/scrollBy honor snap-affected containers mid-drag, so
+    // snap is disabled via the .dragging class (CSS) as belt-and-suspenders
+    // and scrollTo is used instead of a property set. (2) modern browsers
+    // use the negative scrollLeft model for RTL overflow (0 = start/
+    // rightmost, down to -(scrollWidth-clientWidth) = end), so the delta is
+    // added rather than subtracted — the usual LTR drag formula scrolls
+    // backwards here.
+    var isDown = false, dragged = false, startX = 0, scrollStart = 0;
+    function onMouseDown(e) {
+      isDown = true; dragged = false;
+      startX = e.pageX;
+      scrollStart = trackEl.scrollLeft;
+      trackEl.classList.add("dragging");
+    }
+    function onMouseMove(e) {
+      if (!isDown) return;
+      var dx = e.pageX - startX;
+      if (Math.abs(dx) > 3) dragged = true;
+      trackEl.scrollTo({ left: scrollStart + dx, behavior: "instant" });
+      e.preventDefault();
+    }
+    function onMouseUp() {
+      if (!isDown) return;
+      isDown = false;
+      trackEl.classList.remove("dragging");
+    }
+    // Dragging shouldn't also fire the click on whatever card was under the
+    // cursor when the mouse came back up.
+    function onClickCapture(e) {
+      if (dragged) {
+        e.preventDefault();
+        e.stopPropagation();
+        dragged = false;
+      }
+    }
+    trackEl.addEventListener("mousedown", onMouseDown);
+    window.addEventListener("mousemove", onMouseMove);
+    window.addEventListener("mouseup", onMouseUp);
+    trackEl.addEventListener("click", onClickCapture, true);
+
     return {
       dispose: function () {
         resizeObserver.disconnect();
         intersectionObserver.disconnect();
+        trackEl.removeEventListener("mousedown", onMouseDown);
+        window.removeEventListener("mousemove", onMouseMove);
+        window.removeEventListener("mouseup", onMouseUp);
+        trackEl.removeEventListener("click", onClickCapture, true);
         if (container) {
           container.removeEventListener("mouseenter", onEnter);
           container.removeEventListener("mouseleave", onLeave);
