@@ -54,6 +54,12 @@ public class ProductService(IDbContextFactory<AppDbContext> dbFactory)
         return await db.Products.CountAsync();
     }
 
+    public async Task<int> CountInStockAsync()
+    {
+        await using var db = await dbFactory.CreateDbContextAsync();
+        return await db.Products.CountAsync(p => p.Sizes.Any(s => s.StockQty > 0));
+    }
+
     public async Task<(long Min, long Max)> GetPriceBoundsAsync()
     {
         await using var db = await dbFactory.CreateDbContextAsync();
