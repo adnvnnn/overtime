@@ -1,4 +1,4 @@
-# Overtime (اورتایم)
+# Overtime
 
 An RTL Persian sneaker e-commerce demo built with ASP.NET Core Blazor Server on .NET 10.
 
