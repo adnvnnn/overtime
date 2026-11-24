@@ -7,7 +7,7 @@ using Overtime.Web.Resources;
 
 namespace Overtime.Web.Services;
 
-public partial class OtpService(IDbContextFactory<AppDbContext> dbFactory, ILogger<OtpService> logger, IStringLocalizer<AppStrings> localizer)
+public partial class OtpService(IDbContextFactory<AppDbContext> dbFactory, IStringLocalizer<AppStrings> localizer)
 {
     private static readonly TimeSpan CodeLifetime = TimeSpan.FromMinutes(2);
     private static readonly TimeSpan ResendCooldown = TimeSpan.FromSeconds(60);
@@ -47,9 +47,6 @@ public partial class OtpService(IDbContextFactory<AppDbContext> dbFactory, ILogg
             ExpiresAt = DateTime.UtcNow.Add(CodeLifetime),
         });
         await db.SaveChangesAsync();
-
-        // No SMS gateway is wired up yet, so the code is only logged for now.
-        logger.LogInformation("OTP code for {Phone}: {Code}", phone, code);
 
         return (true, null, code);
     }

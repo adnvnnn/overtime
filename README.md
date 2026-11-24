@@ -15,7 +15,7 @@ Both applications use the same SQL Server database.
 - .NET 10 SDK
 - SQL Server
 
-The default connection string uses `Server=.;Database=Overtime;Trusted_Connection=True;TrustServerCertificate=True`. Override `ConnectionStrings__Default` for another environment.
+The base connection string targets local SQL Server and validates its TLS certificate. The Development configuration allows a locally trusted/self-signed SQL Server certificate; do not use that development setting in production. Set `ConnectionStrings__Default` to a production connection whose server certificate is valid.
 
 ## Run locally
 
@@ -28,7 +28,7 @@ dotnet run --project src/Overtime.Admin
 Storefront: `http://localhost:5036`  
 Admin: `http://localhost:5160`
 
-EF Core migrations are applied automatically when either application starts.
+EF Core migrations are applied automatically when either application starts. Demo customers and orders are seeded only when `DemoData:Enabled` is true; this is enabled in the Development settings and disabled by default elsewhere.
 
 ## Admin bootstrap
 
@@ -45,6 +45,6 @@ For deployment, set the same value as the `Admin__Password` environment variable
 
 ## Demo limitations
 
-- Customer OTP codes are written to application logs in development; no SMS gateway is configured.
+- No SMS gateway is configured, so customer OTP codes are only shown in the development login flow. Codes are not written to logs.
 - The payment gateway is scaffolded only and is not registered in the checkout pipeline.
 - SQL Server connection and configuration values must be supplied by the deployment environment.
