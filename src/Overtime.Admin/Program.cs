@@ -47,7 +47,8 @@ using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<IDbContextFactory<AppDbContext>>().CreateDbContext();
     db.Database.Migrate();
-    await DemoDataSeeder.SeedIfEmptyAsync(db);
+    if (builder.Configuration.GetValue<bool>("DemoData:Enabled"))
+        await DemoDataSeeder.SeedIfEmptyAsync(db);
     await AdminBootstrapper.SeedIfEmptyAsync(db, app.Configuration);
 }
 
