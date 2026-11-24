@@ -4,3 +4,9 @@ obj/
 *.db-shm
 *.db-wal
 .vs/
+*.user
+*.slnLaunch.user
+*.log
+.env
+.env.*
+!.env.example
