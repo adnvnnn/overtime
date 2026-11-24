@@ -1,0 +1,17 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "overtime-web",
+      "runtimeExecutable": "dotnet",
+      "runtimeArgs": ["run", "--project", "src/Overtime.Web/Overtime.Web.csproj", "--urls", "http://localhost:5036"],
+      "port": 5036
+    },
+    {
+      "name": "overtime-admin",
+      "runtimeExecutable": "dotnet",
+      "runtimeArgs": ["run", "--project", "src/Overtime.Admin/Overtime.Admin.csproj", "--urls", "http://localhost:5160"],
+      "port": 5160
+    }
+  ]
+}
